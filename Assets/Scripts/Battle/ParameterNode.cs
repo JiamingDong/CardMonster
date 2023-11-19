@@ -9,6 +9,11 @@ using UnityEngine;
 public class ParameterNode
 {
     /// <summary>
+    /// 创建者
+    /// </summary>
+    public object creator = new();
+
+    /// <summary>
     /// 时机
     /// </summary>
     public string opportunity;
@@ -17,11 +22,6 @@ public class ParameterNode
     /// 参数
     /// </summary>
     public Dictionary<string, object> parameter = new();
-
-    /// <summary>
-    /// 创建者
-    /// </summary>
-    public object creator = new();
 
     public override string ToString()
     {

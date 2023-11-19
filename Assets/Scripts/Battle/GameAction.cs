@@ -99,11 +99,10 @@ public class GameAction : MonoBehaviour
 
                 parameter.Add("RelevantGameObject", cardInBattle);
 
-                break;
+                yield return null;
             }
         }
 
-        yield return null;
     }
 
     /// <summary>
