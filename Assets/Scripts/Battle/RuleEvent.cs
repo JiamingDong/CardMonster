@@ -470,8 +470,7 @@ public class RuleEvent : OpportunityEffect
 
             yield return StartCoroutine(gameAction.DoAction(gameAction.MonsterEnterBattle, monsterParameter));
 
-
-            parameterNode1.parameter("MonsterBeGenerated", monsterParameter);
+            parameterNode1.parameter.Add("MonsterBeGenerated", monsterParameter["MonsterBeGenerated"]);
         }
 
         GameObject targetMonster = useCardPlayerData.monsterGameObjectArray[battlePanelNumber];

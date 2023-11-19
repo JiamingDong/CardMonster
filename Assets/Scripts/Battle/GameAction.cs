@@ -97,7 +97,7 @@ public class GameAction : MonoBehaviour
 
                 playerData.monsterGameObjectArray[battlePanelNumber] = cardInBattle;
 
-                parameter.Add("RelevantGameObject", cardInBattle);
+                parameter.Add("MonsterBeGenerated", cardInBattle);
 
                 yield return null;
             }
