@@ -1,0 +1,21 @@
+ManifestFileVersion: 0
+CRC: 3517308614
+AssetBundleManifest:
+  AssetBundleInfos:
+    Info_0:
+      Name: prefab
+      Dependencies:
+        Dependency_0: card
+        Dependency_1: ui
+    Info_1:
+      Name: card
+      Dependencies: {}
+    Info_2:
+      Name: ui
+      Dependencies: {}
+    Info_3:
+      Name: hero
+      Dependencies: {}
+    Info_4:
+      Name: background
+      Dependencies: {}

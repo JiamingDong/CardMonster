@@ -1,0 +1,26 @@
+ManifestFileVersion: 0
+CRC: 3732231217
+Hashes:
+  AssetFileHash:
+    serializedVersion: 2
+    Hash: b140f67b0135b4ed1756b5f1798e1c58
+  TypeTreeHash:
+    serializedVersion: 2
+    Hash: 2d8df09e698f722ada1caa03d3413830
+  IncrementalBuildHash:
+    serializedVersion: 2
+    Hash: b140f67b0135b4ed1756b5f1798e1c58
+HashAppended: 0
+ClassTypes:
+- Class: 28
+  Script: {instanceID: 0}
+- Class: 213
+  Script: {instanceID: 0}
+SerializeReferenceClassIdentifiers: []
+Assets:
+- Assets/Image/Background/CollectionAndDeckBackground.png
+- Assets/Image/Background/BattleBackground.png
+- Assets/Image/Background/Test.png
+- Assets/Image/Background/LoginBackground.png
+- Assets/Image/Background/MainBackground.png
+Dependencies: []

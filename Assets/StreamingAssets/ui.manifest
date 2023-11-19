@@ -1,0 +1,126 @@
+ManifestFileVersion: 0
+CRC: 94337679
+Hashes:
+  AssetFileHash:
+    serializedVersion: 2
+    Hash: 129d7b3db08311c96bfaff653d5a86df
+  TypeTreeHash:
+    serializedVersion: 2
+    Hash: 2d8df09e698f722ada1caa03d3413830
+  IncrementalBuildHash:
+    serializedVersion: 2
+    Hash: 129d7b3db08311c96bfaff653d5a86df
+HashAppended: 0
+ClassTypes:
+- Class: 28
+  Script: {instanceID: 0}
+- Class: 213
+  Script: {instanceID: 0}
+SerializeReferenceClassIdentifiers: []
+Assets:
+- Assets/Image/UI/InputFieldBackground.png
+- Assets/Image/UI/BattleFieldEffects/ban_5.png
+- Assets/Image/UI/Button/DeckNotInMonster.png
+- Assets/Image/UI/Button/DeckInMonster.png
+- Assets/Image/UI/BattleFieldEffects/handcard_light_00022.png
+- Assets/Image/UI/BattleFieldEffects/handcard_light_00023.png
+- Assets/Image/UI/BattleFieldEffects/win_7.png
+- Assets/Image/UI/BattleFieldEffects/handcard_light_00021.png
+- Assets/Image/UI/BattleFieldEffects/gold_coin_sui_4.png
+- Assets/Image/UI/BattleFieldEffects/handcard_light_00032.png
+- Assets/Image/UI/BattleFieldEffects/win_4.png
+- Assets/Image/UI/BattleFieldEffects/handcard_light_00038.png
+- Assets/Image/UI/Battle/EnemyCrystalBoard.png
+- Assets/Image/UI/BattleFieldEffects/ban_3.png
+- Assets/Image/UI/Button/CollectionAndDeck.png
+- Assets/Image/UI/BattleFieldEffects/gold_coin_sui_7.png
+- Assets/Image/UI/BattleFieldEffects/handcard_light_00029.png
+- Assets/Image/UI/Button/CollectionTransformButton.png
+- Assets/Image/UI/Button/CardDeckBackground.png
+- Assets/Image/UI/BattleFieldEffects/handcard_light_00033.png
+- Assets/Image/UI/BattleFieldEffects/light_coin_2.png
+- Assets/Image/UI/BattleFieldEffects/handcard_light_00030.png
+- Assets/Image/UI/BattleFieldEffects/handcard_light_00034.png
+- Assets/Image/UI/BattleFieldEffects/handcard_light_00037.png
+- Assets/Image/UI/BattleFieldEffects/gold_coin_01.png
+- Assets/Image/UI/BattleFieldEffects/handcard_light_00039.png
+- Assets/Image/UI/BattleFieldEffects/gold_icon_hand_3.png
+- Assets/Image/UI/BattleFieldEffects/haul_down_3.png
+- Assets/Image/UI/Battle/AllyStartBattleButton.png
+- Assets/Image/UI/BattleFieldEffects/gold_coin_sui_6.png
+- Assets/Image/UI/BattleFieldEffects/ban_2.png
+- Assets/Image/UI/Button/Option.png
+- Assets/Image/UI/Button/OrangeButton.png
+- Assets/Image/UI/BattleFieldEffects/handcard_light_00024.png
+- Assets/Image/UI/Button/BlueButton.png
+- Assets/Image/UI/BattleFieldEffects/gold_coin_03.png
+- Assets/Image/UI/BattleFieldEffects/handcard_light_00035.png
+- Assets/Image/UI/BattleFieldEffects/ban_1.png
+- Assets/Image/UI/Button/GreenButton.png
+- Assets/Image/UI/BattleFieldEffects/light_pro_3.png
+- Assets/Image/UI/BattleFieldEffects/handcard_light_00028.png
+- Assets/Image/UI/Button/ItemBackground.png
+- Assets/Image/UI/BattleFieldEffects/light_pro_3_1.png
+- Assets/Image/UI/Button/BackImage.png
+- Assets/Image/UI/BattleFieldEffects/gold_coin_sui_5.png
+- Assets/Image/UI/BattleFieldEffects/lose_5.png
+- Assets/Image/UI/BattleFieldEffects/win_3.png
+- Assets/Image/UI/Battle/AddCrystalAmount.png
+- Assets/Image/UI/BattleFieldEffects/shou_yingzi_2.png
+- Assets/Image/UI/BattleFieldEffects/win_1.png
+- Assets/Image/UI/Button/RedButton.png
+- Assets/Image/UI/BattleFieldEffects/handcard_light_00036.png
+- Assets/Image/UI/Battle/ItemIcon.png
+- Assets/Image/UI/Battle/EnemyStartBattleButton.png
+- Assets/Image/UI/BattleFieldEffects/win_6.png
+- Assets/Image/UI/BattleFieldEffects/gold_icon_hand_1.png
+- Assets/Image/UI/BattleFieldEffects/ban_4.png
+- Assets/Image/UI/Button/DeckInItem.png
+- Assets/Image/UI/BattleFieldEffects/gold_icon_hand_5.png
+- Assets/Image/UI/BattleFieldEffects/haul_down_4.png
+- Assets/Image/UI/Battle/MonsterIcon.png
+- Assets/Image/UI/Battle/SacrificeDisableButton.png
+- Assets/Image/UI/CheckBoxChecked.png
+- Assets/Image/UI/BattleFieldEffects/handcard_light_00031.png
+- Assets/Image/UI/BattleFieldEffects/gold_coin_sui_2.png
+- Assets/Image/UI/BattleFieldEffects/lose_4.png
+- Assets/Image/UI/Battle/AllyCrystalBoard.png
+- Assets/Image/UI/BattleFieldEffects/ban_6.png
+- Assets/Image/UI/BattleFieldEffects/gold_coin_04.png
+- Assets/Image/UI/BattleFieldEffects/lose_7.png
+- Assets/Image/UI/Button/DeckNotInItem.png
+- Assets/Image/UI/BattleFieldEffects/gold_icon_hand_4.png
+- Assets/Image/UI/BattleFieldEffects/gold_icon_hand_2.png
+- Assets/Image/UI/BattleFieldEffects/win_5.png
+- Assets/Image/UI/BackgroundPlate.png
+- Assets/Image/UI/CheckBoxBackground.png
+- Assets/Image/UI/BattleFieldEffects/gold_coin_sui_3.png
+- Assets/Image/UI/BattleFieldEffects/lose_2.png
+- Assets/Image/UI/Rope.png
+- Assets/Image/UI/BattleFieldEffects/handcard_light_00025.png
+- Assets/Image/UI/BattleFieldEffects/handcard_light_00026.png
+- Assets/Image/UI/BattleFieldEffects/win_3_1.png
+- Assets/Image/UI/BattleFieldEffects/gold_coin_02.png
+- Assets/Image/UI/BattleFieldEffects/gold_coin_sui_1.png
+- Assets/Image/UI/BattleFieldEffects/card_flash.png
+- Assets/Image/UI/BattleFieldEffects/haul_down_5.png
+- Assets/Image/UI/ItemBackground.png
+- Assets/Image/UI/BattleFieldEffects/lose_1.png
+- Assets/Image/UI/Battle/AllyCardAmountBackground.png
+- Assets/Image/UI/BattleFieldEffects/lose_3.png
+- Assets/Image/UI/BattleFieldEffects/lose_6.png
+- Assets/Image/UI/BattleFieldEffects/haul_down_2.png
+- Assets/Image/UI/BattleFieldEffects/handcard_light_00027.png
+- Assets/Image/UI/Battle/AllyStartBattleButtonClick.png
+- Assets/Image/UI/BattleFieldEffects/gold_icon_hand_6.png
+- Assets/Image/UI/BattleFieldEffects/win_2.png
+- Assets/Image/UI/BattleFieldEffects/open_light.png
+- Assets/Image/UI/BattleFieldEffects/haul_down_1.png
+- Assets/Image/UI/BattleFieldEffects/shou_yingzi_1.png
+- Assets/Image/UI/BattleFieldEffects/quan_light.png
+- Assets/Image/UI/BattleFieldEffects/lose_8.png
+- Assets/Image/UI/BattleFieldEffects/lose_9.png
+- Assets/Image/UI/BattleFieldEffects/light_coin_1.png
+- Assets/Image/UI/BattleFieldEffects/gold_coin_bak.png
+- Assets/Image/UI/Battle/SacrificeEnableButton.png
+Dependencies: []

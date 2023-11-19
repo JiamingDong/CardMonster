@@ -1,0 +1,70 @@
+ManifestFileVersion: 0
+CRC: 2432781568
+Hashes:
+  AssetFileHash:
+    serializedVersion: 2
+    Hash: 18f2b582a7180ded8bf124cc40574594
+  TypeTreeHash:
+    serializedVersion: 2
+    Hash: 2d8df09e698f722ada1caa03d3413830
+  IncrementalBuildHash:
+    serializedVersion: 2
+    Hash: 18f2b582a7180ded8bf124cc40574594
+HashAppended: 0
+ClassTypes:
+- Class: 28
+  Script: {instanceID: 0}
+- Class: 213
+  Script: {instanceID: 0}
+SerializeReferenceClassIdentifiers: []
+Assets:
+- Assets/Image/Hero/heroface_9.png
+- Assets/Image/Hero/hero_7.png
+- Assets/Image/Hero/hero_22.png
+- Assets/Image/Hero/heroface_10.png
+- Assets/Image/Hero/heroface_4.png
+- Assets/Image/Hero/heroface_16.png
+- Assets/Image/Hero/heroface_7.png
+- Assets/Image/Hero/hero_23.png
+- Assets/Image/Hero/hero_1.png
+- Assets/Image/Hero/hero_6.png
+- Assets/Image/Hero/heroface_8.png
+- Assets/Image/Hero/hero_9.png
+- Assets/Image/Hero/heroface_22.png
+- Assets/Image/Hero/heroface_6.png
+- Assets/Image/Hero/heroface_13.png
+- Assets/Image/Hero/hero_17.png
+- Assets/Image/Hero/hero_3.png
+- Assets/Image/Hero/hero_11.png
+- Assets/Image/Hero/hero_15.png
+- Assets/Image/Hero/hero_21.png
+- Assets/Image/Hero/heroface_2.png
+- Assets/Image/Hero/heroface_5.png
+- Assets/Image/Hero/heroface_12.png
+- Assets/Image/Hero/heroface_20.png
+- Assets/Image/Hero/heroface_3.png
+- Assets/Image/Hero/heroface_21.png
+- Assets/Image/Hero/hero_14.png
+- Assets/Image/Hero/heroface_18.png
+- Assets/Image/Hero/heroface_19.png
+- Assets/Image/Hero/hero_18.bmp
+- Assets/Image/Hero/hero_5.png
+- Assets/Image/Hero/heroface_23.png
+- Assets/Image/Hero/hero_20.png
+- Assets/Image/Hero/heroface_11.png
+- Assets/Image/Hero/hero_12.png
+- Assets/Image/Hero/hero_2.png
+- Assets/Image/Hero/hero_16.png
+- Assets/Image/Hero/hero_24.png
+- Assets/Image/Hero/hero_4.png
+- Assets/Image/Hero/hero_10.png
+- Assets/Image/Hero/heroface_14.png
+- Assets/Image/Hero/hero_8.png
+- Assets/Image/Hero/heroface_15.png
+- Assets/Image/Hero/heroface_17.png
+- Assets/Image/Hero/heroface_24.png
+- Assets/Image/Hero/heroface_none.png
+- Assets/Image/Hero/heroface_1.png
+- Assets/Image/Hero/hero_13.png
+- Assets/Image/Hero/hero_19.bmp
+Dependencies: []

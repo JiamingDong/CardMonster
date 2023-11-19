@@ -1,0 +1,129 @@
+ManifestFileVersion: 0
+CRC: 2078568517
+Hashes:
+  AssetFileHash:
+    serializedVersion: 2
+    Hash: c238d6e2d71ec2fd6e6ec6d2b0637170
+  TypeTreeHash:
+    serializedVersion: 2
+    Hash: 0cced589c8b50de761d91128d357d547
+  IncrementalBuildHash:
+    serializedVersion: 2
+    Hash: c238d6e2d71ec2fd6e6ec6d2b0637170
+HashAppended: 0
+ClassTypes:
+- Class: 1
+  Script: {instanceID: 0}
+- Class: 4
+  Script: {instanceID: 0}
+- Class: 21
+  Script: {instanceID: 0}
+- Class: 28
+  Script: {instanceID: 0}
+- Class: 48
+  Script: {instanceID: 0}
+- Class: 114
+  Script: {fileID: 11500000, guid: 0cd44c1031e13a943bb63640046fad76, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: 5b00bf314ef08504897067e1cd3c90f7, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: cfabb0440166ab443bba8876756fdfa9, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: 0d6ffbe983bd03740a9c655267267936, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: 02baa09b26f36a4468ea7034cccb01b6, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: 70cf67ecf8726d7498ecdccd9c4a6362, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: 7cb532c902831d5428cf7f36e2d11e81, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: 3c87178be58a3d743aeb8eb2866dfed2, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: 5f7201a12d95ffc409449d95f23cf332, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: 1344c3c82d62a2a41a3576d8abb8e3ea, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: 7fa129d7d60e4eb48b5f400b45b5bdae, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: 11f0d33fe506c044f9836a996518683b, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: 50390d35308a54e47ae4e9be5d22f81e, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: dc42784cf147c0c48a680349fa168899, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: 4e29b1a8efbd4b44bb3f3716e73f07ff, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: e19747de3f5aca642ab2be37e372fb86, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: 666d2b895ad9c4542b581e32b66884d5, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: f124a99b2d46ae14e9b44c49df4dc9c0, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: 29e6693f5b0e0ab4bb41f1349f86b56b, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: 1aa08ab6e0800fa44ae55d278d1423e3, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: 3312d7739989d2b4e91e6319e9a96d76, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: bbfd1340dc09664408d800528325067c, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: 5cb1e9bd560edd1448846aeed9113973, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: bdd90afd4a196fd419666392338123d2, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: 07cfe371bd9cc5e43bcffde6ebc7b89b, type: 3}
+- Class: 115
+  Script: {instanceID: 0}
+- Class: 128
+  Script: {instanceID: 0}
+- Class: 213
+  Script: {instanceID: 0}
+- Class: 222
+  Script: {instanceID: 0}
+- Class: 223
+  Script: {instanceID: 0}
+- Class: 224
+  Script: {instanceID: 0}
+SerializeReferenceClassIdentifiers:
+- AssemblyName: UnityEngine.CoreModule
+  ClassName: UnityEngine.Events.ArgumentCache
+- AssemblyName: UnityEngine.CoreModule
+  ClassName: UnityEngine.Events.PersistentCallGroup
+- AssemblyName: UnityEngine.CoreModule
+  ClassName: UnityEngine.Events.PersistentListenerMode
+- AssemblyName: UnityEngine.UI
+  ClassName: UnityEngine.UI.AnimationTriggers
+- AssemblyName: UnityEngine.UI
+  ClassName: UnityEngine.UI.Button/ButtonClickedEvent
+- AssemblyName: UnityEngine.UI
+  ClassName: UnityEngine.UI.ColorBlock
+- AssemblyName: UnityEngine.UI
+  ClassName: UnityEngine.UI.FontData
+- AssemblyName: UnityEngine.UI
+  ClassName: UnityEngine.UI.MaskableGraphic/CullStateChangedEvent
+- AssemblyName: UnityEngine.UI
+  ClassName: UnityEngine.UI.Navigation
+- AssemblyName: UnityEngine.UI
+  ClassName: UnityEngine.UI.ScrollRect/ScrollRectEvent
+- AssemblyName: UnityEngine.UI
+  ClassName: UnityEngine.UI.SpriteState
+Assets:
+- Assets/Prefabs/CardInDeckPrefab.prefab
+- Assets/Prefabs/SwitchDeckPrefab.prefab
+- Assets/Prefabs/NonBasicSkillInBattlePrefab.prefab
+- Assets/Prefabs/CardForShowPrefab.prefab
+- Assets/Prefabs/HeroSkillPrefab.prefab
+- Assets/Prefabs/GameVictoryPrefab.prefab
+- Assets/Prefabs/DeckNameSelectPrefab.prefab
+- Assets/Prefabs/BasicSkillInBattlePrefab.prefab
+- Assets/Prefabs/SelectEliteKindPrefab.prefab
+- Assets/Prefabs/GameDefeatParfab.prefab
+- Assets/Prefabs/HeroBigImagePrefab.prefab
+- Assets/Prefabs/SelectHeroSkillPrefab.prefab
+- Assets/Prefabs/MonsterInBattlePrefab.prefab
+- Assets/Prefabs/ButtonPrefab.prefab
+Dependencies:
+- E:/UnityProject/CardMonster/Assets/StreamingAssets/card
+- E:/UnityProject/CardMonster/Assets/StreamingAssets/ui

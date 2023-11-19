@@ -1,0 +1,26 @@
+ManifestFileVersion: 0
+CRC: 1934582545
+Hashes:
+  AssetFileHash:
+    serializedVersion: 2
+    Hash: 88c0ed4b7df2cc3902d578d5b2d0151a
+  TypeTreeHash:
+    serializedVersion: 2
+    Hash: c21d61fe394c58399df3c6fb5c7c99b3
+HashAppended: 0
+ClassTypes:
+- Class: 28
+  Script: {instanceID: 0}
+- Class: 213
+  Script: {instanceID: 0}
+SerializeReferenceClassIdentifiers: []
+Assets:
+- Assets/Image/UI/Icon/ItemBackground.png
+- Assets/Image/UI/Button/RedButton.png
+- Assets/Image/UI/Icon/CardDeck.png
+- Assets/Image/UI/Icon/CardDeckBackground.png
+- Assets/Image/UI/Button/OrangeButton.png
+- Assets/Image/UI/Icon/Option.png
+- Assets/Image/UI/Button/BlueButton.png
+- Assets/Image/UI/Button/GreenButton.png
+Dependencies: []
