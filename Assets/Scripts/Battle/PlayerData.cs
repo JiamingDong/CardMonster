@@ -31,6 +31,11 @@ public class PlayerData
     public bool canUseHandCard;
 
     /// <summary>
+    /// 可以献祭
+    /// </summary>
+    public bool canSacrifice;
+
+    /// <summary>
     /// 手牌怪兽区域
     /// </summary>
     public GameObject[] handMonsterPanel;
@@ -59,25 +64,24 @@ public class PlayerData
     /// 剩余水晶数量的显示文本
     /// </summary>
     public Text surplusCrystalText;
-    /// <summary>
-    /// 牌库怪兽
-    /// </summary>
-    public List<Dictionary<string, string>> monsterDeck;
-    //public List<Card> monsterDeck;
-    /// <summary>
-    /// 牌库道具
-    /// </summary>
-    public List<Dictionary<string, string>> itemDeck;
-    //public List<Card> itemDeck;
+
     /// <summary>
     /// 剩余水晶数量
     /// </summary>
     public int surplusCrystal;
+
+    /// <summary>
+    /// 牌库怪兽
+    /// </summary>
+    public Queue<Dictionary<string, string>> monsterDeck;
+    /// <summary>
+    /// 牌库道具
+    /// </summary>
+    public Queue<Dictionary<string, string>> itemDeck;
     /// <summary>
     /// 手牌怪兽数组
     /// </summary>
     public Dictionary<string,string>[] handMonster;
-    //public Card[] handMonster;
     /// <summary>
     /// 手牌道具数组
     /// </summary>
@@ -90,4 +94,9 @@ public class PlayerData
     /// 正在结算的消耗品
     /// </summary>
     public GameObject consumeGameObject;
+
+    /// <summary>
+    /// 标记，例如献祭点SacrificeNumber
+    /// </summary>
+    public Dictionary<string, object> marker;
 }

@@ -1,4 +1,3 @@
-using System.Collections;
 using System.Collections.Generic;
 
 /// <summary>
@@ -10,21 +9,25 @@ public class NetworkMessage
     private NetworkMessageType type;
     private Dictionary<string, object> parameter;
 
+    public NetworkMessageType Type { get => type; set => type = value; }
+    public Dictionary<string, object> Parameter { get => parameter; set => parameter = value; }
+
+    public NetworkMessage()
+    {
+    }
+
     public NetworkMessage(NetworkMessageType type, Dictionary<string, object> parameter)
     {
-        this.type = type;
-        this.parameter = parameter;
+        Type = type;
+        Parameter = parameter;
     }
-    public int Id { get; set; }
-    public NetworkMessageType Type { get; set; }
-    public Dictionary<string, object> Parameter { get; set; }
 
     public override string ToString()
     {
-        string networkMessageToString = "type=" + type;
-        if (parameter != null)
+        string networkMessageToString = "type=" + Type;
+        if (Parameter != null)
         {
-            foreach (KeyValuePair<string, object> keyValuePair in parameter)
+            foreach (KeyValuePair<string, object> keyValuePair in Parameter)
             {
                 networkMessageToString += "," + keyValuePair.Key + "," + keyValuePair.Value.ToString();
             }

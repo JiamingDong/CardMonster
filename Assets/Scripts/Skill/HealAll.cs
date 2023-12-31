@@ -5,15 +5,11 @@ using UnityEngine;
 
 /// <summary>
 /// 群体治疗
+/// 我方战斗阶段，我方所有怪兽回复%d点生命值
 /// </summary>
 public class HealAll : SkillInBattle
 {
-    public HealAll(GameObjectInBattle gameObjectInBattle) : base()
-    {
-        effectList.Add(Effect1);
-    }
-
-    [TriggerEffectCondition("InRoundBattle")]
+    [TriggerEffect("^InRoundBattle$", "Compare1")]
     public IEnumerator Effect1(ParameterNode parameterNode)
     {
         Dictionary<string, object> parameter = parameterNode.parameter;
@@ -36,24 +32,51 @@ public class HealAll : SkillInBattle
 
         for (int i = 2; i > -1; i--)
         {
-            GameObject gameObject = playerMessage.monsterGameObjectArray[i];
-            if (gameObject != null)
+            GameObject go = playerMessage.monsterGameObjectArray[i];
+            if (go != null)
             {
                 //治疗
-                //ParameterNode parameterNode1 = parameterNode.AddChild();
-
-                //parameterNode1.condition.Add("NodeCreator", this);
-
                 Dictionary<string, object> treatParameter = new();
+                //当前技能
+                treatParameter.Add("LaunchedSkill", this);
+                //效果名称
+                treatParameter.Add("EffectName", "Effect1");
                 //受到治疗的怪兽
-                treatParameter.Add("MonsterBeTreat", gameObject);
+                treatParameter.Add("EffectTarget", go);
                 //治疗数值
-                treatParameter.Add("TreatValue", GetSKillValue());
+                treatParameter.Add("TreatValue", GetSkillValue());
 
-                yield return StartCoroutine(gameAction.DoAction(gameAction.TreatMonster, treatParameter));
+                ParameterNode parameterNode1 = parameterNode.AddNodeInMethod();
+                parameterNode1.parameter = treatParameter;
 
+                yield return battleProcess.StartCoroutine(gameAction.DoAction(gameAction.TreatMonster, parameterNode1));
                 yield return null;
             }
         }
+    }
+
+    /// <summary>
+    /// 判断是否是当前回合角色、我方有没有受伤的怪兽
+    /// </summary>
+    public bool Compare2(ParameterNode parameterNode)
+    {
+        BattleProcess battleProcess = BattleProcess.GetInstance();
+
+        for (int i = 0; i < battleProcess.systemPlayerData.Length; i++)
+        {
+            if (battleProcess.systemPlayerData[i].perspectivePlayer == Player.Ally)
+            {
+                GameObject[] gameObjects = battleProcess.systemPlayerData[i].monsterGameObjectArray;
+                for (int j = 0; j < gameObjects.Length; j++)
+                {
+                    if (gameObjects[j] == gameObject)
+                    {
+                        return true;
+                    }
+                }
+            }
+        }
+
+        return false;
     }
 }

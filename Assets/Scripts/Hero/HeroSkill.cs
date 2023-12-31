@@ -1,6 +1,4 @@
-using System.Collections;
 using System.Collections.Generic;
-using System.Reflection;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -21,7 +19,7 @@ public class HeroSkill : MonoBehaviour
     public void ChangeHeroSkill(string id)
     {
         heroSkillId = id;
-        if (id.Equals(""))
+        if (id == null || id.Equals(""))
         {
             heroSkillNameText.text = "";
         }

@@ -5,25 +5,37 @@
 public enum NetworkMessageType
 {
     /// <summary>
+    /// 游戏开始
+    /// </summary>
+    GameStart,
+    /// <summary>
+    /// 随机数种子
+    /// </summary>
+    RandomSeed,
+    /// <summary>
     /// 先后手和卡组
     /// </summary>
     PriorityAndDeck,
     /// <summary>
-    /// 拖拽手牌到场上
+    /// 使用手牌
     /// </summary>
-    DragHandCard,
+    UseHandCard,
     /// <summary>
     /// 发动英雄技能
     /// </summary>
     LaunchHeroSkill,
     /// <summary>
+    /// 献祭
+    /// </summary>
+    SacrificeCard,
+    /// <summary>
     /// 结束出牌阶段，开始战斗阶段
     /// </summary>
     StartAttackPhase,
     /// <summary>
-    /// 技能概率判断的结果
+    /// 其他类型
     /// </summary>
-    ProbabilityResult
+    OtherTypes
 }
 
 /// <summary>
@@ -123,4 +135,12 @@ public enum GamePhase
     /// 游戏结束后
     /// </summary>
     AfterGameEnd
+}
+
+public enum ParameterNodeChildType
+{
+    ReplaceChild,
+    BeforeChild,
+    EffectChild,
+    AfterChild
 }

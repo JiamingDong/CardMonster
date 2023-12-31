@@ -126,7 +126,7 @@ public class DbAccess
         {
             query += column.Key + "='" + column.Value + "',";
         }
-        query = query.Substring(0, query.Length - 1);
+        query = query[..^1];
         query += " WHERE 1=1 " + fliter;
         ExecuteSQL(query);
     }

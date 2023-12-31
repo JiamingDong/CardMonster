@@ -9,12 +9,7 @@ using UnityEngine;
 /// </summary>
 public class AntimagicBarrier : SkillInBattle
 {
-    void Start()
-    {
-        effectList.Add(Effect1);
-    }
-
-    [TriggerEffectCondition("InRoundBattle", compareMethodName = "Compare1")]
+    [TriggerEffect("^BeforeRoundBattle$", "Compare1")]
     public IEnumerator Effect1(ParameterNode parameterNode)
     {
         BattleProcess battleProcess = BattleProcess.GetInstance();
@@ -24,33 +19,38 @@ public class AntimagicBarrier : SkillInBattle
             for (int j = 2; j > -1; j--)
             {
                 GameObject monsterGameObject = battleProcess.systemPlayerData[i].monsterGameObjectArray[j];
-                MonsterInBattle monsterInBattle = monsterGameObject.GetComponent<MonsterInBattle>();
 
                 if (monsterGameObject == gameObject)
                 {
                     for (int k = 2; k > -1; k--)
                     {
-                        if (monsterGameObject != null)
+                        GameObject go = battleProcess.systemPlayerData[i].monsterGameObjectArray[k];
+                        if (go != null)
                         {
+                            MonsterInBattle monsterInBattle = go.GetComponent<MonsterInBattle>();
+
                             Dictionary<string, object> parameter = new();
-                            parameter.Add("SkillName", "AntimagicBarrierDerive");
-                            parameter.Add("SkillValue", GetSKillValue());
-                            parameter.Add("Source", "Skill.AntimagicBarrier");
-                            yield return StartCoroutine(monsterInBattle.DoAction(monsterInBattle.AddSkill, parameter));
+                            parameter.Add("LaunchedSkill", this);
+                            parameter.Add("EffectName", "Effect1");
+                            parameter.Add("SkillName", "antimagic_barrier_derive");
+                            parameter.Add("SkillValue", GetSkillValue());
+                            parameter.Add("Source", "Skill.AntimagicBarrier.Effect1");
+
+                            ParameterNode parameterNode1 = parameterNode.AddNodeInMethod();
+                            parameterNode1.parameter = parameter;
+                            yield return battleProcess.StartCoroutine(monsterInBattle.DoAction(monsterInBattle.AddSkill, parameterNode1));
                         }
                     }
+
+                    yield break;
                 }
             }
         }
-
-        yield return null;
     }
 
     /// <summary>
     /// 判断是否是当前回合角色
     /// </summary>
-    /// <param name="condition"></param>
-    /// <returns></returns>
     public bool Compare1(ParameterNode parameterNode)
     {
         BattleProcess battleProcess = BattleProcess.GetInstance();

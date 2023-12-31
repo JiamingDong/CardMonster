@@ -1,15 +1,15 @@
 ManifestFileVersion: 0
-CRC: 94337679
+CRC: 1805629893
 Hashes:
   AssetFileHash:
     serializedVersion: 2
-    Hash: 129d7b3db08311c96bfaff653d5a86df
+    Hash: 6fb03805cfb2596fd6e2ad73d15a7c17
   TypeTreeHash:
     serializedVersion: 2
     Hash: 2d8df09e698f722ada1caa03d3413830
   IncrementalBuildHash:
     serializedVersion: 2
-    Hash: 129d7b3db08311c96bfaff653d5a86df
+    Hash: 6fb03805cfb2596fd6e2ad73d15a7c17
 HashAppended: 0
 ClassTypes:
 - Class: 28
@@ -19,6 +19,7 @@ ClassTypes:
 SerializeReferenceClassIdentifiers: []
 Assets:
 - Assets/Image/UI/InputFieldBackground.png
+- Assets/Image/UI/Battle/LaunchSkillBorder1.png
 - Assets/Image/UI/BattleFieldEffects/ban_5.png
 - Assets/Image/UI/Button/DeckNotInMonster.png
 - Assets/Image/UI/Button/DeckInMonster.png
@@ -50,6 +51,7 @@ Assets:
 - Assets/Image/UI/BattleFieldEffects/gold_coin_sui_6.png
 - Assets/Image/UI/BattleFieldEffects/ban_2.png
 - Assets/Image/UI/Button/Option.png
+- Assets/Image/UI/Tittle.png
 - Assets/Image/UI/Button/OrangeButton.png
 - Assets/Image/UI/BattleFieldEffects/handcard_light_00024.png
 - Assets/Image/UI/Button/BlueButton.png
@@ -65,6 +67,7 @@ Assets:
 - Assets/Image/UI/BattleFieldEffects/gold_coin_sui_5.png
 - Assets/Image/UI/BattleFieldEffects/lose_5.png
 - Assets/Image/UI/BattleFieldEffects/win_3.png
+- Assets/Image/UI/Battle/arrow.png
 - Assets/Image/UI/Battle/AddCrystalAmount.png
 - Assets/Image/UI/BattleFieldEffects/shou_yingzi_2.png
 - Assets/Image/UI/BattleFieldEffects/win_1.png
@@ -88,6 +91,7 @@ Assets:
 - Assets/Image/UI/BattleFieldEffects/ban_6.png
 - Assets/Image/UI/BattleFieldEffects/gold_coin_04.png
 - Assets/Image/UI/BattleFieldEffects/lose_7.png
+- Assets/Image/UI/Battle/LaunchSkillBorder2.png
 - Assets/Image/UI/Button/DeckNotInItem.png
 - Assets/Image/UI/BattleFieldEffects/gold_icon_hand_4.png
 - Assets/Image/UI/BattleFieldEffects/gold_icon_hand_2.png

@@ -1,3 +1,4 @@
+using Newtonsoft.Json;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -17,45 +18,64 @@ public class CardInColectionClick : MonoBehaviour
     public void OnClick()
     {
         DeckInCollection deckInCollection = GameObject.Find("CardDeckWindowPanel").GetComponent<DeckInCollection>();
-        bool monsterOrItemInDeck = gameObject.GetComponent<CardForShow>().type.Equals("monster") ? true : false;
+        bool monsterOrItemInDeck = gameObject.GetComponent<CardForShow>().type.Equals("monster");
         //是怪兽卡
         if (monsterOrItemInDeck)
         {
             string theCardColor = Database.cardMonster.Query("AllCardConfig", "and CardId='" + cardId + "'")[0]["CardKind"];
-            string[] theCardColorArray = theCardColor.Substring(1, theCardColor.Length - 2).Split('|');
+            Dictionary<string, string> cardKind = JsonConvert.DeserializeObject<Dictionary<string, string>>(theCardColor);
             //插入的位置
             int insertIndex = -1;
             //点击的卡是双色
-            if (theCardColorArray.Length == 2 && !theCardColorArray[0].Equals(theCardColorArray[1]))
+            if (cardKind.ContainsKey("rightKind") && !cardKind["leftKind"].Equals(cardKind["rightKind"]))
             {
-                for (int i = 0; i < 8; i++)
+                Debug.Log(1);
+                string leftKind = cardKind["leftKind"];
+                string rightKind = cardKind["rightKind"];
+
+                for (int i = 0; i < deckInCollection.monsterCardInDeck.Length; i++)
                 {
                     //已在卡组则结束
-                    if (cardId.Equals(deckInCollection.monsterCardInDeck[i])) {
+                    if (cardId.Equals(deckInCollection.monsterCardInDeck[i]))
+                    {
+                        Debug.Log(2);
                         goto end;
                     }
+
                     //这个位置没卡
                     if (deckInCollection.monsterCardInDeck[i].Equals(""))
                     {
-                        if (insertIndex == -1) insertIndex = i;
+                        Debug.Log(3);
+                        if (insertIndex == -1)
+                        {
+                            insertIndex = i;
+                        }
+
                         continue;
                     }
+
                     string cardInDeckColor = Database.cardMonster.Query("AllCardConfig", "and CardId='" + deckInCollection.monsterCardInDeck[i] + "'")[0]["CardKind"];
-                    string[] cardInDeckColorArray = cardInDeckColor.Substring(1, cardInDeckColor.Length - 2).Split('|');
+
+                    Dictionary<string, string> cardKind2 = JsonConvert.DeserializeObject<Dictionary<string, string>>(cardInDeckColor);
+
                     //如果这个位置的卡的其中一个颜色不在点击的卡的颜色里面就结束
-                    foreach (string color in cardInDeckColorArray)
+                    foreach (KeyValuePair<string, string> keyValuePair in cardKind2)
                     {
-                        if (!color.Equals(theCardColorArray[0]) && !color.Equals(theCardColorArray[1])) goto end;
+                        Debug.Log(keyValuePair + "----" + leftKind + "----" + rightKind);
+                        if (!keyValuePair.Value.Equals(leftKind) && !keyValuePair.Value.Equals(rightKind))
+                        {
+                            goto end;
+                        }
                     }
                 }
             }
             //点击的卡不是双色卡
             else
             {
+                string leftKind = cardKind["leftKind"];
+
                 for (int i = 0; i < 8; i++)
                 {
-                    //Debug.Log("CardInColectionClick:闪电");
-
                     //已在卡组则结束
                     if (cardId.Equals(deckInCollection.monsterCardInDeck[i]))
                     {
@@ -65,21 +85,29 @@ public class CardInColectionClick : MonoBehaviour
                     //这个位置没卡
                     if (deckInCollection.monsterCardInDeck[i].Equals(""))
                     {
-                        if (insertIndex == -1) insertIndex = i;
+                        if (insertIndex == -1)
+                        {
+                            insertIndex = i;
+                        }
                         continue;
                     }
                     string cardInDeckColor = Database.cardMonster.Query("AllCardConfig", "and CardID='" + deckInCollection.monsterCardInDeck[i] + "'")[0]["CardKind"];
 
-                    string[] cardInDeckColorArray = cardInDeckColor.Substring(1, cardInDeckColor.Length - 2).Split('|');
+                    Dictionary<string, string> cardKind2 = JsonConvert.DeserializeObject<Dictionary<string, string>>(cardInDeckColor);
+
                     //如果这个位置的卡是双色卡，点击的卡的颜色不在里面，就结束
-                    if (cardInDeckColorArray.Length == 2 && !cardInDeckColorArray[0].Equals(cardInDeckColorArray[1]))
+                    if (cardKind2.ContainsKey("rightKind") && !cardKind2["leftKind"].Equals(cardKind2["rightKind"]))
                     {
-                        if (!theCardColorArray[0].Equals(cardInDeckColorArray[0]) && !theCardColorArray[0].Equals(cardInDeckColorArray[1])) goto end;
+                        if (!leftKind.Equals(cardKind2["leftKind"]) && !leftKind.Equals(cardKind2["rightKind"]))
+                        {
+                            goto end;
+                        }
                     }
 
                 }
             }
 
+            Debug.Log(insertIndex);
             if (insertIndex != -1)
             {
                 deckInCollection.monsterCardInDeck[insertIndex] = cardId;

@@ -8,27 +8,14 @@ using UnityEngine;
 /// </summary>
 public class Damage : SkillInBattle
 {
-    public Damage(GameObjectInBattle gameObjectInBattle) : base()
-    {
-        effectList.Add(Effect1);
-    }
-
-    [TriggerEffectCondition("After.GameAction.ChangeCrystalAmount", compareMethodName = "Compare1")]
+    [TriggerEffect(@"^After\.GameAction\.UseACard$",  "Compare1")]
     public IEnumerator Effect1(ParameterNode parameterNode)
     {
-        Dictionary<string, object> parameter = parameterNode.parameter;
+        Dictionary<string, object> result = parameterNode.Parent.Parent.EffectChild.nodeInMethodList[1].EffectChild.result;
+        GameObject consumeTarget = (GameObject)result["ConsumeTarget"];
+
         BattleProcess battleProcess = BattleProcess.GetInstance();
         GameAction gameAction = GameAction.GetInstance();
-
-        Dictionary<string, object> effectParameter = (Dictionary<string, object>)parameter["EffectParameter"];
-        GameObject effectTarget = (GameObject)parameter["TargetMonster"];
-        GameObject consumeGameObject = (GameObject)parameter["ConsumeGameObject"];
-
-        //技能所在物体
-        if (consumeGameObject != gameObject)
-        {
-            yield break;
-        }
 
         //伤害参数
         Dictionary<string, object> damageParameter = new();
@@ -37,58 +24,60 @@ public class Damage : SkillInBattle
         //效果名称
         damageParameter.Add("EffectName", "Effect1");
         //受到伤害的怪兽
-        damageParameter.Add("EffectTarget", effectTarget);
+        damageParameter.Add("EffectTarget", consumeTarget);
         //伤害数值
-        damageParameter.Add("DamageValue", GetSKillValue());
+        damageParameter.Add("DamageValue", GetSkillValue());
         //伤害类型
         damageParameter.Add("DamageType", DamageType.Real);
 
-        yield return StartCoroutine(gameAction.DoAction(gameAction.HurtMonster,damageParameter));
+        ParameterNode parameterNode1 = parameterNode.AddNodeInMethod();
+        parameterNode1.parameter = damageParameter;
 
+        yield return battleProcess.StartCoroutine(gameAction.DoAction(gameAction.HurtMonster, parameterNode1));
         yield return null;
     }
 
     /// <summary>
     /// 判断是否被使用的是此卡、目标是不是敌方怪兽
     /// </summary>
-    /// <param name="condition"></param>
-    /// <returns></returns>
     public bool Compare1(ParameterNode parameterNode)
     {
+        Dictionary<string, object> result = parameterNode.Parent.EffectChild.nodeInMethodList[1].EffectChild.result;
         Dictionary<string, object> parameter = parameterNode.parameter;
-        int crystalAmount = (int)parameter["CrystalAmount"];
+        //使用手牌的玩家
         Player player = (Player)parameter["Player"];
+        //手牌目标玩家
+        Player targetPlayer = (Player)parameter["TargetPlayer"];
 
-        BattleProcess battleProcess = BattleProcess.GetInstance();
-
-        if (crystalAmount <= 0)
+        //消耗品物体
+        if (result.ContainsKey("ConsumeBeGenerated"))
         {
+            GameObject consumeBeGenerated = (GameObject)result["ConsumeBeGenerated"];
+            if (consumeBeGenerated != gameObject)
+            {
+                //Debug.Log("侵袭1");
+                return false;
+            }
+        }
+        else
+        {
+            //Debug.Log("侵袭2");
             return false;
         }
 
-        bool isAlly = false;
-        bool enemyHasMonster = false;
-
-        for (int i = 0; i < battleProcess.systemPlayerData.Length; i++)
+        if (player == targetPlayer)
         {
-            PlayerData systemPlayerData = battleProcess.systemPlayerData[i];
-
-            if (systemPlayerData.perspectivePlayer == player)
-            {
-                for (int j = 0; j < systemPlayerData.monsterGameObjectArray.Length; j++)
-                {
-                    if (systemPlayerData.monsterGameObjectArray[j] == gameObject)
-                    {
-                        isAlly = true;
-                    }
-                }
-            }
-            else if (systemPlayerData.monsterGameObjectArray[0] != null)
-            {
-                enemyHasMonster = true;
-            }
+            //Debug.Log("侵袭3");
+            return false;
         }
 
-        return isAlly && enemyHasMonster;
+        GameObject consumeTarget = (GameObject)result["ConsumeTarget"];
+        if (consumeTarget == null)
+        {
+            //Debug.Log("侵袭4");
+            return false;
+        }
+
+        return true;
     }
 }

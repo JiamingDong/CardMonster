@@ -23,8 +23,8 @@ public class DeckInCollection : MonoBehaviour
     public string heroSkillId;
     public string deckCard;
 
-    public List<string> monsterCardInDeck;
-    public List<string> itemCardInDeck;
+    public string[] monsterCardInDeck;
+    public string[] itemCardInDeck;
 
     /// <summary>
     /// 怪兽还是道具，true怪兽，false道具
@@ -48,29 +48,37 @@ public class DeckInCollection : MonoBehaviour
         cardCoordinatesOriginInDeckX = cardAddClearanceDistanceInDeckX / 2;
         cardCoordinatesOriginInDeckY = cardAddClearanceDistanceInDeckY / 2;
 
-        //初始化卡组
-        deckId = Database.cardMonster.Query("PlayerData", "and PlayerID='1'")[0]["DefaultDeckID"];
-
-        SwitchDeck();
-    }
-
-    public void SwitchDeck()
-    {
-        List<Dictionary<string, string>> deckList = Database.cardMonster.Query("PlayerDeck", "and DeckID='" + deckId + "'");
-        if (deckList.Count < 1)
-            return;
-
-        Dictionary<string, string> deck = deckList[0];
-        heroSkillId = deck["HeroSkillID"];
-        deckName = deck["DeckName"];
-        deckCard = deck["DeckCard"];
-
         //8个卡组背景，并添加点击事件脚本
         for (int i = 0; i < 8; i++)
         {
             CardDeckBackgroundPanel[i] = GameObject.Find("CardDeckBackgroundPanel" + (i + 1).ToString());
             CardDeckBackgroundPanel[i].GetComponent<CardDeckBackground>().CardDeckBackgroundIndex = i;
         }
+
+        //初始化卡组
+        string defaultDeckID = Database.cardMonster.Query("PlayerData", "and PlayerID='1'")[0]["DefaultDeckID"];
+
+        SwitchDeck(defaultDeckID);
+    }
+
+    public void SwitchDeck(string targetDeckId)
+    {
+        deckId = targetDeckId;
+
+        List<Dictionary<string, string>> deckList = Database.cardMonster.Query("PlayerDeck", "and DeckID='" + deckId + "'");
+        if (deckList.Count < 1)
+        {
+            return;
+        }
+
+        Dictionary<string, string> deck = deckList[0];
+        heroSkillId = deck["HeroSkillId"];
+        deckName = deck["DeckName"];
+        deckCard = deck["DeckCard"];
+
+        Dictionary<string, string[]> deckCardD = JsonConvert.DeserializeObject<Dictionary<string, string[]>>(deckCard);
+        monsterCardInDeck = deckCardD["monster"];
+        itemCardInDeck = deckCardD["item"];
 
         //卡组名
         ChangeDeckName();
@@ -81,7 +89,6 @@ public class DeckInCollection : MonoBehaviour
 
         //英雄技能
         ChangeHeroSkillInDeck(heroSkillId);
-
     }
 
     public void ChangeDeckName()
@@ -92,38 +99,26 @@ public class DeckInCollection : MonoBehaviour
 
     public void ChangeDeckCardShow()
     {
-        Dictionary<string, object> deckCardD = JsonConvert.DeserializeObject<Dictionary<string, object>>(deckCard);
-        JArray monster = (JArray)deckCardD["monster"];
-        JArray item= (JArray)deckCardD["item"];
-
-        foreach(var m in monster)
+        //清除原卡组
+        for (int i = 0; i < 8; i++)
         {
-            monsterCardInDeck.Clear();
-            monsterCardInDeck.Add((string)m);
-        }
-        foreach(var m in item)
-        {
-            itemCardInDeck.Clear();
-            itemCardInDeck.Add((string)m);
+            if (CardDeckBackgroundPanel[i].transform.childCount > 0)
+            {
+                Destroy(CardDeckBackgroundPanel[i].transform.GetChild(0).gameObject);
+            }
         }
 
         //卡组图像
-        JArray cardInDeck = monsterOrItemInDeck ? monster : item;
-        for (int i = 0; i < deckCardNumber; i++)
+        string[] cardInDeck = monsterOrItemInDeck ? monsterCardInDeck : itemCardInDeck;
+        for (int i = 0; i < cardInDeck.Length; i++)
         {
-            string cardId = (string)cardInDeck[i];
+            string cardId = cardInDeck[i];
             ChangeACardInDeck(i, cardId);
         }
     }
 
     public void ChangeACardInDeck(int i, string cardId)
     {
-        //清除原卡组
-        for (int j = 0; j < CardDeckBackgroundPanel[i].transform.childCount; j++)
-        {
-            Destroy(CardDeckBackgroundPanel[i].transform.GetChild(j).gameObject);
-        }
-
         if (cardId == null) return;
         if (cardId.Equals("")) return;
 

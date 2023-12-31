@@ -14,16 +14,19 @@ public class StartBattleButton : MonoBehaviour
     {
         BattleProcess battleProcess = BattleProcess.GetInstance();
 
-        PlayerAction playerAction= PlayerAction.GetInstance();
+        PlayerAction playerAction = PlayerAction.GetInstance();
 
-        if (battleProcess.allyPlayerData.perspectivePlayer != Player.Ally)
+        if (battleProcess.allyPlayerData.perspectivePlayer != Player.Ally || battleProcess.allyPlayerData.canUseHandCard == false)
             return;
 
         Debug.Log("StartBattleButton£º½áÊø³öÅÆ½×¶Î");
 
+        battleProcess.allyPlayerData.canUseHandCard = false;
+        battleProcess.allyPlayerData.canSacrifice = false;
+
         SocketTool.SendMessage(new NetworkMessage(NetworkMessageType.StartAttackPhase, new()));
 
-        StartCoroutine(playerAction.DoAction(playerAction.StartRoundBattle,new()));
+        StartCoroutine(playerAction.DoAction(playerAction.StartRoundBattle, new()));
     }
 
 }

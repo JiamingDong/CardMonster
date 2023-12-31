@@ -9,13 +9,7 @@ using UnityEngine;
 /// </summary>
 public class AntimagicBarrierDerive : SkillInBattle
 {
-    void Start()
-    {
-        effectList.Add(Effect1);
-        effectList.Add(Effect2);
-    }
-
-    [TriggerEffectCondition("Before.GameAction.HurtMonster", compareMethodName = "Compare1")]
+    [TriggerEffect(@"^Before\.GameAction\.HurtMonster$", "Compare1")]
     public IEnumerator Effect1(ParameterNode parameterNode)
     {
         Dictionary<string, object> parameter = parameterNode.parameter;
@@ -24,7 +18,7 @@ public class AntimagicBarrierDerive : SkillInBattle
         if (effectTarget == gameObject)
         {
             int damageValue = (int)parameter["DamageValue"];
-            parameter["DamageValue"] = damageValue - GetSKillValue();
+            parameter["DamageValue"] = damageValue - GetSkillValue();
         }
         yield return null;
     }
@@ -32,51 +26,43 @@ public class AntimagicBarrierDerive : SkillInBattle
     /// <summary>
     /// 判断是否是本怪兽
     /// </summary>
-    /// <param name="condition"></param>
-    /// <returns></returns>
     public bool Compare1(ParameterNode parameterNode)
     {
         Dictionary<string, object> parameter = parameterNode.parameter;
         GameObject monsterBeHurt = (GameObject)parameter["EffectTarget"];
-        if (monsterBeHurt != gameObject)
-        {
-            return false;
-        }
-
-        object launchedSkill = parameter["LaunchedSkill"];
-        if (launchedSkill is not Magic)
-        {
-            return false;
-        }
-
-        return true;
+        DamageType damageType = (DamageType)parameter["DamageType"];
+        return damageType ==DamageType.Magic && monsterBeHurt == gameObject;
     }
 
-    [TriggerEffectCondition("InRoundReady", compareMethodName = "Compare2")]
+    [TriggerEffect("^InRoundReady$", "Compare2")]
     public IEnumerator Effect2(ParameterNode parameterNode)
     {
-        MonsterInBattle monsterInBattle = gameObject.gameObject.GetComponent<MonsterInBattle>();
+        BattleProcess battleProcess = BattleProcess.GetInstance();
 
-        Dictionary<string, object> parameter = new();
-        parameter.Add("SkillName", "AntimagicBarrierDerive");
-        parameter.Add("SkillValue", -GetSKillValue());
-        parameter.Add("Source", "AntimagicBarrierDerive.Effect2");
-        yield return StartCoroutine(monsterInBattle.DoAction(monsterInBattle.AddSkill, parameter));
-        yield return null;
+        MonsterInBattle monsterInBattle = gameObject.GetComponent<MonsterInBattle>();
+
+        Dictionary<string, object> parameter1 = new();
+        parameter1.Add("LaunchedSkill", this);
+        parameter1.Add("EffectName", "Effect2");
+        parameter1.Add("SkillName", "antimagic_barrier_derive");
+        parameter1.Add("Source", "Skill.AntimagicBarrier.Effect1");
+
+        ParameterNode parameterNode1 = parameterNode.AddNodeInMethod();
+        parameterNode1.parameter = parameter1;
+
+        yield return battleProcess.StartCoroutine(monsterInBattle.DoAction(monsterInBattle.DeleteSkillSource, parameterNode1));
     }
 
     /// <summary>
-    /// 判断是否是当前回合角色
+    /// 判断是否是对方回合
     /// </summary>
-    /// <param name="condition"></param>
-    /// <returns></returns>
     public bool Compare2(ParameterNode parameterNode)
     {
         BattleProcess battleProcess = BattleProcess.GetInstance();
 
         for (int i = 0; i < battleProcess.systemPlayerData.Length; i++)
         {
-            if (battleProcess.systemPlayerData[i].perspectivePlayer == Player.Ally)
+            if (battleProcess.systemPlayerData[i].perspectivePlayer == Player.Enemy)
             {
                 for (int j = 0; j < battleProcess.systemPlayerData[i].monsterGameObjectArray.Length; j++)
                 {

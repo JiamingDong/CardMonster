@@ -1,3 +1,4 @@
+using Newtonsoft.Json;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -8,76 +9,72 @@ using UnityEngine;
 /// </summary>
 public class Clone : SkillInBattle
 {
-    void Start()
-    {
-        effectList.Add(Effect1);
-    }
-
-    [TriggerEffectCondition("InRoundBattle", compareMethodName = "Compare1")]
+    [TriggerEffect("^BeforeRoundBattle$", "Compare1")]
     public IEnumerator Effect1(ParameterNode parameterNode)
     {
         BattleProcess battleProcess = BattleProcess.GetInstance();
         GameAction gameAction = GameAction.GetInstance();
 
-        MonsterInBattle monsterInBattle = gameObject.AddComponent<MonsterInBattle>();
+        MonsterInBattle monsterInBattle = gameObject.GetComponent<MonsterInBattle>();
 
-        int vacancy = 2;
         for (int i = 0; i < battleProcess.systemPlayerData.Length; i++)
         {
             PlayerData systemPlayerData = battleProcess.systemPlayerData[i];
+            bool isAlly = false;
             for (int j = 0; j < systemPlayerData.monsterGameObjectArray.Length; j++)
             {
                 if (systemPlayerData.monsterGameObjectArray[j] == gameObject)
                 {
-                    Dictionary<string, int> p = new();
+                    isAlly = true;
+                }
+
+                if (isAlly && systemPlayerData.monsterGameObjectArray[j] == null)
+                {
+                    Dictionary<string, int> skill = new();
+                    skill.Add("self_explosive", 0);
                     for (int k = 0; k < monsterInBattle.skillList.Count; k++)
                     {
                         SkillInBattle skillInBattle = monsterInBattle.skillList[k];
 
-                        if (skillInBattle.IsBasicAttackEffect())
+                        if (SkillUtils.IsBasicAttackEffect(skillInBattle))
                         {
-                            p.Add(skillInBattle.GetType().Name.ToLower(), skillInBattle.GetSKillValue());
+                            var skillConfig = Database.cardMonster.Query("AllSkillConfig", "and SkillClassName='" + skillInBattle.GetType().Name + "'")[0];
+                            skill.Add(skillConfig["SkillEnglishName"], skillInBattle.GetSkillValue());
                         }
                     }
 
-                    Dictionary<string, object> card = new();
-                    card.Add("CardID", "");
-                    card.Add("CardName", "幻像");
-                    card.Add("CardType", monsterInBattle.type);
-                    card.Add("CardKind", monsterInBattle.kind);
-                    card.Add("CardRace", "");
-                    card.Add("CardHP", 1);
-                    card.Add("CardSkinID", monsterInBattle.skinID);
-                    card.Add("CardCost", 0);
-                    card.Add("CardP", p);
+                    Dictionary<string, string> cardData = new();
+                    cardData.Add("CardID", "");
+                    cardData.Add("CardName", "幻像");
+                    cardData.Add("CardType", monsterInBattle.type);
+                    cardData.Add("CardKind", "{\"leftKind\":\"" + monsterInBattle.kind + "\"}");
+                    cardData.Add("CardRace", null);
+                    cardData.Add("CardHP", "1");
+                    cardData.Add("CardFlags", null);
+                    cardData.Add("CardSkinID", monsterInBattle.skinId);
+                    cardData.Add("CardCost", "0");
+                    cardData.Add("CardSkill", JsonConvert.SerializeObject(skill));
 
                     Dictionary<string, object> parameter = new();
+                    parameter.Add("LaunchedSkill", this);
+                    parameter.Add("EffectName", "Effect1");
                     parameter.Add("Player", systemPlayerData.perspectivePlayer);
-                    parameter.Add("BattlePanelNumber", vacancy);
-                    parameter.Add("CardData", card);
+                    parameter.Add("BattlePanelNumber", j);
+                    parameter.Add("CardData", cardData);
 
-                    yield return StartCoroutine(gameAction.DoAction(gameAction.MonsterEnterBattle, parameter));
+                    ParameterNode parameterNode1 = parameterNode.AddNodeInMethod();
+                    parameterNode1.parameter = parameter;
 
-                    goto a;
-                }
-
-                if (systemPlayerData.monsterGameObjectArray[j] == null)
-                {
-                    vacancy = j;
+                    yield return battleProcess.StartCoroutine(gameAction.DoAction(gameAction.MonsterEnterBattle, parameterNode1));
+                    yield break;
                 }
             }
         }
-
-    a:;
-
-        yield return null;
     }
 
     /// <summary>
     /// 判断是否是己方回合，且场上有空位
     /// </summary>
-    /// <param name="condition"></param>
-    /// <returns></returns>
     public bool Compare1(ParameterNode parameterNode)
     {
         BattleProcess battleProcess = BattleProcess.GetInstance();

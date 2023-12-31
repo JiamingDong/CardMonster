@@ -22,8 +22,8 @@ public class CardForShow : MonoBehaviour
     public string race;
     public int hp;
     public string flags;
-    public string p;
-    public string eP;
+    public string skill;
+    public string eliteSkill;
 
     public RawImage cardBackImage;
     public RawImage cardBackgroundImage;
@@ -86,24 +86,6 @@ public class CardForShow : MonoBehaviour
         Destroy(cardImage.texture);
     }
 
-    public Dictionary<string, string> GetCardData()
-    {
-        Dictionary<string, string> cardData = new Dictionary<string, string>();
-        cardData.Add("CardID", id);
-        cardData.Add("CardName", cardName);
-        cardData.Add("CardType", type);
-        cardData.Add("CardKind", kind);
-        cardData.Add("CardRace", race);
-        cardData.Add("CardHP", hp.ToString());
-        cardData.Add("CardFlags", flags);
-        cardData.Add("CardSkinID", skinID);
-        cardData.Add("CardCost", cost.ToString());
-        cardData.Add("CardP", p);
-        cardData.Add("CardEP", eP);
-
-        return cardData;
-    }
-
     /// <summary>
     /// 加载卡牌属性
     /// </summary>
@@ -119,8 +101,8 @@ public class CardForShow : MonoBehaviour
         flags = cardData["CardFlags"];
         skinID = cardData["CardSkinID"];
         cost = Convert.ToInt32(cardData["CardCost"]);
-        p = cardData["CardP"];
-        eP = cardData["CardEP"];
+        skill = cardData["CardSkill"];
+        eliteSkill = cardData["CardEliteSkill"];
 
         GenerateCardImage();
     }
@@ -176,26 +158,27 @@ public class CardForShow : MonoBehaviour
         lifeImage.enabled = true;
         hPText.enabled = true;
 
-        JArray flagsJArray = JsonConvert.DeserializeObject<JArray>(flags);
-        JArray raceJArray = JsonConvert.DeserializeObject<JArray>(race);
         Dictionary<string, object> kindDictionary = JsonConvert.DeserializeObject<Dictionary<string, object>>(kind);
-
 
         if (type.Equals("consume"))
         {
-            //Debug.Log(flags);
-            
-            //提升速度
-            if (flagsJArray != null && flagsJArray.Contains("\"4\""))
+            List<string> flagsJArray = null;
+            if (flags != null && flags != "")
             {
+                flagsJArray = JsonConvert.DeserializeObject<List<string>>(flags);
+            }
+
+            //提升速度
+            if (flagsJArray != null && flagsJArray.Contains("4"))
+            {
+
                 eliteConsumeBackgroundImage.texture = LoadAssetBundle.cardAssetBundle.LoadAsset<Texture>("EliteConsumeBackground");
                 typeImage.texture = LoadAssetBundle.cardAssetBundle.LoadAsset<Texture>("TypeConsume");
                 colorBackgroundLImage.texture = LoadAssetBundle.cardAssetBundle.LoadAsset<Texture>("ColorBackgroundLall");
-                colorLImage.texture = LoadAssetBundle.cardAssetBundle.LoadAsset<Texture>("coloricon_all");
+                colorLImage.texture = LoadAssetBundle.cardAssetBundle.LoadAsset<Texture>("coloricon_" + kindDictionary["leftKind"]);
                 nameBackgroundLImage.texture = LoadAssetBundle.cardAssetBundle.LoadAsset<Texture>("NameBackgroundLall");
-                Debug.Log(name);
                 colorBackgroundRImage.texture = LoadAssetBundle.cardAssetBundle.LoadAsset<Texture>("ColorBackgroundLall");
-                colorRImage.texture = LoadAssetBundle.cardAssetBundle.LoadAsset<Texture>("coloricon_all");
+                colorRImage.texture = LoadAssetBundle.cardAssetBundle.LoadAsset<Texture>("coloricon_" + kindDictionary["rightKind"]);
                 nameBackgroundRImage.texture = LoadAssetBundle.cardAssetBundle.LoadAsset<Texture>("NameBackgroundRall");
                 eliteConsumeBackgroundImage.enabled = true;
                 consumeBackgroundImage.enabled = false;
@@ -263,9 +246,9 @@ public class CardForShow : MonoBehaviour
         costText.text = cost.ToString();
 
         List<KeyValuePair<string, int>> skillList = new List<KeyValuePair<string, int>>();
-        if (p != null && !p.Equals(""))
+        if (skill != null && !skill.Equals(""))
         {
-            Dictionary<string, object> pD = JsonConvert.DeserializeObject<Dictionary<string, object>>(p);
+            Dictionary<string, object> pD = JsonConvert.DeserializeObject<Dictionary<string, object>>(skill);
             foreach (KeyValuePair<string, object> keyValuePair in pD)
             {
                 string key = keyValuePair.Key;
@@ -346,9 +329,9 @@ public class CardForShow : MonoBehaviour
                 break;
         }
 
-        if (eP != null && !eP.Equals(""))
+        if (eliteSkill != null && !eliteSkill.Equals(""))
         {
-            Dictionary<string, object> ePD = JsonConvert.DeserializeObject<Dictionary<string, object>>(eP);
+            Dictionary<string, object> ePD = JsonConvert.DeserializeObject<Dictionary<string, object>>(eliteSkill);
 
             if (ePD.ContainsKey("leftSkill") && (JObject)ePD["leftSkill"] != null)
             {
@@ -410,13 +393,24 @@ public class CardForShow : MonoBehaviour
             eliteSkillValueText[1].enabled = false;
         }
 
-        for (int i = 0; i < raceImage.Length; i++)
+        if (race != null && race != "")
         {
-            if (raceJArray!=null && i < raceJArray.Count)
+            JArray raceJArray = JsonConvert.DeserializeObject<JArray>(race);
+            for (int i = 0; i < raceImage.Length; i++)
             {
-                raceImage[i].texture = LoadAssetBundle.cardAssetBundle.LoadAsset<Texture>("Race" + raceJArray[i]);
+                if (raceJArray != null && i < raceJArray.Count)
+                {
+                    raceImage[i].texture = LoadAssetBundle.cardAssetBundle.LoadAsset<Texture>("Race" + raceJArray[i]);
+                }
+                else raceImage[i].enabled = false;
             }
-            else raceImage[i].enabled = false;
+        }
+        else
+        {
+            for (int i = 0; i < raceImage.Length; i++)
+            {
+                raceImage[i].enabled = false;
+            }
         }
 
         if (hp == 0)

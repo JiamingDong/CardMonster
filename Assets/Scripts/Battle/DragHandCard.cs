@@ -1,11 +1,8 @@
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using System;
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
-using UnityEngine.UI;
 
 /// <summary>
 /// 拖动手牌，符合要求就使用
@@ -20,6 +17,8 @@ public class DragHandCard : MonoBehaviour, IDragHandler, IPointerUpHandler, IPoi
     int transformSiblingIndex;
     int transformParentSiblingIndex;
 
+    bool isDragging = false;
+
     /// <summary>
     /// 鼠标按下，记录手牌原位置
     /// </summary>
@@ -29,6 +28,8 @@ public class DragHandCard : MonoBehaviour, IDragHandler, IPointerUpHandler, IPoi
         BattleProcess battleProcess = BattleProcess.GetInstance();
         if (battleProcess.allyPlayerData.perspectivePlayer == Player.Ally && eventData.button == PointerEventData.InputButton.Left)
         {
+            isDragging = true;
+
             //Debug.Log("DragHandCard.OnPointerDown:鼠标按下。");
             transformPosition = transform.position;
             transformSiblingIndex = transform.GetSiblingIndex();
@@ -65,50 +66,53 @@ public class DragHandCard : MonoBehaviour, IDragHandler, IPointerUpHandler, IPoi
     public void OnPointerUp(PointerEventData eventData)
     {
         //Debug.Log("DragHandCard.OnPointerUp:鼠标抬起。");
+        if (!isDragging)
+        {
+            return;
+        }
+        isDragging = false;
 
         BattleProcess battleProcess = BattleProcess.GetInstance();
-
-        //处于不能使用手牌的状态，则返回
-        if (battleProcess.allyPlayerData.perspectivePlayer != Player.Ally || battleProcess.allyPlayerData.canUseHandCard == false)
-            return;
-
-        PlayerAction playerAction = PlayerAction.GetInstance();
 
         transform.position = transformPosition;
         transform.SetSiblingIndex(transformSiblingIndex);
         transform.parent.SetSiblingIndex(transformParentSiblingIndex);
 
-        ParameterNode parameterNode = new();
+        //处于不能使用手牌的状态，则返回
+        if (battleProcess.allyPlayerData.perspectivePlayer != Player.Ally || battleProcess.allyPlayerData.canUseHandCard == false)
+            return;
 
-        parameterNode.parameter.Add("Player", Player.Ally);
+        battleProcess.allyPlayerData.canUseHandCard = false;
+
+        Dictionary<string, object> parameter = new();
+        parameter.Add("Player", Player.Ally);
 
         //判断鼠标是否把手牌拖到场上怪兽的位置
         Player targetPlayer;
-
-        int battlePanelNumber = -1;
         Vector3 mousePosition = Input.mousePosition;
+
+        int battlePanelNumber;
         for (int i = 0; i < 3; i++)
         {
             if (RectTransformUtility.RectangleContainsScreenPoint(battleProcess.allyPlayerData.monsterInBattlePanel[i].GetComponent<RectTransform>(), mousePosition))
             {
                 battlePanelNumber = i;
-                parameterNode.parameter.Add("BattlePanelNumber", i);
-                parameterNode.parameter.Add("TargetPlayer", Player.Ally);
+                parameter.Add("BattlePanelNumber", i);
+                parameter.Add("TargetPlayer", Player.Ally);
                 targetPlayer = Player.Ally;
                 goto a;
             }
-        }
-        for (int i = 0; i < 3; i++)
-        {
+
             if (RectTransformUtility.RectangleContainsScreenPoint(battleProcess.enemyPlayerData.monsterInBattlePanel[i].GetComponent<RectTransform>(), mousePosition))
             {
                 battlePanelNumber = i + 3;
-                parameterNode.parameter.Add("BattlePanelNumber", i);
-                parameterNode.parameter.Add("TargetPlayer", Player.Enemy);
+                parameter.Add("BattlePanelNumber", i);
+                parameter.Add("TargetPlayer", Player.Enemy);
                 targetPlayer = Player.Enemy;
                 goto a;
             }
         }
+        battleProcess.allyPlayerData.canUseHandCard = true;
         return;
     //标签a
     a:;
@@ -121,29 +125,27 @@ public class DragHandCard : MonoBehaviour, IDragHandler, IPointerUpHandler, IPoi
             {
                 handPanelNumber = i;
 
-                parameterNode.parameter.Add("HandPanelNumber", i);
+                parameter.Add("HandPanelNumber", i);
                 goto b;
             }
-        }
-        for (int i = 0; i < 2; i++)
-        {
+
             if (transform.parent.gameObject == battleProcess.allyPlayerData.handItemPanel[i])
             {
                 handPanelNumber = i + 2;
 
-                parameterNode.parameter.Add("HandPanelNumber", i + 2);
+                parameter.Add("HandPanelNumber", i + 2);
                 goto b;
             }
         }
     //标签b
     b:;
 
-        Debug.Log("handPanelNumber=" + handPanelNumber);
-        Debug.Log("battlePanelNumber=" + battlePanelNumber);
+        //Debug.Log("handPanelNumber=" + handPanelNumber);
+        //Debug.Log("battlePanelNumber=" + battlePanelNumber);
         //从手牌位置判定手牌是怪兽，且场上有空位
         if ((handPanelNumber == 0 || handPanelNumber == 1) && battlePanelNumber < 3 && battleProcess.allyPlayerData.monsterGameObjectArray[2] == null)
         {
-            Debug.Log("DragHandCard.OnPointerUp:手牌是怪兽，且场上有空位");
+            //Debug.Log("DragHandCard.OnPointerUp:手牌是怪兽，且场上有空位");
             goto c;
         }
         //是道具
@@ -157,17 +159,17 @@ public class DragHandCard : MonoBehaviour, IDragHandler, IPointerUpHandler, IPoi
                     GameObject monsterGameObject1 = battleProcess.allyPlayerData.monsterGameObjectArray[battlePanelNumber];
                     if (monsterGameObject1 != null)
                     {
-                        Debug.Log("DragHandCard.OnPointerUp:手牌是消耗品，目标是我方怪兽");
+                        //Debug.Log("DragHandCard.OnPointerUp:手牌是消耗品，目标是我方怪兽");
                         goto c;
                     }
                 }
 
                 if (targetPlayer == Player.Enemy)
                 {
-                    GameObject monsterGameObject2 = battleProcess.enemyPlayerData.monsterGameObjectArray[battlePanelNumber];
+                    GameObject monsterGameObject2 = battleProcess.enemyPlayerData.monsterGameObjectArray[battlePanelNumber - 3];
                     if (monsterGameObject2 != null)
                     {
-                        Debug.Log("DragHandCard.OnPointerUp:手牌是消耗品，目标是对方怪兽");
+                        //Debug.Log("DragHandCard.OnPointerUp:手牌是消耗品，目标是对方怪兽");
                         goto c;
                     }
                 }
@@ -180,21 +182,22 @@ public class DragHandCard : MonoBehaviour, IDragHandler, IPointerUpHandler, IPoi
                     GameObject monsterGameObject1 = battleProcess.allyPlayerData.monsterGameObjectArray[battlePanelNumber];
                     if (monsterGameObject1 != null)
                     {
-                        Debug.Log("DragHandCard.OnPointerUp:手牌是装备，且有我方怪兽");
+                        //Debug.Log("DragHandCard.OnPointerUp:手牌是装备，且有我方怪兽");
                         goto c;
                     }
                 }
             }
         }
+        battleProcess.allyPlayerData.canUseHandCard = true;
         return;
 
     //标签c
     c:;
 
         CardForShow cardForShow = transform.GetComponent<CardForShow>();
-
+        string flags = cardForShow.flags;
         //如果是精英卡
-        if (cardForShow.flags.Contains("\"2\""))
+        if (flags != null && flags != "" && flags.Contains("\"2\""))
         {
             //创建选精英阵营的界面
             GameObject selectEliteKindPrefab = LoadAssetBundle.prefabAssetBundle.LoadAsset<GameObject>("SelectEliteKindPrefab");
@@ -209,9 +212,20 @@ public class DragHandCard : MonoBehaviour, IDragHandler, IPointerUpHandler, IPoi
             selectEliteKindCanvas.GetComponent<RectTransform>().localScale = new Vector3(1, 1, 1);
 
             //加载两张卡上的图像和选择点击事件
-            Dictionary<string, string> cardData = cardForShow.GetCardData();
+            Dictionary<string, string> cardData = new();
+            cardData.Add("CardID", cardForShow.id);
+            cardData.Add("CardName", cardForShow.cardName);
+            cardData.Add("CardType", cardForShow.type);
+            cardData.Add("CardKind", cardForShow.kind);
+            cardData.Add("CardRace", cardForShow.race);
+            cardData.Add("CardHP", cardForShow.hp.ToString());
+            cardData.Add("CardFlags", cardForShow.flags);
+            cardData.Add("CardSkinID", cardForShow.skinID);
+            cardData.Add("CardCost", cardForShow.cost.ToString());
+            cardData.Add("CardSkill", cardForShow.skill);
+            cardData.Add("CardEliteSkill", cardForShow.eliteSkill);
 
-            string cardEP = cardData["CardEP"];
+            string cardEP = cardData["CardEliteSkill"];
             string cardKind = cardData["CardKind"];
 
             Dictionary<string, object> ePD = JsonConvert.DeserializeObject<Dictionary<string, object>>(cardEP);
@@ -234,7 +248,7 @@ public class DragHandCard : MonoBehaviour, IDragHandler, IPointerUpHandler, IPoi
 
             Dictionary<string, object> ePDL = new();
             ePDL.Add("leftSkill", leftSkill);
-            cardDataL["CardEP"] = JsonConvert.SerializeObject(ePDL);
+            cardDataL["CardEliteSkill"] = JsonConvert.SerializeObject(ePDL);
 
             Dictionary<string, string> cardKindDL = new();
             cardKindDL.Add("leftKind", leftKind);
@@ -244,7 +258,8 @@ public class DragHandCard : MonoBehaviour, IDragHandler, IPointerUpHandler, IPoi
             eliteLCardForShow.SetAllAttribute(cardDataL);
 
             SelectEliteKind selectEliteKindL = eliteLCardForShowPrefab.Find("Canvas").gameObject.GetComponent<SelectEliteKind>();
-            selectEliteKindL.parameterNode = parameterNode;
+            selectEliteKindL.parameter = parameter;
+            selectEliteKindL.cardIndex = 0;
 
             //右
             Transform eliteRCardForShowPrefab = selectEliteKindCanvas.transform.Find("EliteRCardForShowPrefab");
@@ -252,7 +267,7 @@ public class DragHandCard : MonoBehaviour, IDragHandler, IPointerUpHandler, IPoi
 
             Dictionary<string, object> ePDR = new();
             ePDR.Add("leftSkill", rightSkill);
-            cardDataR["CardEP"] = JsonConvert.SerializeObject(ePDR);
+            cardDataR["CardEliteSkill"] = JsonConvert.SerializeObject(ePDR);
 
             Dictionary<string, string> cardKindDR = new();
             cardKindDR.Add("leftKind", rightKind);
@@ -262,58 +277,18 @@ public class DragHandCard : MonoBehaviour, IDragHandler, IPointerUpHandler, IPoi
             eliteRCardForShow.SetAllAttribute(cardDataR);
 
             SelectEliteKind selectEliteKindR = eliteRCardForShowPrefab.Find("Canvas").gameObject.GetComponent<SelectEliteKind>();
-            selectEliteKindR.parameterNode = parameterNode;
+            selectEliteKindR.parameter = parameter;
+            selectEliteKindR.cardIndex = 1;
         }
         else
         {
-            Dictionary<string, string> cardData = cardForShow.GetCardData();
+            ParameterNode parameterNode1 = new();
+            parameterNode1.opportunity = "CheckCardTarget";
+            parameterNode1.parameter = parameter;
 
-            string cardP = cardData["CardP"];
-            JObject cardPD = JsonConvert.DeserializeObject<JObject>(cardP);
+            SocketTool.SendMessage(new NetworkMessage(NetworkMessageType.UseHandCard, parameter));
 
-            Dictionary<string, int> cardPDictionary = new();
-            foreach (var item in cardPD)
-            {
-                cardPDictionary.Add(item.Key, Convert.ToInt32(item.Value));
-            }
-
-            string CardKind = cardData["CardKind"];
-            JObject CardKindD = JsonConvert.DeserializeObject<JObject>(CardKind);
-
-            string kind = CardKindD["leftKind"].ToString();
-
-            string cardEP = cardData["CardEP"];
-            JObject cardEPD = JsonConvert.DeserializeObject<JObject>(cardEP);
-
-            JToken leftSkill = cardEPD["leftSkill"];
-            string leftSkillName = leftSkill["name"].ToString();
-            string leftSkillValue = leftSkill["value"].ToString();
-
-            JToken rightSkill = cardEPD["rightSkill"];
-            string rightSkillName = rightSkill["name"].ToString();
-            string rightSkillValue = rightSkill["value"].ToString();
-
-            Dictionary<string, Dictionary<string, object>> cardEPDictionary = new() { { "leftSkill", new() { { "name", leftSkillName }, { "name", rightSkillName } } }, { "rightSkill", new() { { "name", rightSkillName }, { "name", rightSkillValue } } } };
-
-            Dictionary<string, object> cardDataInBattle = new()
-            {
-                { "CardID", cardData["CardID"] },
-                { "CardName", cardData["CardName"] },
-                { "CardType", cardData["CardType"] },
-                { "CardKind", kind },
-                { "CardRace", cardData["CardRace"] },
-                { "CardHP", Convert.ToInt32(cardData["CardHP"]) },
-                { "CardSkinID", cardData["CardSkinID"] },
-                { "CardCost", Convert.ToInt32(cardData["CardCost"]) },
-                { "CardP", cardPDictionary },
-                { "CardEP", cardEPDictionary }
-            };
-
-            parameterNode.parameter.Add("CardDataInBattle", cardDataInBattle);
-
-            SocketTool.SendMessage(new NetworkMessage(NetworkMessageType.DragHandCard, parameterNode.parameter));
-
-            StartCoroutine(playerAction.DoAction(playerAction.UseACard, parameterNode.parameter));
+            battleProcess.StartCoroutine(battleProcess.ExecuteEvent(parameterNode1));
         }
     }
 }

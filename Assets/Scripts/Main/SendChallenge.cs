@@ -1,8 +1,6 @@
 using System;
 using System.Collections;
-using System.Collections.Generic;
 using System.Net;
-using System.Threading;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
@@ -17,6 +15,7 @@ public class SendChallenge : MonoBehaviour
     public void OnClick()
     {
         Debug.Log("SendChallenge.OnClick：点击挑战按钮");
+        //关闭挑战
         if (isChallenging)
         {
             StopCoroutine(coroutine);
@@ -33,6 +32,7 @@ public class SendChallenge : MonoBehaviour
 
             isChallenging = false;
         }
+        //开启挑战
         else
         {
             isChallenging = true;
@@ -56,16 +56,21 @@ public class SendChallenge : MonoBehaviour
     {
         yield return null;
         Debug.Log("SendChallenge.StartSocketClient：进入");
-        IPAddress iPAddress = IPAddress.Parse(GameObject.Find("IPAddressInputField").GetComponent<InputField>().text);
-        int port = Convert.ToInt32(GameObject.Find("PortInputField").GetComponent<InputField>().text);
-        SocketTool.StartClient(iPAddress, port);
-        while (!SocketTool.link.Connected)
-        {
-            yield return new WaitForSecondsRealtime(3f);
-            SocketTool.StartClient(iPAddress, port);
-        }
+        IPAddress iPAddress = IPAddress.Parse(GameObject.Find("EnemyIPInputField").GetComponent<InputField>().text);
+        int port = Convert.ToInt32(GameObject.Find("EnemyPortInputField").GetComponent<InputField>().text);
 
-        Debug.Log("SendChallenge.StartSocketClient：跳转战斗界面");
-        SceneManager.LoadScene("BattleScene");
+        while (true)
+        {
+            //yield return null;
+            SocketTool.StartClient(iPAddress, port);
+
+            if (SocketTool.link.Connected)
+            {
+                // yield return null;
+                SocketTool.acceptMessageThread.Start();
+                SceneManager.LoadScene("BattleScene");
+            }
+            yield return null;
+        }
     }
 }

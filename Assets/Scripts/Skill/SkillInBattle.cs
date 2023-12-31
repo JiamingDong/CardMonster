@@ -12,11 +12,16 @@ public abstract class SkillInBattle : OpportunityEffect
     public Dictionary<string, int> sourceAndValue = new();
 
     /// <summary>
-    /// 获取技能数值，小于0的会返回0
+    /// 获取技能数值，如果sourceAndValue为空返回-1，否则，小于0的会返回0
     /// </summary>
     /// <returns>技能数值</returns>
-    public int GetSKillValue()
+    public int GetSkillValue()
     {
+        if (sourceAndValue.Count == 0)
+        {
+            return -1;
+        }
+
         int value = 0;
         foreach (KeyValuePair<string, int> keyValuePair in sourceAndValue)
         {
@@ -33,11 +38,14 @@ public abstract class SkillInBattle : OpportunityEffect
     public int AddValue(string source, int value)
     {
         if (sourceAndValue.ContainsKey(source))
+        {
             sourceAndValue[source] += value;
+        }
         else
+        {
             sourceAndValue.Add(source, value);
-
-        return GetSKillValue();
+        }
+        return GetSkillValue();
     }
 
     /// <summary>
@@ -51,35 +59,4 @@ public abstract class SkillInBattle : OpportunityEffect
             sourceAndValue.Remove(source);
         }
     }
-
-    /// <summary>
-    /// 获得技能类型
-    /// </summary>
-    /// <param name="skillName">技能名</param>
-    /// <returns></returns>
-    public static SkillType GetSkillType(string skillName)
-    {
-        return skillName switch
-        {
-            "armor" => SkillType.Armor,
-            "chance" or "magic" or "ranged" or "melee" or "heal" or "heal_all" or "heal_consume" or "heal_all_consume" or "lightning" or "lightning_all" or "damage" or "damage_all" => SkillType.BasicSkill,
-            _ => SkillType.NonbasicSkill,
-        };
-    }
-
-    /// <summary>
-    /// 是否是基础攻击效果
-    /// </summary>
-    /// <param name="effectName"></param>
-    /// <returns></returns>
-    public bool IsBasicAttackEffect()
-    {
-        string name = GetType().Name;
-        if (name.Equals("Chance") || name.Equals("Magic") || name.Equals("Ranged") || name.Equals("Melee"))
-        {
-            return true;
-        }
-        return false;
-    }
-
 }

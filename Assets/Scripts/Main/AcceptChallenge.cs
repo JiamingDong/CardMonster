@@ -13,9 +13,11 @@ public class AcceptChallenge : MonoBehaviour
     public void OnClick()
     {
         Debug.Log("AcceptChallenge.OnClick：点击接受挑战按钮");
+        //关闭挑战
         if (isChallenging)
         {
             StopCoroutine(coroutine);
+            SocketTool.acceptMessageThread.Abort();
 
             GameObject receiveChallengeButtonCanvas = GameObject.Find("ReceiveChallengeButtonCanvas");
 
@@ -28,6 +30,7 @@ public class AcceptChallenge : MonoBehaviour
 
             isChallenging = false;
         }
+        //开启挑战
         else
         {
             isChallenging = true;
@@ -52,24 +55,26 @@ public class AcceptChallenge : MonoBehaviour
         yield return null;
         Debug.Log("AcceptChallenge.StartSocketClient：进入");
 
-        int port = Convert.ToInt32(GameObject.Find("PortInputField").GetComponent<InputField>().text);
-        SocketTool.StartListening(IPAddress.Parse("127.0.0.1"), port);
+        int port = Convert.ToInt32(GameObject.Find("AllyPortInputField").GetComponent<InputField>().text);
+        SocketTool.StartListening(IPAddress.Parse("0.0.0.0"), port);
+
+        SocketTool.acceptMessageThread.Start();
 
         while (true)
         {
-            if (SocketTool.link.Connected)
+            yield return null;
+            NetworkMessage networkMessage = SocketTool.GetNetworkMessage();
+            //Debug.Log(networkMessage != null ? networkMessage.Type + "----" + (networkMessage.Type == NetworkMessageType.GameStart) : "null");
+            if (networkMessage != null && networkMessage.Type == NetworkMessageType.GameStart)
             {
                 Debug.Log("AcceptChallenge.StartSocketClient：跳转战斗界面");
                 SceneManager.LoadScene("BattleScene");
+                Debug.Log("AcceptChallenge.StartSocketClient：跳转战斗界面2");
                 yield return null;
-            }
-            else
-            {
-                yield return new WaitForSecondsRealtime(3f);
-
+                Debug.Log("AcceptChallenge.StartSocketClient：跳转战斗界面3");
+                yield return null;
+                yield break;
             }
         }
-
-
     }
 }

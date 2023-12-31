@@ -13,7 +13,7 @@ public class Receive : MonoBehaviour
 
     public void OnClick()
     {
-        NetworkMessage networkMessage = SocketTool.GetNetworkMessage();
-        Debug.Log("Receive.OnClick£º" + networkMessage.ToString());
+        //NetworkMessage networkMessage = SocketTool.GetNetworkMessage();
+        //Debug.Log("Receive.OnClick£º" + networkMessage.ToString());
     }
 }

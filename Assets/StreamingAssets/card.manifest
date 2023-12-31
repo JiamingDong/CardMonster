@@ -1,15 +1,15 @@
 ManifestFileVersion: 0
-CRC: 1046029812
+CRC: 2682604276
 Hashes:
   AssetFileHash:
     serializedVersion: 2
-    Hash: f93cb89311f1decc3bff2eebf69d5a6a
+    Hash: 2faa7d258ab7aa8b2bfaa74d78a117c0
   TypeTreeHash:
     serializedVersion: 2
     Hash: 2d8df09e698f722ada1caa03d3413830
   IncrementalBuildHash:
     serializedVersion: 2
-    Hash: f93cb89311f1decc3bff2eebf69d5a6a
+    Hash: 2faa7d258ab7aa8b2bfaa74d78a117c0
 HashAppended: 0
 ClassTypes:
 - Class: 28
@@ -111,6 +111,7 @@ Assets:
 - Assets/Image/Card/Skill/dragon_blue.png
 - Assets/Image/Card/Skill/phantom.png
 - Assets/Image/Card/Skill/steal_life.png
+- Assets/Image/Card/CardFrame/CostImage2.png
 - Assets/Image/Card/Skill/pick_up_weapon.png
 - Assets/Image/Card/Skill/dragon_purple.png
 - Assets/Image/Card/Skill/pharaoh_weapon.png
@@ -184,11 +185,11 @@ Assets:
 - Assets/Image/Card/Skill/debuff_flying.png
 - Assets/Image/Card/Skill/forge.png
 - Assets/Image/Card/Skill/residual_poison.png
-- Assets/Image/Card/Skill/shield.png
+- Assets/Image/Card/Skill/sacrifice_crystal.png
 - Assets/Image/Card/Skill/tread.png
 - Assets/Image/Card/Skill/chaos_item.png
+- Assets/Image/Card/Skill/shield.png
 - Assets/Image/Card/Skill/boost_up.png
-- Assets/Image/Card/Skill/sacrifice_crystal.png
 - Assets/Image/Card/Skill/salvo.png
 - Assets/Image/Card/CardBackground/BackgroundLnature.png
 - Assets/Image/Card/Skill/batter_shield.png

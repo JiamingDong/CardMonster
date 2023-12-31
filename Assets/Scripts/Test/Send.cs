@@ -7,7 +7,7 @@ public class Send : MonoBehaviour
 {
     public void OnClick()
     {
-        NetworkMessageType networkMessageType = NetworkMessageType.DragHandCard;
+        NetworkMessageType networkMessageType = NetworkMessageType.UseHandCard;
         Dictionary<string, object> keyValuePairs = new Dictionary<string, object>();
         keyValuePairs.Add("test", "testMessage");
         NetworkMessage networkMessage = new NetworkMessage(networkMessageType, keyValuePairs);

@@ -5,6 +5,7 @@ using System.Reflection;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
+using static UnityEngine.Networking.UnityWebRequest;
 
 /// <summary>
 /// 游戏战斗进程
@@ -15,6 +16,11 @@ public class BattleProcess : MonoBehaviour
     /// 消耗品结算区域
     /// </summary>
     public GameObject settlementAreaPanel;
+
+    /// <summary>
+    /// 战斗记录
+    /// </summary>
+    public Text[] combatLogTexts;
 
     /// <summary>
     /// 游戏所处阶段
@@ -39,16 +45,25 @@ public class BattleProcess : MonoBehaviour
     /// 系统视角玩家信息，第一个为视角所在玩家，第二个为视角对面的玩家
     /// </summary>
     public PlayerData[] systemPlayerData;
+    /// <summary>
+    /// 我方动作队列
+    /// </summary>
+    public Queue<NetworkMessage> allyActionQueue;
 
     /// <summary>
     /// 参数树根节点
     /// </summary>
-    public ParameterNode root;
+    //public ParameterNode root;
 
     /// <summary>
     /// 本类实例
     /// </summary>
     private static BattleProcess instance;
+
+    //private int effectIndex;
+    //private int executeEventIndex;
+
+    Dictionary<string, string> skillClassToChinese;
 
     /// <summary>
     /// 获得本类实例
@@ -66,17 +81,28 @@ public class BattleProcess : MonoBehaviour
     /// </summary>
     private void Awake()
     {
-        //Assembly assembly = Assembly.GetExecutingAssembly();
-        //Debug.Log(assembly.GetName().Name);
-        //Debug.Log(assembly.GetName().Version);
-        //Debug.Log(assembly.GetName().CultureName);
-        //Debug.Log(assembly.GetName().CultureInfo.Name);
-        //Debug.Log(assembly.GetName().GetPublicKeyToken());
+        //effectIndex = 0;
+        //executeEventIndex = 0;
+        //root = new();
 
-        root = new();
+        //开启接收对方消息的线程
+        //SocketTool.acceptMessageThread.Start();
 
         //结算区域
         settlementAreaPanel = GameObject.Find("SettlementAreaPanel");
+
+        //战斗记录
+        combatLogTexts = new Text[10];
+        combatLogTexts[0] = GameObject.Find("CombatLogText1").GetComponent<Text>();
+        combatLogTexts[1] = GameObject.Find("CombatLogText2").GetComponent<Text>();
+        combatLogTexts[2] = GameObject.Find("CombatLogText3").GetComponent<Text>();
+        combatLogTexts[3] = GameObject.Find("CombatLogText4").GetComponent<Text>();
+        combatLogTexts[4] = GameObject.Find("CombatLogText5").GetComponent<Text>();
+        combatLogTexts[5] = GameObject.Find("CombatLogText6").GetComponent<Text>();
+        combatLogTexts[6] = GameObject.Find("CombatLogText7").GetComponent<Text>();
+        combatLogTexts[7] = GameObject.Find("CombatLogText8").GetComponent<Text>();
+        combatLogTexts[8] = GameObject.Find("CombatLogText9").GetComponent<Text>();
+        combatLogTexts[9] = GameObject.Find("CombatLogText10").GetComponent<Text>();
 
         //处于游戏开始前
         gamePhase = GamePhase.BeforeGameBegin;
@@ -85,6 +111,8 @@ public class BattleProcess : MonoBehaviour
         allyPlayerData = new();
 
         allyPlayerData.actualPlayer = Player.Ally;
+
+        allyPlayerData.perspectivePlayer = Player.Ally;
 
         allyPlayerData.roundNumber = 0;
 
@@ -107,8 +135,8 @@ public class BattleProcess : MonoBehaviour
         allyPlayerData.surplusItemAmountText = GameObject.Find("AllySurplusItemAmountText").GetComponent<Text>();
         allyPlayerData.surplusCrystalText = GameObject.Find("AllySurplusCrystalText").GetComponent<Text>();
 
-        allyPlayerData.monsterDeck = new List<Dictionary<string, string>>();
-        allyPlayerData.itemDeck = new List<Dictionary<string, string>>();
+        allyPlayerData.monsterDeck = new();
+        allyPlayerData.itemDeck = new();
         allyPlayerData.surplusCrystal = 0;
         allyPlayerData.handMonster = new Dictionary<string, string>[2];
         allyPlayerData.handItem = new Dictionary<string, string>[2];
@@ -121,6 +149,8 @@ public class BattleProcess : MonoBehaviour
 
         enemyPlayerData.actualPlayer = Player.Enemy;
 
+        enemyPlayerData.perspectivePlayer = Player.Enemy;
+
         enemyPlayerData.monsterInBattlePanel = new GameObject[3];
         enemyPlayerData.monsterInBattlePanel[0] = GameObject.Find("EnemyMonsterInBattlePanel1");
         enemyPlayerData.monsterInBattlePanel[1] = GameObject.Find("EnemyMonsterInBattlePanel2");
@@ -132,8 +162,8 @@ public class BattleProcess : MonoBehaviour
         enemyPlayerData.surplusItemAmountText = GameObject.Find("EnemySurplusItemAmountText").GetComponent<Text>();
         enemyPlayerData.surplusCrystalText = GameObject.Find("EnemySurplusCrystalText").GetComponent<Text>();
 
-        enemyPlayerData.monsterDeck = new List<Dictionary<string, string>>();
-        enemyPlayerData.itemDeck = new List<Dictionary<string, string>>();
+        enemyPlayerData.monsterDeck = new();
+        enemyPlayerData.itemDeck = new();
         enemyPlayerData.surplusCrystal = 0;
         enemyPlayerData.handMonster = new Dictionary<string, string>[2];
         enemyPlayerData.handItem = new Dictionary<string, string>[2];
@@ -143,6 +173,13 @@ public class BattleProcess : MonoBehaviour
         systemPlayerData = new PlayerData[2];
         systemPlayerData[0] = allyPlayerData;
         systemPlayerData[1] = enemyPlayerData;
+
+        var allSkillConfig = Database.cardMonster.Query("AllSkillConfig", "");
+        skillClassToChinese = new();
+        foreach (var item in allSkillConfig)
+        {
+            skillClassToChinese.Add(item["SkillClassName"], item["SkillChineseName"]);
+        }
     }
 
     void Start()
@@ -164,7 +201,7 @@ public class BattleProcess : MonoBehaviour
 
         //开始游戏第一个回合
         ParameterNode parameterNode2 = new();
-        parameterNode2.opportunity = "EnterRoundReady";
+        parameterNode2.opportunity = "InRoundReady";
 
         yield return StartCoroutine(ExecuteEvent(parameterNode2));
     }
@@ -177,13 +214,10 @@ public class BattleProcess : MonoBehaviour
     /// <returns></returns>
     public IEnumerator ExecuteEvent(ParameterNode parameterNode)
     {
-        yield return null;
-
         //发动规则技能
         RuleEvent ruleEvent = RuleEvent.GetInstance();
-        //Debug.Log(parameterNode);
         yield return StartCoroutine(ruleEvent.ExecuteEligibleEffect(parameterNode));
-        yield return null;
+        //yield return null;
 
         //发动英雄技能，从系统主视角轮询
         for (int i = 0; i < systemPlayerData.Length; i++)
@@ -193,7 +227,7 @@ public class BattleProcess : MonoBehaviour
             if (heroSkill.TryGetComponent<HeroSkillInBattle>(out var heroSkillInBattle))
             {
                 yield return StartCoroutine(heroSkillInBattle.LaunchSkill(parameterNode));
-                yield return null;
+                //yield return null;
             }
         }
 
@@ -208,8 +242,9 @@ public class BattleProcess : MonoBehaviour
                 if (monsterGameObject != null)
                 {
                     MonsterInBattle monsterInBattle = monsterGameObject.GetComponent<MonsterInBattle>();
+                    //Debug.Log($"{parameterNode.opportunity}----{monsterInBattle.cardName}");
                     yield return StartCoroutine(monsterInBattle.LaunchSkill(parameterNode));
-                    yield return null;
+                    //yield return null;
                 }
             }
 
@@ -217,29 +252,17 @@ public class BattleProcess : MonoBehaviour
             GameObject consumeGameObject = systemPlayerData[i].consumeGameObject;
             if (consumeGameObject != null)
             {
+                //Debug.Log($"{parameterNode.opportunity}----询问消耗品");
                 ConsumeInBattle consumeInBattle = consumeGameObject.GetComponent<ConsumeInBattle>();
                 yield return StartCoroutine(consumeInBattle.LaunchSkill(parameterNode));
-                yield return null;
+                //yield return null;
             }
         }
 
-    }
-
-    /// <summary>
-    /// 切换系统视角
-    /// </summary>
-    public void SwitchSystemPerspective()
-    {
-        if (nextTurn == Player.Ally)
-        {
-            allyPlayerData.perspectivePlayer = Player.Ally;
-            enemyPlayerData.perspectivePlayer = Player.Enemy;
-        }
-        else if (nextTurn == Player.Enemy)
-        {
-            allyPlayerData.perspectivePlayer = Player.Enemy;
-            enemyPlayerData.perspectivePlayer = Player.Ally;
-        }
+        //发动规则2
+        //Debug.Log($"{parameterNode.opportunity}----发动规则2");
+        RuleEvent2 ruleEvent2 = RuleEvent2.GetInstance();
+        yield return StartCoroutine(ruleEvent2.ExecuteEligibleEffect(parameterNode));
     }
 
     /// <summary>
@@ -249,103 +272,94 @@ public class BattleProcess : MonoBehaviour
     /// <param name="parameterNode"></param>
     /// <param name="fullName"></param>
     /// <returns></returns>
-    public IEnumerator ExecuteEffect(object nodeCreator, Func<ParameterNode, IEnumerator> effect, Dictionary<string, object> parameter, string fullName)
+    public IEnumerator ExecuteEffect(object nodeCreator, string fullName, ParameterNode parameterNode, Func<ParameterNode, IEnumerator> effect)
     {
-        BattleProcess battleProcess = GetInstance();
-
-        //执行效果前必须执行的代码
-        Debug.Log(fullName + "----开始");
-
-        //阻止替代技能antiReplace
-        ParameterNode parameterNode1 = new();
-        parameterNode1.creator = nodeCreator;
-        parameterNode1.opportunity = "AntiReplace." + fullName;
-        //parameterNode1.condition.Add("NodeCreator", nodeCreator);
-
-        List<string> antiReplaceReason = new();
-        parameterNode1.parameter.Add("AntiReplaceReason", antiReplaceReason);
-        parameterNode1.parameter.Add("ReplaceEffectName", fullName);
-
-        yield return StartCoroutine(battleProcess.ExecuteEvent(parameterNode1));
-
-        //Debug.Log(fullName + "----1");
+        Dictionary<string, object> parameter = parameterNode.parameter;
 
         //替代技能replace
-        ParameterNode parameterNode2 = new();
-        parameterNode2.creator = nodeCreator;
-        parameterNode2.opportunity = "Replace." + fullName;
-        //parameterNode2.condition.Add("NodeCreator", nodeCreator);
+        ParameterNode parameterNode1 = new();
+        parameterNode1.creator = nodeCreator;
+        parameterNode1.opportunity = "Replace." + fullName;
+        parameterNode1.parameter = parameter;
 
-        List<string> replaceReason = new();
-        parameterNode2.parameter.Add("ReplaceReason", replaceReason);
-        parameterNode2.parameter.Add("AntiReplaceReason", antiReplaceReason);
-        parameterNode2.parameter.Add("ReplaceEffectName", fullName);
+        parameterNode1.SetParent(parameterNode, ParameterNodeChildType.ReplaceChild);
 
-        yield return StartCoroutine(battleProcess.ExecuteEvent(parameterNode2));
+        yield return StartCoroutine(ExecuteEvent(parameterNode1));
 
-        yield return null;
-
-        if (replaceReason.Count > 0)
+        if (parameterNode1.result.ContainsKey("BeReplaced"))
         {
-            Debug.Log(fullName + "----代替");
+            Debug.Log("----代替----" + fullName);
             yield break;
         }
 
-        //Debug.Log(fullName + "----2");
+        ParameterNode parameterNode2 = new();
+        parameterNode2.creator = nodeCreator;
+        parameterNode2.opportunity = "Before." + fullName;
+        parameterNode2.parameter = parameter;
 
-        //执行效果前触发的技能before
+        parameterNode2.SetParent(parameterNode, ParameterNodeChildType.BeforeChild);
+
+        yield return StartCoroutine(ExecuteEvent(parameterNode2));
+
+        //怪兽发动技能时，上方的图标
+        if (nodeCreator is SkillInBattle skillInBattle)
+        {
+            bool isCard = false;
+            for (int i = 0; i < systemPlayerData.Length; i++)
+            {
+                for (int j = 0; j < systemPlayerData[i].monsterGameObjectArray.Length; j++)
+                {
+                    if (skillInBattle.gameObject == systemPlayerData[i].monsterGameObjectArray[j])
+                    {
+                        Log($"<color=#00ff00>{skillInBattle.gameObject.GetComponent<MonsterInBattle>().cardName}</color>发动<color=#ffff00>{skillClassToChinese[skillInBattle.GetType().Name]}</color>");
+                        isCard = true;
+                    }
+                }
+
+                if (skillInBattle.gameObject == systemPlayerData[i].consumeGameObject)
+                {
+                    Log($"<color=#00ff00>{skillInBattle.gameObject.GetComponent<ConsumeInBattle>().cardName}</color>发动<color=#ffff00>{skillClassToChinese[skillInBattle.GetType().Name]}</color>");
+                    isCard = true;
+                }
+            }
+
+            if (isCard)
+            {
+                GameObject launchSkillPrefab = LoadAssetBundle.prefabAssetBundle.LoadAsset<GameObject>("LaunchSkillPrefab");
+                GameObject launchSkillInBattle = Instantiate(launchSkillPrefab, skillInBattle.gameObject.transform);
+                launchSkillInBattle.GetComponent<Transform>().localPosition = new Vector3(0, 150, 0);
+                GameObject skillCanvas = launchSkillInBattle.transform.GetChild(0).gameObject;
+                skillCanvas.GetComponent<RectTransform>().localScale = new Vector3(0.6f, 0.6f, 1);
+                launchSkillInBattle.GetComponent<InitLaunchSkillPrefab>().Init(skillInBattle.GetType().Name, skillInBattle.GetSkillValue());
+                yield return new WaitForSecondsRealtime(1);
+
+            }
+        }
+
         ParameterNode parameterNode3 = new();
         parameterNode3.creator = nodeCreator;
-        parameterNode3.opportunity = "Before." + fullName;
-        //parameterNode3.condition.Add("NodeCreator", nodeCreator);
+        parameterNode3.parameter = parameter;
 
-        yield return StartCoroutine(battleProcess.ExecuteEvent(parameterNode3));
-        yield return null;
+        parameterNode3.SetParent(parameterNode, ParameterNodeChildType.EffectChild);
 
-        //Debug.Log(fullName + "----3");
+        yield return StartCoroutine(effect(parameterNode3));
 
-        //是否修改效果modify
         ParameterNode parameterNode4 = new();
-        parameterNode3.creator = nodeCreator;
-        parameterNode4.opportunity = "Modify." + fullName;
-        //parameterNode4.condition.Add("NodeCreator", nodeCreator);
+        parameterNode4.creator = nodeCreator;
+        parameterNode4.opportunity = "After." + fullName;
+        parameterNode4.parameter = parameter;
 
-        List<string> modifyReason = new();
-        List<string> antiModifyReason = new();
-        parameterNode4.parameter.Add("ModifyReason", modifyReason);
-        parameterNode4.parameter.Add("AntiModifyReason", antiModifyReason);
-        parameterNode4.parameter.Add("ModifyEffectName", fullName);
+        parameterNode4.SetParent(parameterNode, ParameterNodeChildType.AfterChild);
 
-        yield return StartCoroutine(battleProcess.ExecuteEvent(parameterNode4));
+        yield return StartCoroutine(ExecuteEvent(parameterNode4));
+    }
 
-        yield return null;
-
-        if (modifyReason.Count > 0)
+    public void Log(string message)
+    {
+        for (int i = combatLogTexts.Length - 1; i > 0; i--)
         {
-            Debug.Log(fullName + "----修改");
+            combatLogTexts[i].text = combatLogTexts[i - 1].text;
         }
-        //如果不修改效果，就正常执行
-        else
-        {
-            ParameterNode parameterNode5 = new();
-            parameterNode5.creator = nodeCreator;
-            parameterNode5.parameter = parameter;
-
-            yield return StartCoroutine(effect(parameterNode5));
-            yield return null;
-        }
-
-        //Debug.Log(fullName + "----4");
-
-        //执行效果后触发的技能after
-        ParameterNode parameterNode6 = new();
-        parameterNode6.creator = nodeCreator;
-        parameterNode6.opportunity = "After." + fullName;
-        //parameterNode5.condition.Add("NodeCreator", nodeCreator);
-
-        yield return StartCoroutine(battleProcess.ExecuteEvent(parameterNode6));
-        yield return null;
-
-        Debug.Log(fullName + "----结束");
+        combatLogTexts[0].text = message;
     }
 }

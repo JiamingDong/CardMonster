@@ -1,4 +1,3 @@
-using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -9,19 +8,12 @@ using UnityEngine;
 /// </summary>
 public class Chance : SkillInBattle
 {
-    void Start()
-    {
-        effectList.Add(Effect1);
-    }
-
-    [TriggerEffectCondition("InRoundBattle", compareMethodName = "Compare1")]
+    [TriggerEffect("^InRoundBattle$", "Compare1")]
     public IEnumerator Effect1(ParameterNode parameterNode)
     {
         Dictionary<string, object> parameter = parameterNode.parameter;
         BattleProcess battleProcess = BattleProcess.GetInstance();
         GameAction gameAction = GameAction.GetInstance();
-
-        System.Random random = new();
 
         //对方玩家
         PlayerData oppositePlayerMessage = null;
@@ -39,25 +31,44 @@ public class Chance : SkillInBattle
     end:;
 
         //选取技能目标
-        GameObject effectTarget;
-        for (int i = 0; i < 3; i++)
-        {
-            if (oppositePlayerMessage.monsterGameObjectArray[i] != null)
-            {
-                effectTarget = oppositePlayerMessage.monsterGameObjectArray[random.Next(0, i + 1)];
-                goto endOfTarget;
-            }
-        }
-        yield break;
-    endOfTarget:;
+        //List<GameObject> nontargetList = new();
+        List<GameObject> priorTargetList = new();
 
-        int skillValue = GetSKillValue();
+        Dictionary<string, object> parameter1 = new();
+        parameter1.Add("LaunchedSkill", this);
+        parameter1.Add("EffectName", "Effect1");
+        //parameter1.Add("NontargetList", nontargetList);
+        parameter1.Add("PriorTargetList", priorTargetList);
+
+        ParameterNode parameterNode1 = parameterNode.AddNodeInMethod();
+        parameterNode1.parameter = parameter1;
+
+        yield return battleProcess.StartCoroutine(gameAction.DoAction(gameAction.SelectEffectTarget, parameterNode1));
+        yield return null;
+
+        GameObject effectTarget = null;
+        if (priorTargetList.Count > 0)
+        {
+            effectTarget = priorTargetList[0];
+        }
+        else
+        {
+            for (int i = 2; i > -1; i--)
+            {
+                if (oppositePlayerMessage.monsterGameObjectArray[i] != null)
+                {
+                    effectTarget = oppositePlayerMessage.monsterGameObjectArray[RandomUtils.GetRandomNumber(0, i)];
+                    goto endOfTarget;
+                }
+            }
+        endOfTarget:;
+        }
+
+        int skillValue = GetSkillValue();
 
         if (skillValue > 0)
         {
-            Dictionary<string, object> keyValuePairs = new();
-            yield return StartCoroutine(NetworkMessageUtils.GetRandomResult(0, skillValue, keyValuePairs));
-            skillValue = (int)keyValuePairs["RandomResult"];
+            skillValue = RandomUtils.GetRandomNumber(1, skillValue);
         }
 
         //伤害参数
@@ -73,16 +84,16 @@ public class Chance : SkillInBattle
         //伤害类型
         damageParameter.Add("DamageType", DamageType.Real);
 
-        yield return StartCoroutine(gameAction.DoAction(gameAction.HurtMonster, damageParameter));
+        ParameterNode parameterNode2 = parameterNode.AddNodeInMethod();
+        parameterNode2.parameter = damageParameter;
 
+        yield return battleProcess.StartCoroutine(gameAction.DoAction(gameAction.HurtMonster, parameterNode2));
         yield return null;
     }
 
     /// <summary>
     /// 判断是否是己方回合，对方场上有怪兽
     /// </summary>
-    /// <param name="condition"></param>
-    /// <returns></returns>
     public bool Compare1(ParameterNode parameterNode)
     {
         BattleProcess battleProcess = BattleProcess.GetInstance();

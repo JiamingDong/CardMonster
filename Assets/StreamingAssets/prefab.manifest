@@ -1,15 +1,15 @@
 ManifestFileVersion: 0
-CRC: 2078568517
+CRC: 1045176042
 Hashes:
   AssetFileHash:
     serializedVersion: 2
-    Hash: c238d6e2d71ec2fd6e6ec6d2b0637170
+    Hash: 930d9b285af69d3cba5142357122557b
   TypeTreeHash:
     serializedVersion: 2
-    Hash: 0cced589c8b50de761d91128d357d547
+    Hash: 22f34a4cf212883beaec0e3e299c8586
   IncrementalBuildHash:
     serializedVersion: 2
-    Hash: c238d6e2d71ec2fd6e6ec6d2b0637170
+    Hash: 930d9b285af69d3cba5142357122557b
 HashAppended: 0
 ClassTypes:
 - Class: 1
@@ -31,11 +31,15 @@ ClassTypes:
 - Class: 114
   Script: {fileID: 11500000, guid: cfabb0440166ab443bba8876756fdfa9, type: 3}
 - Class: 114
+  Script: {fileID: 11500000, guid: 9321f2c84810ec74cac024ce93aa0526, type: 3}
+- Class: 114
   Script: {fileID: 11500000, guid: 0d6ffbe983bd03740a9c655267267936, type: 3}
 - Class: 114
   Script: {fileID: 11500000, guid: 02baa09b26f36a4468ea7034cccb01b6, type: 3}
 - Class: 114
   Script: {fileID: 11500000, guid: 70cf67ecf8726d7498ecdccd9c4a6362, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: 07cfe371bd9cc5e43bcffde6ebc7b89b, type: 3}
 - Class: 114
   Script: {fileID: 11500000, guid: 7cb532c902831d5428cf7f36e2d11e81, type: 3}
 - Class: 114
@@ -52,6 +56,8 @@ ClassTypes:
   Script: {fileID: 11500000, guid: 50390d35308a54e47ae4e9be5d22f81e, type: 3}
 - Class: 114
   Script: {fileID: 11500000, guid: dc42784cf147c0c48a680349fa168899, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: 09cf7be73c712374284abe6a63ad634f, type: 3}
 - Class: 114
   Script: {fileID: 11500000, guid: 4e29b1a8efbd4b44bb3f3716e73f07ff, type: 3}
 - Class: 114
@@ -71,9 +77,11 @@ ClassTypes:
 - Class: 114
   Script: {fileID: 11500000, guid: 5cb1e9bd560edd1448846aeed9113973, type: 3}
 - Class: 114
-  Script: {fileID: 11500000, guid: bdd90afd4a196fd419666392338123d2, type: 3}
+  Script: {fileID: 11500000, guid: 15da128f78466f24db40e9e0aebe8aaa, type: 3}
 - Class: 114
-  Script: {fileID: 11500000, guid: 07cfe371bd9cc5e43bcffde6ebc7b89b, type: 3}
+  Script: {fileID: 11500000, guid: 3ccdcc55d399c6749a9b68d1e450b1e6, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: bdd90afd4a196fd419666392338123d2, type: 3}
 - Class: 115
   Script: {instanceID: 0}
 - Class: 128
@@ -112,18 +120,24 @@ SerializeReferenceClassIdentifiers:
 Assets:
 - Assets/Prefabs/CardInDeckPrefab.prefab
 - Assets/Prefabs/SwitchDeckPrefab.prefab
+- Assets/Prefabs/LaunchSkillPrefab.prefab
 - Assets/Prefabs/NonBasicSkillInBattlePrefab.prefab
 - Assets/Prefabs/CardForShowPrefab.prefab
 - Assets/Prefabs/HeroSkillPrefab.prefab
-- Assets/Prefabs/GameVictoryPrefab.prefab
+- Assets/Prefabs/Battle/GameVictoryPrefab.prefab
+- Assets/Prefabs/Battle/ArrowPrefab.prefab
 - Assets/Prefabs/DeckNameSelectPrefab.prefab
+- Assets/Prefabs/Battle/SacrificePrefab.prefab
 - Assets/Prefabs/BasicSkillInBattlePrefab.prefab
-- Assets/Prefabs/SelectEliteKindPrefab.prefab
-- Assets/Prefabs/GameDefeatParfab.prefab
+- Assets/Prefabs/Battle/AllyRoundPrefab.prefab
+- Assets/Prefabs/Battle/SelectEliteKindPrefab.prefab
+- Assets/Prefabs/Battle/GameDefeatParfab.prefab
 - Assets/Prefabs/HeroBigImagePrefab.prefab
 - Assets/Prefabs/SelectHeroSkillPrefab.prefab
 - Assets/Prefabs/MonsterInBattlePrefab.prefab
 - Assets/Prefabs/ButtonPrefab.prefab
+- Assets/Prefabs/InterfacePrefab.prefab
+- Assets/Prefabs/Battle/EnemyRoundPrefab.prefab
 Dependencies:
-- E:/UnityProject/CardMonster/Assets/StreamingAssets/card
-- E:/UnityProject/CardMonster/Assets/StreamingAssets/ui
+- E:/CardMonster/Assets/StreamingAssets/card
+- E:/CardMonster/Assets/StreamingAssets/ui

@@ -14,6 +14,7 @@ public class CardDeckBackground : MonoBehaviour
     /// </summary>
     public void OnClick()
     {
+        Debug.Log(CardDeckBackgroundIndex);
         DeckInCollection deckInCollection = GameObject.Find("CardDeckWindowPanel").GetComponent<DeckInCollection>();
         if (deckInCollection.monsterOrItemInDeck)
         {

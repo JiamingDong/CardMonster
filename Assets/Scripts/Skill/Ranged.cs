@@ -5,20 +5,12 @@ using UnityEngine;
 
 /// <summary>
 /// 远程
-/// 效果1：在回合战斗中，若所在怪兽位置为1号位，对对方1个怪兽造成等于技能数值的物理伤害，优先级为1、2、3，
+/// 在回合战斗中，若所在怪兽位置为1号位，对对方1个怪兽造成等于技能数值的物理伤害，优先级为1、2、3，
 /// 若为2号位，优先级为3、2、1，若为3号位，优先级为2、3、1。
-/// 效果2：代替远程的效果1，代替效果为无效果
 /// </summary>
 public class Ranged : SkillInBattle
 {
-    public Ranged(GameObjectInBattle gameObjectInBattle) : base()
-    {
-        effectList.Add(Effect1);
-        effectList.Add(Effect2);
-
-    }
-
-    [TriggerEffectCondition("InRoundBattle")]
+    [TriggerEffect("^InRoundBattle$", "Compare1")]
     public IEnumerator Effect1(ParameterNode parameterNode)
     {
         Dictionary<string, object> parameter = parameterNode.parameter;
@@ -43,33 +35,58 @@ public class Ranged : SkillInBattle
         }
     end:;
 
-        //对面1号位没怪兽就返回
-        if (oppositePlayerMessage.monsterGameObjectArray[0] == null)
-        {
-            yield break;
-        }
-
         //选取技能目标
-        int[][] skillTargetPriority = new int[][] { new int[] { 0, 1, 2 }, new int[] { 2, 1, 0 }, new int[] { 1, 2, 0 } };
+        List<GameObject> nontargetList = new();
+        List<GameObject> priorTargetList = new();
+        Dictionary<string, object> parameter1 = new();
+        parameter1.Add("LaunchedSkill", this);
+        parameter1.Add("EffectName", "Effect1");
+        parameter1.Add("NontargetList", nontargetList);
+        parameter1.Add("PriorTargetList", priorTargetList);
+
+        ParameterNode parameterNode1 = parameterNode.AddNodeInMethod();
+        parameterNode1.parameter = parameter1;
+
+        yield return battleProcess.StartCoroutine(gameAction.DoAction(gameAction.SelectEffectTarget, parameterNode1));
+        yield return null;
+
         GameObject effectTarget = null;
-        for (int i = 0; i < 3; i++)
+        if (priorTargetList.Count > 0)
         {
-            effectTarget = oppositePlayerMessage.monsterGameObjectArray[skillTargetPriority[position][i]];
-            if (effectTarget != null)
+            effectTarget = priorTargetList[0];
+        }
+        else
+        {
+            int[][] skillTargetPriority = new int[][] { new int[] { 0, 1, 2 }, new int[] { 2, 1, 0 }, new int[] { 1, 2, 0 } };
+
+            for (int i = 0; i < 3; i++)
             {
-                ParameterNode parameterNode1 = new();
-                parameterNode1.opportunity = "Ranged.Effect1.ChoiceTarget";
+                effectTarget = oppositePlayerMessage.monsterGameObjectArray[skillTargetPriority[position][i]];
+                if (effectTarget == null)
+                {
+                    continue;
+                }
 
-                //parameterNode.condition.Add("LaunchedSkill", this);
+                bool isNontarget = false;
+                foreach (GameObject go in nontargetList)
+                {
+                    if (go == effectTarget)
+                    {
+                        isNontarget = true;
+                        break;
+                    }
+                }
 
-                parameterNode1.parameter.Add("LaunchedSkill", this);
-                parameterNode1.parameter.Add("SkillTarget", effectTarget);
-
-                yield return StartCoroutine(battleProcess.ExecuteEvent(parameterNode1));
+                if (isNontarget && i != 2)
+                {
+                    continue;
+                }
+                else
+                {
+                    break;
+                }
             }
         }
-
-        yield return null;
 
         //伤害参数
         Dictionary<string, object> damageParameter = new();
@@ -80,57 +97,48 @@ public class Ranged : SkillInBattle
         //受到伤害的怪兽
         damageParameter.Add("EffectTarget", effectTarget);
         //伤害数值
-        damageParameter.Add("DamageValue", GetSKillValue());
+        damageParameter.Add("DamageValue", GetSkillValue());
         //伤害类型
         damageParameter.Add("DamageType", DamageType.Physics);
 
-        yield return StartCoroutine(gameAction.DoAction(gameAction.HurtMonster, damageParameter));
+        ParameterNode parameterNode2 = parameterNode.AddNodeInMethod();
+        parameterNode2.parameter = damageParameter;
 
+        yield return battleProcess.StartCoroutine(gameAction.DoAction(gameAction.HurtMonster, parameterNode2));
         yield return null;
     }
 
-    [TriggerEffectCondition("Replace.Ranged.Effect1")]
-    public IEnumerator Effect2(ParameterNode parameterNode)
+    /// <summary>
+    /// 判断是否是己方回合，在2、3号位，对方场上有怪兽
+    /// </summary>
+    public bool Compare1(ParameterNode parameterNode)
     {
-        Dictionary<string, object> parameter = parameterNode.parameter;
         BattleProcess battleProcess = BattleProcess.GetInstance();
 
-        List<string> replaceReason = (List<string>)parameter["ReplaceReason"];
-        List<string> antiReplaceReason = (List<string>)parameter["AntiReplaceReason"];
-        SkillInBattle skillInBattle = (SkillInBattle)parameter["LaunchedSkill"];
-        string replaceEffectName = (string)parameter["ReplaceEffectName"];
+        bool isAlly = false;
+        bool enemyHasMonster = false;
 
-        if (skillInBattle != this)
-        {
-            yield break;
-        }
-
-        if (!replaceEffectName.Equals("Effect1"))
-        {
-            yield break;
-        }
-
-        GameObject monsterOfLaunchingSkill = skillInBattle.gameObject;
-
-        int position = -1;//发动技能的怪兽位置
         for (int i = 0; i < battleProcess.systemPlayerData.Length; i++)
         {
-            for (int j = 2; j > -1; j--)
+            PlayerData systemPlayerData = battleProcess.systemPlayerData[i];
+
+            if (systemPlayerData.perspectivePlayer == Player.Ally)
             {
-                if (battleProcess.systemPlayerData[i].monsterGameObjectArray[j] == monsterOfLaunchingSkill)
+                for (int j = 1; j < systemPlayerData.monsterGameObjectArray.Length; j++)
                 {
-                    position = j;
-                    goto end;
+                    if (systemPlayerData.monsterGameObjectArray[j] == gameObject)
+                    {
+                        isAlly = true;
+                    }
                 }
             }
-        }
-    end:;
 
-        if (position == 0 && !antiReplaceReason.Contains("Ranged.Effect2") && replaceReason.Count == 0)
-        {
-            replaceReason.Add("Melee.Effect2");
+            if (systemPlayerData.perspectivePlayer == Player.Enemy && systemPlayerData.monsterGameObjectArray[0] != null)
+            {
+                enemyHasMonster = true;
+            }
         }
 
-        yield return null;
+        return isAlly && enemyHasMonster;
     }
 }

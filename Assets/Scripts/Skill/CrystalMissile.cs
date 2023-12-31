@@ -8,12 +8,7 @@ using UnityEngine;
 /// </summary>
 public class CrystalMissile : SkillInBattle
 {
-    void Start()
-    {
-        effectList.Add(Effect1);
-    }
-
-    [TriggerEffectCondition("After.GameAction.ChangeCrystalAmount", compareMethodName = "Compare1")]
+    [TriggerEffect(@"^After\.GameAction\.ChangeCrystalAmount$",  "Compare1")]
     public IEnumerator Effect1(ParameterNode parameterNode)
     {
         Dictionary<string, object> parameter = parameterNode.parameter;
@@ -45,10 +40,13 @@ public class CrystalMissile : SkillInBattle
                 damageParameter.Add("LaunchedSkill", this);
                 damageParameter.Add("EffectName", "Effect1");
                 damageParameter.Add("EffectTarget", effectTarget);
-                damageParameter.Add("DamageValue", crystalAmount * GetSKillValue());
+                damageParameter.Add("DamageValue", crystalAmount * GetSkillValue());
                 damageParameter.Add("DamageType", DamageType.Magic);
 
-                yield return StartCoroutine(gameAction.DoAction(gameAction.HurtMonster, damageParameter));
+                ParameterNode parameterNode1 = parameterNode.AddNodeInMethod();
+                parameterNode1.parameter = damageParameter;
+
+                yield return battleProcess.StartCoroutine(gameAction.DoAction(gameAction.HurtMonster, parameterNode1));
             }
         }
 
@@ -58,8 +56,6 @@ public class CrystalMissile : SkillInBattle
     /// <summary>
     /// 判断是否是我方、加水晶、对方有怪兽
     /// </summary>
-    /// <param name="condition"></param>
-    /// <returns></returns>
     public bool Compare1(ParameterNode parameterNode)
     {
         Dictionary<string, object> parameter = parameterNode.parameter;

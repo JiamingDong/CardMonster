@@ -9,32 +9,30 @@ using UnityEngine;
 /// </summary>
 public class Crystal : SkillInBattle
 {
-    void Start()
-    {
-        effectList.Add(Effect1);
-    }
-
-    [TriggerEffectCondition("Before.GameAction.Sacrifice", compareMethodName = "Compare1")]
+    [TriggerEffect(@"^Before\.GameAction\.Sacrifice$",  "Compare1")]
     public IEnumerator Effect1(ParameterNode parameterNode)
     {
         Dictionary<string, object> parameter = parameterNode.parameter;
         int objectBeSacrificedNumber = (int)parameter["ObjectBeSacrificedNumber"];
         Player player = (Player)parameter["Player"];
 
+        BattleProcess battleProcess = BattleProcess.GetInstance();
         GameAction gameAction = GameAction.GetInstance();
 
         Dictionary<string, object> parameter1 = new();
-        parameter1.Add("CrystalAmount", GetSKillValue());
+        parameter1.Add("CrystalAmount", GetSkillValue());
         parameter1.Add("Player", player);
-        yield return StartCoroutine(gameAction.DoAction(gameAction.ChangeCrystalAmount, parameter1));
+
+        ParameterNode parameterNode1 = parameterNode.AddNodeInMethod();
+        parameterNode1.parameter = parameter1;
+
+        yield return battleProcess.StartCoroutine(gameAction.DoAction(gameAction.ChangeCrystalAmount, parameterNode1));
         yield return null;
     }
 
     /// <summary>
     /// ≈–∂œ «∑Ò «±æπ÷ ﬁ
     /// </summary>
-    /// <param name="condition"></param>
-    /// <returns></returns>
     public bool Compare1(ParameterNode parameterNode)
     {
         Dictionary<string, object> parameter = parameterNode.parameter;

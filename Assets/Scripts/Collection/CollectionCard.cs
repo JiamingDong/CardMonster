@@ -23,6 +23,7 @@ public class CollectionCard : MonoBehaviour
     private static float cardCoordinatesOriginX = cardAddClearanceDistanceX / 2;
     private static float cardCoordinatesOriginY = cardAddClearanceDistanceY / 2;
 
+    public string cardType = "monster";
     /// <summary>
     /// 展示在收藏中的卡牌数据
     /// </summary>
@@ -34,13 +35,26 @@ public class CollectionCard : MonoBehaviour
 
     void Start()
     {
-        cardData = Database.cardMonster.Query("AllCardConfig", "and CardType='monster' and CardFlags not like '%\"1\"%' order by CardKind asc,CardCost asc");
-
         ChangeCollectionCardShow();
     }
 
     public void ChangeCollectionCardShow()
     {
+        string filter = " and (CardFlags is null or CardFlags not like '%\"1\"%') ";
+
+        if (cardType == "monster")
+        {
+            filter += " and CardType='monster' ";
+        }
+        else
+        {
+            filter += " and CardType<>'monster' ";
+        }
+
+        filter += " order by CardKind LIKE '%rightKind%' desc,CardKind asc,CardCost asc limit " + (pageNumber * 12) + "," + (pageNumber * 12 + 12);
+
+        cardData = Database.cardMonster.Query("AllCardConfig", filter);
+
         GameObject cardCollectionBackgroundPanel = GameObject.Find("CardCollectionBackgroundPanel");
         //清除原来的卡牌图像
         for (int i = 0; i < cardCollectionBackgroundPanel.transform.childCount; i++)
@@ -48,21 +62,15 @@ public class CollectionCard : MonoBehaviour
             Destroy(cardCollectionBackgroundPanel.transform.GetChild(i).gameObject);
         }
 
-        for (int j = 0; j < 12; j++)
+        for (int j = 0; j < cardData.Count; j++)
         {
-            int index = 12 * pageNumber + j;
-            if (cardData.Count <= index)
-            {
-                break;
-            }
-
-            Dictionary<string, string> aCardDate = cardData[index];
+            Dictionary<string, string> aCardDate = cardData[j];
 
             string cardId = aCardDate["CardID"];
 
             int indexX = j % collectionCardInRow;
             int indexY = j / collectionCardInRow;
-            
+
             GameObject cardForShowPrefab = LoadAssetBundle.prefabAssetBundle.LoadAsset<GameObject>("CardForShowPrefab");
             GameObject aCard = Instantiate(cardForShowPrefab, cardCollectionBackgroundPanel.transform);
             aCard.GetComponent<Transform>().localPosition = new Vector3((float)(cardCoordinatesOriginX + cardAddClearanceDistanceX * indexX), (float)(-cardCoordinatesOriginY - cardAddClearanceDistanceY * indexY), 0);
@@ -84,25 +92,20 @@ public class CollectionCard : MonoBehaviour
     /// <param name="n"></param>
     public void ChangePageNumber(int n)
     {
-        int maxNum = (cardData.Count - 1) / 12;
-        
-        if(n==0 || n == maxNum)
+        int nextPageNumber = n + pageNumber;
+
+        if (n == 0 || nextPageNumber < 0)
         {
             return;
         }
 
-        if (n + pageNumber < 0)
-            pageNumber = 0;
-        else if (n + pageNumber > maxNum)
-            pageNumber = maxNum;
-        else
-            pageNumber += n;
+        pageNumber = nextPageNumber;
+
         ChangeCollectionCardShow();
     }
 
-    public void ChangeCardData(List<Dictionary<string,string>> cardList)
+    public void ChangeCardData()
     {
-        cardData = cardList;
         pageNumber = 0;
         ChangeCollectionCardShow();
     }

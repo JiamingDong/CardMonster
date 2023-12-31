@@ -9,12 +9,7 @@ using UnityEngine;
 /// </summary>
 public class Magic : SkillInBattle
 {
-    public Magic(GameObjectInBattle gameObjectInBattle) : base()
-    {
-        effectList.Add(Effect1);
-    }
-
-    [TriggerEffectCondition("InRoundBattle", compareMethodName = "Compare1")]
+    [TriggerEffect("^InRoundBattle$", "Compare1")]
     public IEnumerator Effect1(ParameterNode parameterNode)
     {
         Dictionary<string, object> parameter = parameterNode.parameter;
@@ -40,31 +35,51 @@ public class Magic : SkillInBattle
     end:;
 
         //选取技能目标
+        List<GameObject> nontargetList = new();
+        Dictionary<string, object> parameter1 = new();
+        //当前技能
+        parameter1.Add("LaunchedSkill", this);
+        //效果名称
+        parameter1.Add("EffectName", "Effect1");
+        parameter1.Add("NontargetList", nontargetList);
+
+        ParameterNode parameterNode1 = parameterNode.AddNodeInMethod();
+        parameterNode1.parameter = parameter1;
+
+        yield return battleProcess.StartCoroutine(gameAction.DoAction(gameAction.SelectEffectTarget, parameterNode1));
+        yield return null;
+
         int[][] skillTargetPriority = new int[][] { new int[] { 0, 1, 2 }, new int[] { 1, 0, 2 }, new int[] { 2, 0, 1 } };
         GameObject effectTarget = null;
         for (int i = 0; i < 3; i++)
         {
             effectTarget = oppositePlayerMessage.monsterGameObjectArray[skillTargetPriority[position][i]];
-            if (effectTarget != null)
+
+            if(effectTarget == null)
             {
-                ParameterNode parameterNode1 = new();
-                parameterNode1.opportunity = "Magic.Effect1.ChoiceTarget";
+                continue;
+            }
 
-                //Dictionary<string, object> targetCondition = new();
-                //targetCondition.Add("LaunchedSkill", this);
+            bool isNontarget = false;
+            foreach (GameObject go in nontargetList)
+            {
+                if (go == effectTarget)
+                {
+                    isNontarget = true;
+                    break;
+                }
+            }
 
-                Dictionary<string, object> targetParameter = new();
-                targetParameter.Add("LaunchedSkill", this);
-                targetParameter.Add("SkillTarget", effectTarget);
-
-                parameterNode1.parameter = targetParameter;
-                //parameterNode1.condition = targetCondition;
-
-                yield return StartCoroutine(battleProcess.ExecuteEvent(parameterNode1));
+            if (isNontarget && i != 2)
+            {
+                continue;
+            }
+            else
+            {
+                goto endOfTarget;
             }
         }
-
-        yield return null;
+    endOfTarget:;
 
         //伤害参数
         Dictionary<string, object> damageParameter = new();
@@ -75,20 +90,20 @@ public class Magic : SkillInBattle
         //受到伤害的怪兽
         damageParameter.Add("EffectTarget", effectTarget);
         //伤害数值
-        damageParameter.Add("DamageValue", GetSKillValue());
+        damageParameter.Add("DamageValue", GetSkillValue());
         //伤害类型
         damageParameter.Add("DamageType", DamageType.Magic);
 
-        yield return StartCoroutine(gameAction.DoAction(gameAction.HurtMonster, damageParameter));
+        ParameterNode parameterNode2 = parameterNode.AddNodeInMethod();
+        parameterNode2.parameter = damageParameter;
 
+        yield return battleProcess.StartCoroutine(gameAction.DoAction(gameAction.HurtMonster, parameterNode2));
         yield return null;
     }
 
     /// <summary>
     /// 判断是否是己方回合，对方场上有怪兽
     /// </summary>
-    /// <param name="condition"></param>
-    /// <returns></returns>
     public bool Compare1(ParameterNode parameterNode)
     {
         BattleProcess battleProcess = BattleProcess.GetInstance();

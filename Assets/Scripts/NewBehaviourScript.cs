@@ -12,7 +12,7 @@ public class NewBehaviourScript : MonoBehaviour
         List<Dictionary<string, string>> keyValuePairs = Database.cardMonster.Query("AllCardConfig", "");
         foreach (Dictionary<string, string> kv in keyValuePairs)
         {
-            //string cardEP = kv["CardEP"];
+            //string cardEP = kv["CardEliteSkill"];
 
             //if (cardEP == null || cardEP.Length == 0)
             //{

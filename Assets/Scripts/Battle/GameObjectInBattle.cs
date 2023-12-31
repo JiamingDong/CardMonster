@@ -18,13 +18,12 @@ public class GameObjectInBattle : MonoBehaviour
     /// <param name="opportunity">Ê±»ú</param>
     public IEnumerator LaunchSkill(ParameterNode parameterNode)
     {
-        foreach (SkillInBattle skill in skillList)
+        BattleProcess battleProcess = BattleProcess.GetInstance();
+        for (int i = 0; i < skillList.Count; i++)
         {
-            yield return StartCoroutine(skill.ExecuteEligibleEffect(parameterNode));
-            yield return null;
+            SkillInBattle skill = skillList[i];
+            yield return battleProcess.StartCoroutine(skill.ExecuteEligibleEffect(parameterNode));
         }
-
-        yield return null;
     }
 
     public PlayerData GetPlayerDataBelongTo()

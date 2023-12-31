@@ -39,7 +39,7 @@ public class Database : MonoBehaviour
             string dbPath = Path.Combine(Application.persistentDataPath, dbName);
             if (!File.Exists(dbPath))
             {
-                Tool.SAToPD(dbName);
+                Utils.SAToPD(dbName);
             }
             cardMonster = new DbAccess("URI=file:" + dbPath);
 #endif
