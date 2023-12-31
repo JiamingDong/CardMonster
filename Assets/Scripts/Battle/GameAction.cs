@@ -970,7 +970,7 @@ public class GameAction : MonoBehaviour
         if (monsterInBattle.GetCurrentHp() < 1)
         {
             Dictionary<string, object> destroyParameter = new();
-            destroyParameter.Add("MonsterBeDestroy", monsterBeHurt);
+            destroyParameter.Add("EffectTarget", monsterBeHurt);
             destroyParameter.Add("Destroyer", opportunityEffect.gameObject);
 
             ParameterNode parameterNode1 = parameterNode.AddNodeInMethod();

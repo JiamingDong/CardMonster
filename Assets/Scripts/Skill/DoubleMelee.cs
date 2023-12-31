@@ -43,9 +43,10 @@ public class DoubleMelee : SkillInBattle
             if (go != null && go.TryGetComponent<Melee>(out var melee) && melee.CompareCondition(melee.Effect1, parameterNode1))
             {
                 yield return battleProcess.StartCoroutine(battleProcess.ExecuteEffect(melee, fullName, parameterNode1, melee.Effect1));
-                yield return null;
             }
         }
+
+        yield return null;
     }
 
     public bool Compare1(ParameterNode parameterNode)

@@ -66,6 +66,8 @@ public class Tread : SkillInBattle
                 yield return battleProcess.StartCoroutine(gameAction.DoAction(gameAction.HurtMonster, parameterNode1));
             }
         }
+
+        yield return null;
     }
 
     /// <summary>

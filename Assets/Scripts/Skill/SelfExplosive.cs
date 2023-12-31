@@ -19,7 +19,7 @@ public class SelfExplosive : SkillInBattle
         Dictionary<string, object> parameter = new();
         parameter.Add("LaunchedSkill", this);
         parameter.Add("EffectName", "Effect1");
-        parameter.Add("MonsterBeDestroy", gameObject);
+        parameter.Add("EffectTarget", gameObject);
         parameter.Add("Destroyer", gameObject);
 
         ParameterNode parameterNode1 = parameterNode.AddNodeInMethod();

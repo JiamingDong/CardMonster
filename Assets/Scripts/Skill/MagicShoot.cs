@@ -139,7 +139,7 @@ public class MagicShoot : SkillInBattle
                 if (monsterInBattle.GetCurrentHp() < 1)
                 {
                     Dictionary<string, object> destroyParameter = new();
-                    destroyParameter.Add("MonsterBeDestroy", monsterBeHurt);
+                    destroyParameter.Add("EffectTarget", monsterBeHurt);
                     destroyParameter.Add("Destroyer", skillInBattle.gameObject);
 
                     ParameterNode parameterNode2 = parameterNode.AddNodeInMethod();
