@@ -12,6 +12,6 @@ public class ArrowUtils:MonoBehaviour
         GameObject canvas = arrowInstance.transform.GetChild(0).gameObject;
         canvas.GetComponent<RectTransform>().localScale = new Vector3(1, 1, 1);
         arrowInstance.GetComponent<InitArrowPrefab>().Init(startPosition, endPosition);
-        yield return new WaitForSecondsRealtime(1);
+        yield return new WaitForSecondsRealtime(0.5f);
     }
 }

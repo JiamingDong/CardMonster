@@ -2,7 +2,9 @@ using Newtonsoft.Json;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 /// <summary>
@@ -42,7 +44,7 @@ public class GameAction : MonoBehaviour
         string fullName = "GameAction." + effectName;
 
         yield return StartCoroutine(battleProcess.ExecuteEffect(this, fullName, parameterNode, effect));
-        yield return null;
+        //yield return null;
     }
 
     /// <summary>
@@ -80,6 +82,7 @@ public class GameAction : MonoBehaviour
                 useCardPlayerData = playerData;
 
                 cardData = handPanelNumber < 2 ? playerData.handMonster[handPanelNumber] : playerData.handItem[handPanelNumber - 2];
+                //Debug.Log(cardData["CardName"]);
                 string cardFlags = cardData["CardFlags"];
                 if (cardFlags != null && cardFlags != "")
                 {
@@ -187,7 +190,7 @@ public class GameAction : MonoBehaviour
         parameterNode2.parameter = parameter2;
 
         yield return StartCoroutine(DoAction(ChangeCrystalAmount, parameterNode2));
-        yield return null;
+        //yield return null;
 
         //怪兽
         if (cardData["CardType"].Equals("monster"))
@@ -238,7 +241,7 @@ public class GameAction : MonoBehaviour
             yield return StartCoroutine(DoAction(ConsumeEnterBattle, parameterNode5));
         }
 
-        yield return null;
+        //yield return null;
 
         //销毁对应手牌
         Dictionary<string, object> parameter6 = new();
@@ -249,7 +252,7 @@ public class GameAction : MonoBehaviour
         parameterNode6.parameter = parameter6;
 
         yield return StartCoroutine(DoAction(DestroyAHandCard, parameterNode6));
-        yield return null;
+        //yield return null;
     }
 
     /// <summary>
@@ -284,7 +287,7 @@ public class GameAction : MonoBehaviour
                         parameterNode2.parameter = moveParameter;
 
                         yield return StartCoroutine(DoAction(MoveMonsterPosition, parameterNode2));
-                        yield return null;
+                        //yield return null;
                     }
                 }
 
@@ -320,7 +323,7 @@ public class GameAction : MonoBehaviour
         result.Add("MonsterBeEquipped", monsterInBattle.gameObject);
 
         yield return StartCoroutine(monsterInBattle.AddEquipment(cardData));
-        yield return null;
+        //yield return null;
     }
 
     /// <summary>
@@ -384,31 +387,44 @@ public class GameAction : MonoBehaviour
         int crystalAmount = (int)parameter["CrystalAmount"];
         Player player = (Player)parameter["Player"];
 
+        BattleProcess battleProcess = BattleProcess.GetInstance();
+
         foreach (PlayerData playerMessage in BattleProcess.GetInstance().systemPlayerData)
         {
             if (playerMessage.perspectivePlayer == player)
             {
+                string color = playerMessage.actualPlayer == Player.Ally ? "#00ff00" : "#ff0000";
+                string playerC = playerMessage.actualPlayer == Player.Ally ? "我方" : "敌方";
+
+                int c1 = playerMessage.surplusCrystal;
                 playerMessage.surplusCrystal = (playerMessage.surplusCrystal + crystalAmount) > 0 ? playerMessage.surplusCrystal + crystalAmount : 0;
 
-                if (playerMessage.surplusCrystalText != null) playerMessage.surplusCrystalText.text = playerMessage.surplusCrystal.ToString();
+                int c2 = playerMessage.surplusCrystal - c1;
+                battleProcess.Log($"<color={color}>{playerC}</color>{(c2 < 0 ? "失去" : "获得")}<color=#ffff00>{(c2 > 0 ? c2 : -c2)}</color>水晶");
+
+                if (playerMessage.surplusCrystalText != null)
+                {
+                    playerMessage.surplusCrystalText.text = playerMessage.surplusCrystal.ToString();
+                }
 
                 break;
             }
         }
 
-        yield return null;
+        yield break;
+        //yield return null;
     }
 
     /// <summary>
     /// 消灭一张手牌
     /// </summary>
-    /// <param name="parameter"></param>
-    /// <returns></returns>
     public IEnumerator DestroyAHandCard(ParameterNode parameterNode)
     {
         Dictionary<string, object> parameter = parameterNode.parameter;
         int handPanelNumber = (int)parameter["HandPanelNumber"];
         Player player = (Player)parameter["Player"];
+
+        BattleProcess battleProcess = BattleProcess.GetInstance();
 
         foreach (PlayerData playerData in BattleProcess.GetInstance().systemPlayerData)
         {
@@ -519,17 +535,22 @@ public class GameAction : MonoBehaviour
                     }
                 }
 
+                //Debug.Log(playerData.monsterDeck.Count + "---" + (playerData.handMonster[0] == null) + "----" + (playerData.handMonster[1] == null) + "----" + noMonsterInBattle);
                 if (playerData.monsterDeck.Count == 0 && playerData.handMonster[0] == null && playerData.handMonster[1] == null && noMonsterInBattle)
                 {
                     switch (playerData.actualPlayer)
                     {
-                        case Player.Ally:
-                            Debug.Log("敌方胜利");
-                            break;
                         case Player.Enemy:
                             Debug.Log("我方胜利");
+                            battleProcess.GameVictory();
+                            break;
+                        case Player.Ally:
+                            Debug.Log("敌方胜利");
+                            battleProcess.GameDefeat();
                             break;
                     }
+
+                    yield return null;
                 }
 
                 break;
@@ -552,37 +573,51 @@ public class GameAction : MonoBehaviour
         string type = (string)parameter["Type"];
         Player player = (Player)parameter["Player"];
 
+        BattleProcess battleProcess = BattleProcess.GetInstance();
+
         foreach (PlayerData playerData in BattleProcess.GetInstance().systemPlayerData)
         {
             if (playerData.perspectivePlayer == player)
             {
                 if (type == "monster")
                 {
-                    playerData.monsterDeck.Dequeue();
-                }
-                else
-                {
-                    playerData.itemDeck.Dequeue();
-                }
+                    int r = RandomUtils.GetRandomNumber(0, playerData.monsterDeck.Count - 1);
 
-                bool noMonsterInBattle = true;
-                for (int k = 0; k < playerData.monsterGameObjectArray.Length; k++)
-                {
-                    if (playerData.monsterGameObjectArray[k] != null)
-                    {
-                        noMonsterInBattle = false;
-                    }
-                }
+                    Dictionary<string, string> cardData = playerData.monsterDeck[r];
+                    string cardName = cardData["CardName"];
 
-                if (playerData.monsterDeck.Count == 0 && playerData.handMonster[0] == null && playerData.handMonster[1] == null && noMonsterInBattle)
-                {
+                    playerData.monsterDeck.RemoveAt(r);
+
+                    playerData.surplusMonsterAmountText.text = (playerData.monsterDeck.Count + (playerData.handMonster[0] == null ? 0 : 1) + (playerData.handMonster[1] == null ? 0 : 1)).ToString();
+
                     switch (playerData.actualPlayer)
                     {
                         case Player.Ally:
-                            Debug.Log("敌方胜利");
+                            battleProcess.Log($"<color=#00ff00>我方</color>牌库怪兽<color=#ffff00>{cardName}</color>被消灭");
                             break;
                         case Player.Enemy:
-                            Debug.Log("我方胜利");
+                            battleProcess.Log($"<color=#00ff00>敌方</color>牌库怪兽<color=#ffff00>{cardName}</color>被消灭");
+                            break;
+                    }
+                }
+                else
+                {
+                    int r = RandomUtils.GetRandomNumber(0, playerData.itemDeck.Count - 1);
+
+                    Dictionary<string, string> cardData = playerData.itemDeck[r];
+                    string cardName = cardData["CardName"];
+
+                    playerData.itemDeck.RemoveAt(r);
+
+                    playerData.surplusItemAmountText.text = (playerData.itemDeck.Count + (playerData.handItem[0] == null ? 0 : 1) + (playerData.handItem[1] == null ? 0 : 1)).ToString();
+
+                    switch (playerData.actualPlayer)
+                    {
+                        case Player.Ally:
+                            battleProcess.Log($"<color=#00ff00>我方</color>牌库道具<color=#ffff00>{cardName}</color>被消灭");
+                            break;
+                        case Player.Enemy:
+                            battleProcess.Log($"<color=#00ff00>敌方</color>牌库道具<color=#ffff00>{cardName}</color>被消灭");
                             break;
                     }
                 }
@@ -642,23 +677,28 @@ public class GameAction : MonoBehaviour
                     bool noMonsterInBattle = true;
                     for (int k = 0; k < playerData.monsterGameObjectArray.Length; k++)
                     {
-                        if (playerData.monsterGameObjectArray[k] == null)
+                        if (playerData.monsterGameObjectArray[k] != null)
                         {
                             noMonsterInBattle = false;
                         }
                     }
 
+                    //Debug.Log(playerData.monsterDeck.Count + "---" + (playerData.handMonster[0] == null) + "----" + (playerData.handMonster[1] == null) + "----" + noMonsterInBattle);
                     if (playerData.monsterDeck.Count == 0 && playerData.handMonster[0] == null && playerData.handMonster[1] == null && noMonsterInBattle)
                     {
                         switch (playerData.actualPlayer)
                         {
-                            case Player.Ally:
-                                Debug.Log("敌方胜利");
-                                break;
                             case Player.Enemy:
                                 Debug.Log("我方胜利");
+                                battleProcess.GameVictory();
+                                break;
+                            case Player.Ally:
+                                Debug.Log("敌方胜利");
+                                battleProcess.GameDefeat();
                                 break;
                         }
+
+                        yield return null;
                     }
 
                     //移动后面的怪兽
@@ -689,7 +729,7 @@ public class GameAction : MonoBehaviour
     public IEnumerator EquipmentLeave(ParameterNode parameterNode)
     {
         Dictionary<string, object> parameter = parameterNode.parameter;
-        GameObject targetMonster = (GameObject)parameter["TargetMonster"];
+        GameObject targetMonster = (GameObject)parameter["EffectTarget"];
 
         MonsterInBattle monsterInBattle = targetMonster.GetComponent<MonsterInBattle>();
 
@@ -717,7 +757,8 @@ public class GameAction : MonoBehaviour
             {
                 if (cardType.Equals("monster"))
                 {
-                    playerData.monsterDeck.Enqueue(cardData);
+                    int r = RandomUtils.GetRandomNumber(0, playerData.monsterDeck.Count);
+                    playerData.monsterDeck.Insert(r, cardData);
 
                     playerData.surplusMonsterAmountText.text = (playerData.monsterDeck.Count + (playerData.handMonster[0] == null ? 0 : 1) + (playerData.handMonster[1] == null ? 0 : 1)).ToString();
 
@@ -739,8 +780,9 @@ public class GameAction : MonoBehaviour
                 }
                 else
                 {
-                    playerData.itemDeck.Enqueue(cardData);
-                    Debug.Log("道具数量" + playerData.itemDeck.Count + (playerData.handItem[0] == null ? 0 : 1) + (playerData.handItem[1] == null ? 0 : 1));
+                    int r = RandomUtils.GetRandomNumber(0, playerData.itemDeck.Count);
+                    playerData.itemDeck.Insert(r, cardData);
+                    //Debug.Log("道具数量" + playerData.itemDeck.Count + (playerData.handItem[0] == null ? 0 : 1) + (playerData.handItem[1] == null ? 0 : 1));
                     playerData.surplusItemAmountText.text = (playerData.itemDeck.Count + (playerData.handItem[0] == null ? 0 : 1) + (playerData.handItem[1] == null ? 0 : 1)).ToString();
 
                     for (int j = 0; j < playerData.handItem.Length; j++)
@@ -787,7 +829,10 @@ public class GameAction : MonoBehaviour
                     case 0:
                         if (playerData.monsterDeck.Count > 0)
                         {
-                            playerData.handMonster[0] = new(playerData.monsterDeck.Dequeue());
+                            //Debug.Log(playerData.monsterDeck[0]["CardName"]);
+                            playerData.handMonster[0] = new(playerData.monsterDeck[0]);
+                            playerData.monsterDeck.RemoveAt(0);
+                            //Debug.Log(playerData.handMonster[0]["CardName"]);
 
                             if (playerData.handMonsterPanel != null)
                             {
@@ -798,7 +843,10 @@ public class GameAction : MonoBehaviour
                     case 1:
                         if (playerData.monsterDeck.Count > 0)
                         {
-                            playerData.handMonster[1] = new(playerData.monsterDeck.Dequeue());
+                            //Debug.Log(playerData.monsterDeck[0]["CardName"]);
+                            playerData.handMonster[1] = new(playerData.monsterDeck[0]);
+                            playerData.monsterDeck.RemoveAt(0);
+                            //Debug.Log(playerData.handMonster[1]["CardName"]);
 
                             if (playerData.handMonsterPanel != null)
                             {
@@ -809,7 +857,8 @@ public class GameAction : MonoBehaviour
                     case 2:
                         if (playerData.itemDeck.Count > 0)
                         {
-                            playerData.handItem[0] = new(playerData.itemDeck.Dequeue());
+                            playerData.handItem[0] = new(playerData.itemDeck[0]);
+                            playerData.itemDeck.RemoveAt(0);
 
                             if (playerData.handItemPanel != null)
                             {
@@ -820,7 +869,8 @@ public class GameAction : MonoBehaviour
                     case 3:
                         if (playerData.itemDeck.Count > 0)
                         {
-                            playerData.handItem[1] = new(playerData.itemDeck.Dequeue());
+                            playerData.handItem[1] = new(playerData.itemDeck[0]);
+                            playerData.itemDeck.RemoveAt(0);
 
                             if (playerData.handItemPanel != null)
                             {
@@ -861,21 +911,10 @@ public class GameAction : MonoBehaviour
     /// </summary>
     public IEnumerator DestroyEquipment(ParameterNode parameterNode)
     {
-        Dictionary<string, object> parameter = parameterNode.parameter;
-        GameObject monster = (GameObject)parameter["MonsterBeDestroyEquipment"];
+        ParameterNode parameterNode1 = parameterNode.AddNodeInMethod();
+        parameterNode1.parameter = parameterNode.parameter;
 
-        MonsterInBattle monsterInBattle = monster.GetComponent<MonsterInBattle>();
-        monsterInBattle.equipment = null;
-        monsterInBattle.EquipmentBackgroundLImage.enabled = false;
-        monsterInBattle.EquipmentBackgroundLImage.texture = null;
-        monsterInBattle.EquipmentBackgroundRImage.enabled = false;
-        monsterInBattle.EquipmentBackgroundRImage.texture = null;
-        monsterInBattle.EquipmentImage.enabled = false;
-        monsterInBattle.EquipmentImage.texture = null;
-        monsterInBattle.ArmorImage.enabled = false;
-        monsterInBattle.ArmorText.enabled = false;
-        monsterInBattle.ArmorText.text = null;
-
+        yield return StartCoroutine(DoAction(EquipmentLeave, parameterNode1));
         yield return null;
     }
 
@@ -886,7 +925,7 @@ public class GameAction : MonoBehaviour
     public IEnumerator DestroyMonster(ParameterNode parameterNode)
     {
         Dictionary<string, object> parameter = parameterNode.parameter;
-        GameObject monsterBeDestroy = (GameObject)parameter["MonsterBeDestroy"];
+        GameObject monsterBeDestroy = (GameObject)parameter["EffectTarget"];
 
         BattleProcess battleProcess = BattleProcess.GetInstance();
 
@@ -941,6 +980,8 @@ public class GameAction : MonoBehaviour
 
         BattleProcess battleProcess = BattleProcess.GetInstance();
 
+        MonsterInBattle monsterInBattle = monsterBeHurt.GetComponent<MonsterInBattle>();
+
         //画箭头
         yield return StartCoroutine(ArrowUtils.CreateArrow(opportunityEffect.gameObject.transform.position, monsterBeHurt.transform.position));
         if (opportunityEffect.gameObject.TryGetComponent(out MonsterInBattle monsterInBattle1))
@@ -955,29 +996,24 @@ public class GameAction : MonoBehaviour
         {
             battleProcess.Log($"<color=#00ff00>{heroSkill.heroSkillNameText.text}</color>造成{damageValue}点伤害");
         }
-        else if (opportunityEffect.gameObject.TryGetComponent(out RuleEvent ruleEvent))
+        else if (opportunityEffect.gameObject.TryGetComponent(out RuleEvent _))
         {
             battleProcess.Log($"<color=#00ff00>规则</color>造成{damageValue}点伤害");
         }
 
-        MonsterInBattle monsterInBattle = monsterBeHurt.GetComponent<MonsterInBattle>();
+        //画伤害值
+        GameObject healthValueChangePrefab = LoadAssetBundle.prefabAssetBundle.LoadAsset<GameObject>("HealthValueChangePrefab");
+        GameObject healthValueChange = Instantiate(healthValueChangePrefab, monsterInBattle.gameObject.transform);
+        healthValueChange.GetComponent<Transform>().localPosition = new Vector3(0, 0, 0);
+        GameObject valueCanvas = healthValueChange.transform.GetChild(0).gameObject;
+        valueCanvas.GetComponent<RectTransform>().localScale = new Vector3(1, 1, 1);
+        healthValueChange.GetComponent<InitHealthValueChangePrefab>().Init("-" + damageValue, "#ff0000");
+        yield return new WaitForSecondsRealtime(0.5f);
 
         damageValue = damageValue > 0 ? damageValue : 0;
 
         int currentHp = monsterInBattle.GetCurrentHp();
         monsterInBattle.SetCurrentHp(currentHp - damageValue);
-
-        if (monsterInBattle.GetCurrentHp() < 1)
-        {
-            Dictionary<string, object> destroyParameter = new();
-            destroyParameter.Add("EffectTarget", monsterBeHurt);
-            destroyParameter.Add("Destroyer", opportunityEffect.gameObject);
-
-            ParameterNode parameterNode1 = parameterNode.AddNodeInMethod();
-            parameterNode1.parameter = destroyParameter;
-
-            yield return StartCoroutine(DoAction(DestroyMonster, parameterNode1));
-        }
 
         parameterNode.result.Add("CauseDamageToHealth", true);
         if (damageValue > currentHp)
@@ -1060,8 +1096,8 @@ public class GameAction : MonoBehaviour
                             (monsterGameObjectArray[k], monsterGameObjectArray[j]) = (monsterGameObjectArray[j], monsterGameObjectArray[k]);
 
                             //画面上的移动
-                            monsterMove1.transform.parent = systemPlayerData.monsterInBattlePanel[k].transform;
-                            monsterMove2.transform.parent = systemPlayerData.monsterInBattlePanel[j].transform;
+                            monsterMove1.transform.SetParent(systemPlayerData.monsterInBattlePanel[k].transform, false);
+                            monsterMove2.transform.SetParent(systemPlayerData.monsterInBattlePanel[j].transform, false);
 
                             goto end;
                         }
@@ -1088,12 +1124,18 @@ public class GameAction : MonoBehaviour
 
         treatValue = treatValue > 0 ? treatValue : 0;
 
+        //画治疗值
+        GameObject healthValueChangePrefab = LoadAssetBundle.prefabAssetBundle.LoadAsset<GameObject>("HealthValueChangePrefab");
+        GameObject healthValueChange = Instantiate(healthValueChangePrefab, monsterBeTreat.transform);
+        healthValueChange.GetComponent<Transform>().localPosition = new Vector3(0, 0, 0);
+        GameObject valueCanvas = healthValueChange.transform.GetChild(0).gameObject;
+        valueCanvas.GetComponent<RectTransform>().localScale = new Vector3(1, 1, 1);
+        healthValueChange.GetComponent<InitHealthValueChangePrefab>().Init("+" + treatValue, "#00ff00");
+        yield return new WaitForSecondsRealtime(0.5f);
+
         MonsterInBattle monsterInBattle = monsterBeTreat.GetComponent<MonsterInBattle>();
         int currentHp = monsterInBattle.GetCurrentHp();
-        if (currentHp > monsterInBattle.maxHp)
-        {
-            monsterInBattle.SetCurrentHp(currentHp + treatValue > monsterInBattle.maxHp ? monsterInBattle.maxHp : currentHp + treatValue);
-        }
+        monsterInBattle.SetCurrentHp(currentHp + treatValue > monsterInBattle.maxHp ? monsterInBattle.maxHp : currentHp + treatValue);
         yield return null;
     }
 
@@ -1125,11 +1167,18 @@ public class GameAction : MonoBehaviour
 
             if (systemPlayerData.perspectivePlayer == player)
             {
+                string color = systemPlayerData.actualPlayer == Player.Ally ? "#00ff00" : "#ff0000";
+                string playerC = systemPlayerData.actualPlayer == Player.Ally ? "我方" : "敌方";
+
                 systemPlayerData.canSacrifice = false;
 
                 //被献祭的是手牌怪兽
                 if (objectBeSacrificedNumber >= 0 && objectBeSacrificedNumber <= 1)
                 {
+                    Dictionary<string, string> cardData = systemPlayerData.handMonster[objectBeSacrificedNumber];
+                    string cardName = cardData["CardName"];
+                    battleProcess.Log($"<color={color}>{playerC}</color>献祭手牌怪兽<color=#ffff00>{cardName}</color>");
+
                     //销毁对应手牌
                     Dictionary<string, object> destroyAHandCardParameter = new();
                     destroyAHandCardParameter.Add("HandPanelNumber", objectBeSacrificedNumber);
@@ -1156,6 +1205,10 @@ public class GameAction : MonoBehaviour
                 //被献祭的是手牌装备
                 if (objectBeSacrificedNumber >= 2 && objectBeSacrificedNumber <= 3)
                 {
+                    Dictionary<string, string> cardData = systemPlayerData.handItem[objectBeSacrificedNumber - 2];
+                    string cardName = cardData["CardName"];
+                    battleProcess.Log($"<color={color}>{playerC}</color>献祭手牌道具<color=#ffff00>{cardName}</color>");
+
                     //销毁对应手牌
                     Dictionary<string, object> destroyAHandCardParameter = new();
                     destroyAHandCardParameter.Add("HandPanelNumber", objectBeSacrificedNumber);
@@ -1182,9 +1235,24 @@ public class GameAction : MonoBehaviour
                 //被献祭的是场上怪兽
                 if (objectBeSacrificedNumber >= 4 && objectBeSacrificedNumber <= 6)
                 {
+                    int t = objectBeSacrificedNumber - 4;
+                    GameObject[] monsterGameObjectArray = systemPlayerData.monsterGameObjectArray;
+                    GameObject go = monsterGameObjectArray[t];
+
+                    MonsterInBattle monsterInBattle = go.GetComponent<MonsterInBattle>();
+                    battleProcess.Log($"<color={color}>{playerC}</color>献祭场上怪兽<color=#ffff00>{monsterInBattle.cardName}</color>");
+
+                    Dictionary<string, object> parameter2 = new();
+                    parameter2.Add("EffectTarget", go);
+
+                    ParameterNode parameterNode6 = parameterNode.AddNodeInMethod();
+                    parameterNode6.parameter = parameter2;
+
+                    yield return StartCoroutine(DoAction(MonsterLeave, parameterNode6));
+
                     //获得水晶
                     Dictionary<string, object> parameter1 = new();
-                    parameter1.Add("CrystalAmount", 2);
+                    parameter1.Add("CrystalAmount", 1);
                     parameter1.Add("Player", systemPlayerData.perspectivePlayer);
 
                     ParameterNode parameterNode5 = parameterNode.AddNodeInMethod();
@@ -1192,18 +1260,6 @@ public class GameAction : MonoBehaviour
 
                     yield return StartCoroutine(DoAction(ChangeCrystalAmount, parameterNode5));
                     yield return null;
-
-                    int t = objectBeSacrificedNumber - 4;
-
-                    GameObject[] monsterGameObjectArray = systemPlayerData.monsterGameObjectArray;
-
-                    Dictionary<string, object> parameter2 = new();
-                    parameter2.Add("EffectTarget", monsterGameObjectArray[t]);
-
-                    ParameterNode parameterNode6 = parameterNode.AddNodeInMethod();
-                    parameterNode6.parameter = parameter2;
-
-                    yield return StartCoroutine(DoAction(MonsterLeave, parameterNode6));
                 }
 
                 systemPlayerData.canUseHandCard = true;

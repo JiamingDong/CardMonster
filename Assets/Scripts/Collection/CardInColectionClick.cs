@@ -61,7 +61,7 @@ public class CardInColectionClick : MonoBehaviour
                     //如果这个位置的卡的其中一个颜色不在点击的卡的颜色里面就结束
                     foreach (KeyValuePair<string, string> keyValuePair in cardKind2)
                     {
-                        Debug.Log(keyValuePair + "----" + leftKind + "----" + rightKind);
+                        //Debug.Log(keyValuePair + "----" + leftKind + "----" + rightKind);
                         if (!keyValuePair.Value.Equals(leftKind) && !keyValuePair.Value.Equals(rightKind))
                         {
                             goto end;
@@ -107,7 +107,7 @@ public class CardInColectionClick : MonoBehaviour
                 }
             }
 
-            Debug.Log(insertIndex);
+            //Debug.Log(insertIndex);
             if (insertIndex != -1)
             {
                 deckInCollection.monsterCardInDeck[insertIndex] = cardId;

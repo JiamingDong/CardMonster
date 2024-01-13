@@ -13,14 +13,15 @@ using UnityEngine;
 /// </summary>
 public class MagicShoot : SkillInBattle
 {
-    [TriggerEffect(@"^Replace\.Armor\.Effect2$", "Compare1")]
+    [TriggerEffect(@"^Replace\.Armor\.Effect1$", "Compare1")]
     [TriggerEffect(@"^Replace\.Flying\.Effect1$", "Compare1")]
     [TriggerEffect(@"^Replace\.Shield\.Effect1$", "Compare1")]
     public IEnumerator Effect1(ParameterNode parameterNode)
     {
         Dictionary<string, object> result = parameterNode.Parent.result;
         result.Add("BeReplaced", true);
-        yield return null;
+        yield break;
+        //yield return null;
     }
 
     /// <summary>
@@ -48,7 +49,8 @@ public class MagicShoot : SkillInBattle
     {
         Dictionary<string, object> result = parameterNode.Parent.result;
         result.Add("BeReplaced", true);
-        yield return null;
+        yield break;
+        //yield return null;
     }
 
     /// <summary>
@@ -70,19 +72,20 @@ public class MagicShoot : SkillInBattle
         return false;
     }
 
-    [TriggerEffect(@"^Replace\.Armor\.Effect1$", "Compare3")]
+    [TriggerEffect(@"^Replace\.Armor\.Effect2$", "Compare3")]
     public IEnumerator Effect3(ParameterNode parameterNode)
     {
-        Debug.Log(parameterNode.Parent.creator.GetType().Name);
-
         Dictionary<string, object> result = parameterNode.Parent.result;
         Dictionary<string, object> parameter = parameterNode.parameter;
         int damageValue = (int)parameter["DamageValue"];
+
+        Dictionary<string, object> result2 = parameterNode.Parent.Parent.result;
 
         BattleProcess battleProcess = BattleProcess.GetInstance();
         GameAction gameAction = GameAction.GetInstance();
 
         result.Add("BeReplaced", true);
+        result2.Add("BeReplaced", true);
 
         IEnumerator HurtMonster(ParameterNode parameterNode)
         {
@@ -91,10 +94,7 @@ public class MagicShoot : SkillInBattle
             int damageValue = (int)parameter["DamageValue"];
             SkillInBattle skillInBattle = (SkillInBattle)parameter["LaunchedSkill"];
 
-            BattleProcess battleProcess = BattleProcess.GetInstance();
-            GameAction gameAction = GameAction.GetInstance();
-
-            Debug.Log(monsterBeHurt == gameObject);
+            MonsterInBattle monsterInBattle = monsterBeHurt.GetComponent<MonsterInBattle>();
 
             //画箭头
             yield return battleProcess.StartCoroutine(ArrowUtils.CreateArrow(skillInBattle.gameObject.transform.position, monsterBeHurt.transform.position));
@@ -111,21 +111,28 @@ public class MagicShoot : SkillInBattle
                 battleProcess.Log($"<color=#00ff00>{heroSkill.heroSkillNameText.text}</color>造成{damageValue}点伤害");
             }
 
-            MonsterInBattle monsterInBattle = monsterBeHurt.GetComponent<MonsterInBattle>();
+            //画伤害值
+            GameObject healthValueChangePrefab = LoadAssetBundle.prefabAssetBundle.LoadAsset<GameObject>("HealthValueChangePrefab");
+            GameObject healthValueChange = Instantiate(healthValueChangePrefab, monsterInBattle.gameObject.transform);
+            healthValueChange.GetComponent<Transform>().localPosition = new Vector3(0, 0, 0);
+            GameObject valueCanvas = healthValueChange.transform.GetChild(0).gameObject;
+            valueCanvas.GetComponent<RectTransform>().localScale = new Vector3(1, 1, 1);
+            healthValueChange.GetComponent<InitHealthValueChangePrefab>().Init("-" + damageValue, "#ff0000");
+            yield return new WaitForSecondsRealtime(0.5f);
 
             Armor armor = monsterInBattle.GetComponent<Armor>();
 
             int armorValue = armor.GetSkillValue();
 
-            Dictionary<string, object> parameter2 = new();
-            parameter2.Add("LaunchedSkill", gameAction);
-            parameter2.Add("EffectName", "HurtMonster");
-            parameter2.Add("SkillName", "armor");
-            parameter2.Add("SkillValue", -damageValue);
-            parameter2.Add("Source", "GameAction.HurtMonster");
+            Dictionary<string, object> parameter1 = new();
+            parameter1.Add("LaunchedSkill", gameAction);
+            parameter1.Add("EffectName", "HurtMonster");
+            parameter1.Add("SkillName", "armor");
+            parameter1.Add("SkillValue", -damageValue);
+            parameter1.Add("Source", "GameAction.HurtMonster");
 
             ParameterNode parameterNode1 = parameterNode.AddNodeInMethod();
-            parameterNode1.parameter = parameter2;
+            parameterNode1.parameter = parameter1;
 
             yield return battleProcess.StartCoroutine(monsterInBattle.DoAction(monsterInBattle.AddSkill, parameterNode1));
 
@@ -136,19 +143,12 @@ public class MagicShoot : SkillInBattle
                 int currentHp = monsterInBattle.GetCurrentHp();
                 monsterInBattle.SetCurrentHp(currentHp - surplusDamageValue);
 
-                if (monsterInBattle.GetCurrentHp() < 1)
+                parameterNode.result.Add("CauseDamageToHealth", true);
+                if (surplusDamageValue > currentHp)
                 {
-                    Dictionary<string, object> destroyParameter = new();
-                    destroyParameter.Add("EffectTarget", monsterBeHurt);
-                    destroyParameter.Add("Destroyer", skillInBattle.gameObject);
-
-                    ParameterNode parameterNode2 = parameterNode.AddNodeInMethod();
-                    parameterNode2.parameter = destroyParameter;
-
-                    yield return battleProcess.StartCoroutine(gameAction.DoAction(gameAction.DestroyMonster, parameterNode2));
+                    parameterNode.result.Add("ExcessiveDamage", surplusDamageValue - currentHp);
                 }
             }
-            yield return null;
         }
 
         string fullName = "GameAction.HurtMonster";
@@ -165,7 +165,6 @@ public class MagicShoot : SkillInBattle
         nodeInMethodList[index] = parameterNode1;
 
         yield return battleProcess.StartCoroutine(battleProcess.ExecuteEffect(gameAction, fullName, parameterNode1, HurtMonster));
-        yield return null;
     }
 
     /// <summary>

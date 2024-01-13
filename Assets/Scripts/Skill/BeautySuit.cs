@@ -32,8 +32,6 @@ public class BeautySuit : SkillInBattle
                 }
             }
         }
-
-        yield return null;
     }
 
     /// <summary>
@@ -42,7 +40,7 @@ public class BeautySuit : SkillInBattle
     public bool Compare1(ParameterNode parameterNode)
     {
         Dictionary<string, object> parameter = parameterNode.parameter;
-        GameObject monster = (GameObject)parameter["MonsterBeDestroyEquipment"];
+        GameObject monster = (GameObject)parameter["EffectTarget"];
         if (monster == gameObject)
         {
             return true;

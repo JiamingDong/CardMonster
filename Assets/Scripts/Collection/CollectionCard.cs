@@ -1,12 +1,6 @@
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
-using UnityEngine.EventSystems;
-using UnityEditor;
-using System;
-using System.IO;
-using Mono.Data.Sqlite;
 
 /// <summary>
 /// 加载收藏界面所有的卡
@@ -51,8 +45,9 @@ public class CollectionCard : MonoBehaviour
             filter += " and CardType<>'monster' ";
         }
 
-        filter += " order by CardKind LIKE '%rightKind%' desc,CardKind asc,CardCost asc limit " + (pageNumber * 12) + "," + (pageNumber * 12 + 12);
+        filter += " order by CardType='consume' desc,CardKind LIKE '%rightKind%' desc,CardKind asc,CardCost asc limit " + (pageNumber * 12) + "," + 12;
 
+        //Debug.Log(filter);
         cardData = Database.cardMonster.Query("AllCardConfig", filter);
 
         GameObject cardCollectionBackgroundPanel = GameObject.Find("CardCollectionBackgroundPanel");

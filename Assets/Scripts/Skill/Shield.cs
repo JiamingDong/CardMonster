@@ -19,7 +19,8 @@ public class Shield : SkillInBattle
             int damageValue = (int)parameter["DamageValue"];
             parameter["DamageValue"] = damageValue - GetSkillValue();
         }
-        yield return null;
+        yield break;
+        //yield return null;
     }
 
     /// <summary>

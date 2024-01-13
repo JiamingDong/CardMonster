@@ -17,7 +17,8 @@ public class DiseaseDerive : SkillInBattle
     {
         Dictionary<string, object> result = parameterNode.Parent.result;
         result.Add("BeReplaced", true);
-        yield return null;
+        yield break;
+        //yield return null;
     }
 
     /// <summary>
@@ -75,7 +76,7 @@ public class DiseaseDerive : SkillInBattle
             yield return battleProcess.StartCoroutine(monsterInBattle.DoAction(monsterInBattle.AddSkill, parameterNode1));
         }
 
-        yield return null;
+        //yield return null;
     }
 
 
@@ -85,7 +86,7 @@ public class DiseaseDerive : SkillInBattle
     public bool Compare2(ParameterNode parameterNode)
     {
         Dictionary<string, object> parameter = parameterNode.parameter;
-        GameObject monsterBeTreat = (GameObject)parameter["MonsterBeTreat"];
+        GameObject monsterBeTreat = (GameObject)parameter["EffectTarget"];
 
         if (monsterBeTreat == gameObject)
         {

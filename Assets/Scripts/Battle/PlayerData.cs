@@ -73,11 +73,11 @@ public class PlayerData
     /// <summary>
     /// 牌库怪兽
     /// </summary>
-    public Queue<Dictionary<string, string>> monsterDeck;
+    public List<Dictionary<string, string>> monsterDeck;
     /// <summary>
     /// 牌库道具
     /// </summary>
-    public Queue<Dictionary<string, string>> itemDeck;
+    public List<Dictionary<string, string>> itemDeck;
     /// <summary>
     /// 手牌怪兽数组
     /// </summary>

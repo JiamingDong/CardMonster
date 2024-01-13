@@ -40,9 +40,11 @@ public abstract class OpportunityEffect : MonoBehaviour
     public IEnumerator ExecuteEligibleEffect(ParameterNode parameterNode)
     {
         BattleProcess battleProcess = BattleProcess.GetInstance();
-        //Debug.Log(parameterNode.opportunity);
-        foreach (Func<ParameterNode, IEnumerator> effect in effectList)
+
+        for (int i = 0; i < effectList.Count; i++)
         {
+            Func<ParameterNode, IEnumerator> effect = effectList[i];
+
             if (!CompareCondition(effect, parameterNode))
             {
                 continue;
@@ -53,10 +55,7 @@ public abstract class OpportunityEffect : MonoBehaviour
             string fullName = typeName + "." + effectName;
 
             yield return battleProcess.StartCoroutine(battleProcess.ExecuteEffect(this, fullName, parameterNode, effect));
-            //yield return null;
         }
-        //Debug.Log(GetType().Name+"------------"+parameterNode.opportunity);
-        //yield return null;
     }
 
     public bool CompareCondition(Func<ParameterNode, IEnumerator> effect, ParameterNode parameterNode)

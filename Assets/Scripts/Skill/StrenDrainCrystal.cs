@@ -44,7 +44,7 @@ public class StrenDrainCrystal : SkillInBattle
                 }
             }
         }
-        yield return null;
+        //yield return null;
     }
 
     /// <summary>

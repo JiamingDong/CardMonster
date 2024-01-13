@@ -14,21 +14,17 @@ public class ComboRanged : SkillInBattle
     {
         BattleProcess battleProcess = BattleProcess.GetInstance();
 
-        if (gameObject.TryGetComponent<Ranged>(out var ranged))
+        string fullName = "Ranged.Effect1";
+        for (int i = 0; i < GetSkillValue(); i++)
         {
-            string fullName = "Ranged.Effect1";
-            for (int i = 0; i < GetSkillValue(); i++)
+            if (gameObject.TryGetComponent<Ranged>(out var ranged))
             {
-                ParameterNode parameterNode1 = new();
+                ParameterNode parameterNode1 = parameterNode.AddNodeInMethod();
                 parameterNode1.SetParent(new(), ParameterNodeChildType.EffectChild);
                 parameterNode1.opportunity = "InRoundBattle";
                 parameterNode1.result.Add("isAdditionalExecute", true);
 
-                if (ranged.CompareCondition(ranged.Effect1, parameterNode1))
-                {
-                    yield return battleProcess.StartCoroutine(battleProcess.ExecuteEffect(ranged, fullName, parameterNode1, ranged.Effect1));
-                    yield return null;
-                }
+                yield return battleProcess.StartCoroutine(battleProcess.ExecuteEffect(ranged, fullName, parameterNode1, ranged.Effect1));
             }
         }
     }

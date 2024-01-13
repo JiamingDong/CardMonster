@@ -20,7 +20,8 @@ public class AntimagicBarrierDerive : SkillInBattle
             int damageValue = (int)parameter["DamageValue"];
             parameter["DamageValue"] = damageValue - GetSkillValue();
         }
-        yield return null;
+        yield break;
+        //yield return null;
     }
 
     /// <summary>
@@ -34,7 +35,7 @@ public class AntimagicBarrierDerive : SkillInBattle
         return damageType ==DamageType.Magic && monsterBeHurt == gameObject;
     }
 
-    [TriggerEffect("^InRoundReady$", "Compare2")]
+    [TriggerEffect("^AfterRoundBattle$", "Compare2")]
     public IEnumerator Effect2(ParameterNode parameterNode)
     {
         BattleProcess battleProcess = BattleProcess.GetInstance();
@@ -62,11 +63,13 @@ public class AntimagicBarrierDerive : SkillInBattle
 
         for (int i = 0; i < battleProcess.systemPlayerData.Length; i++)
         {
-            if (battleProcess.systemPlayerData[i].perspectivePlayer == Player.Enemy)
+            PlayerData systemPlayerData = battleProcess.systemPlayerData[i];
+
+            if (systemPlayerData.perspectivePlayer == Player.Enemy)
             {
-                for (int j = 0; j < battleProcess.systemPlayerData[i].monsterGameObjectArray.Length; j++)
+                for (int j = 0; j < systemPlayerData.monsterGameObjectArray.Length; j++)
                 {
-                    if (battleProcess.systemPlayerData[i].monsterGameObjectArray[j] == gameObject)
+                    if (systemPlayerData.monsterGameObjectArray[j] == gameObject)
                     {
                         return true;
                     }

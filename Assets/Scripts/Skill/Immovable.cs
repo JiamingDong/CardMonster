@@ -41,7 +41,7 @@ public class Immovable : SkillInBattle
             parameterNode1.parameter = damageParameter;
 
             yield return battleProcess.StartCoroutine(gameAction.DoAction(gameAction.HurtMonster, parameterNode1));
-            yield return null;
+            //yield return null;
         }
 
         string fullName = "Melee.Effect1";
@@ -50,7 +50,7 @@ public class Immovable : SkillInBattle
         parameterNode1.SetParent(new(), ParameterNodeChildType.EffectChild);
 
         yield return battleProcess.StartCoroutine(battleProcess.ExecuteEffect(melee, fullName, parameterNode1, Effect));
-        yield return null;
+        //yield return null;
     }
 
     /// <summary>
@@ -118,7 +118,7 @@ public class Immovable : SkillInBattle
             parameterNode1.parameter = damageParameter;
 
             yield return battleProcess.StartCoroutine(gameAction.DoAction(gameAction.HurtMonster, parameterNode1));
-            yield return null;
+            //yield return null;
         }
 
         string fullName = "Ranged.Effect1";
@@ -127,7 +127,7 @@ public class Immovable : SkillInBattle
         parameterNode1.SetParent(new(), ParameterNodeChildType.EffectChild);
 
         yield return battleProcess.StartCoroutine(battleProcess.ExecuteEffect(ranged, fullName, parameterNode1, Effect));
-        yield return null;
+        //yield return null;
     }
 
     /// <summary>

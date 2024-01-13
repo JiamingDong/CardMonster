@@ -14,7 +14,8 @@ public class PenetrateMagic : SkillInBattle
     {
         Dictionary<string, object> result = parameterNode.Parent.result;
         result.Add("BeReplaced", true);
-        yield return null;
+        yield break;
+        //yield return null;
     }
 
     /// <summary>

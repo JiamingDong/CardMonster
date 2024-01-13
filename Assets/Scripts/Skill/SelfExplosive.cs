@@ -26,7 +26,7 @@ public class SelfExplosive : SkillInBattle
         parameterNode1.parameter = parameter;
 
         yield return battleProcess.StartCoroutine(gameAction.DoAction(gameAction.DestroyMonster, parameterNode1));
-        yield return null;
+        //yield return null;
     }
 
     /// <summary>

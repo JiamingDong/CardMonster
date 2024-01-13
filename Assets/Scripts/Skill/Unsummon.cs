@@ -22,21 +22,7 @@ public class Unsummon : SkillInBattle
 
         MonsterInBattle monsterInBattle = consumeTarget.GetComponent<MonsterInBattle>();
 
-        Dictionary<string, string> kindDictionary = new();
-        kindDictionary.Add("leftKind", monsterInBattle.kind);
-
-        Dictionary<string, string> cardData = new();
-        cardData.Add("CardID", monsterInBattle.id);
-        cardData.Add("CardName", monsterInBattle.cardName);
-        cardData.Add("CardType", monsterInBattle.type);
-        cardData.Add("CardKind", JsonConvert.SerializeObject(kindDictionary));
-        cardData.Add("CardRace", monsterInBattle.race);
-        cardData.Add("CardHP", monsterInBattle.maxHp.ToString());
-        cardData.Add("CardFlags", null);
-        cardData.Add("CardSkinID", monsterInBattle.skinId);
-        cardData.Add("CardCost", monsterInBattle.GetCost().ToString());
-        cardData.Add("CardSkill", monsterInBattle.skill);
-        cardData.Add("CardEliteSkill", null);
+        Dictionary<string, string> cardData = monsterInBattle.cardData;
         parameter.Add("CardData", cardData);
 
         for (int i = 0; i < battleProcess.systemPlayerData.Length; i++)
@@ -59,7 +45,7 @@ public class Unsummon : SkillInBattle
         parameterNode2.parameter = parameter;
 
         yield return battleProcess.StartCoroutine(gameAction.DoAction(gameAction.MonsterInBattleToDeck, parameterNode2));
-        yield return null;
+        //yield return null;
     }
 
     /// <summary>

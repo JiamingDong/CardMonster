@@ -24,7 +24,7 @@ public class DemoralizeDerive : SkillInBattle
         parameterNode1.parameter = parameter1;
 
         yield return battleProcess.StartCoroutine(monsterInBattle.DoAction(monsterInBattle.DeleteSkillSource, parameterNode1));
-        yield return null;
+        //yield return null;
 
         Dictionary<string, object> parameter2 = new();
         parameter2.Add("LaunchedSkill", this);
@@ -36,7 +36,7 @@ public class DemoralizeDerive : SkillInBattle
         parameterNode2.parameter = parameter2;
 
         yield return battleProcess.StartCoroutine(monsterInBattle.DoAction(monsterInBattle.DeleteSkillSource, parameterNode2));
-        yield return null;
+        //yield return null;
     }
 
     /// <summary>

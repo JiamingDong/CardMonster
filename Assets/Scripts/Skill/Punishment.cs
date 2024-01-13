@@ -58,7 +58,7 @@ public class Punishment : SkillInBattle
                 parameterNode1.parameter = parameter1;
 
                 yield return battleProcess.StartCoroutine(gameAction.DoAction(gameAction.ChangePlayerDataMarker, parameterNode1));
-                yield return null;
+                //yield return null;
             }
         }
 
@@ -83,7 +83,7 @@ public class Punishment : SkillInBattle
             parameterNode1.parameter = parameter1;
 
             yield return battleProcess.StartCoroutine(gameAction.DoAction(gameAction.ChangeMonsterCost, parameterNode1));
-            yield return null;
+            //yield return null;
         }
     }
 

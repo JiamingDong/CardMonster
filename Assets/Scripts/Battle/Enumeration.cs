@@ -5,9 +5,13 @@
 public enum NetworkMessageType
 {
     /// <summary>
-    /// 游戏开始
+    /// 发起挑战
     /// </summary>
-    GameStart,
+    SendChallenge,
+    /// <summary>
+    /// 接受挑战
+    /// </summary>
+    AcceptChallenge,
     /// <summary>
     /// 随机数种子
     /// </summary>
@@ -33,9 +37,9 @@ public enum NetworkMessageType
     /// </summary>
     StartAttackPhase,
     /// <summary>
-    /// 其他类型
+    /// 退出游戏
     /// </summary>
-    OtherTypes
+    ExitBattle
 }
 
 /// <summary>

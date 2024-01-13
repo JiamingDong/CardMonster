@@ -9,11 +9,12 @@ using UnityEngine;
 public class RallyDerive : SkillInBattle
 {
     [TriggerEffect(@"^Replace\.GameAction\.SwapMonsterPosition$", "Compare1")]
-    public IEnumerator Effect3(ParameterNode parameterNode)
+    public IEnumerator Effect1(ParameterNode parameterNode)
     {
         Dictionary<string, object> result = parameterNode.Parent.result;
         result.Add("BeReplaced", true);
-        yield return null;
+        yield break;
+        //yield return null;
     }
 
     /// <summary>
@@ -33,7 +34,7 @@ public class RallyDerive : SkillInBattle
         return monsterMove1 == gameObject && skillInBattle is Swap;
     }
 
-    [TriggerEffect("^InRoundReady$", "Compare2")]
+    [TriggerEffect("^AfterRoundBattle$", "Compare2")]
     public IEnumerator Effect2(ParameterNode parameterNode)
     {
         BattleProcess battleProcess = BattleProcess.GetInstance();

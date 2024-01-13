@@ -36,7 +36,7 @@ public class MagicAoe : SkillInBattle
                         parameterNode1.parameter = damageParameter;
 
                         yield return battleProcess.StartCoroutine(gameAction.DoAction(gameAction.HurtMonster, parameterNode1));
-                        yield return null;
+                        //yield return null;
                     }
                     else
                     {
@@ -53,7 +53,7 @@ public class MagicAoe : SkillInBattle
                             parameterNode1.parameter = damageParameter;
 
                             yield return battleProcess.StartCoroutine(gameAction.DoAction(gameAction.HurtMonster, parameterNode1));
-                            yield return null;
+                            //yield return null;
                         }
 
                         if (battleProcess.systemPlayerData[i].monsterGameObjectArray[1] != null)
@@ -69,7 +69,7 @@ public class MagicAoe : SkillInBattle
                             parameterNode1.parameter = damageParameter;
 
                             yield return battleProcess.StartCoroutine(gameAction.DoAction(gameAction.HurtMonster, parameterNode1));
-                            yield return null;
+                            //yield return null;
                         }
                     }
                 }
@@ -84,6 +84,28 @@ public class MagicAoe : SkillInBattle
     {
         Dictionary<string, object> parameter = parameterNode.parameter;
         SkillInBattle skillInBattle = (SkillInBattle)parameter["LaunchedSkill"];
+
+        BattleProcess battleProcess = BattleProcess.GetInstance();
+
+        for (int i = 0; i < battleProcess.systemPlayerData.Length; i++)
+        {
+            PlayerData systemPlayerData = battleProcess.systemPlayerData[i];
+
+            bool isEnemy = true;
+            for (int j = 0; j < systemPlayerData.monsterGameObjectArray.Length; j++)
+            {
+                if (systemPlayerData.monsterGameObjectArray[j] == gameObject)
+                {
+                    isEnemy = false;
+                }
+            }
+
+            if (isEnemy && systemPlayerData.monsterGameObjectArray[1] == null)
+            {
+                return false;
+            }
+        }
+
         return skillInBattle is Magic && skillInBattle.gameObject == gameObject;
     }
 }

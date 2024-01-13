@@ -33,7 +33,18 @@ public class Entangle : SkillInBattle
     end:;
 
         int[][] skillTargetPriority = new int[][] { new int[] { 0, 1, 2 }, new int[] { 1, 0, 2 }, new int[] { 2, 0, 1 } };
-        GameObject effectTarget = oppositePlayerMessage.monsterGameObjectArray[skillTargetPriority[position][0]];
+
+
+        GameObject effectTarget = null;
+        for (int i = 0; i < 3; i++)
+        {
+            effectTarget = oppositePlayerMessage.monsterGameObjectArray[skillTargetPriority[position][i]];
+
+            if (effectTarget != null)
+            {
+                break;
+            }
+        }
 
         MonsterInBattle monsterInBattle = effectTarget.GetComponent<MonsterInBattle>();
 
@@ -50,27 +61,43 @@ public class Entangle : SkillInBattle
     }
 
     /// <summary>
-    /// 判断是否是当前回合角色
+    /// 判断是否是己方回合，对方场上有怪兽
     /// </summary>
     public bool Compare1(ParameterNode parameterNode)
     {
         BattleProcess battleProcess = BattleProcess.GetInstance();
 
+        int r = RandomUtils.GetRandomNumber(1, 2);
+
+        if (r != 1)
+        {
+            return false;
+        }
+
+        bool isAlly = false;
+        bool enemyHasMonster = false;
+
         for (int i = 0; i < battleProcess.systemPlayerData.Length; i++)
         {
-            if (battleProcess.systemPlayerData[i].perspectivePlayer == Player.Ally)
+            PlayerData systemPlayerData = battleProcess.systemPlayerData[i];
+
+            if (systemPlayerData.perspectivePlayer == Player.Ally)
             {
-                for (int j = 0; j < battleProcess.systemPlayerData[i].monsterGameObjectArray.Length; j++)
+                for (int j = 0; j < systemPlayerData.monsterGameObjectArray.Length; j++)
                 {
-                    if (battleProcess.systemPlayerData[i].monsterGameObjectArray[j] == gameObject)
+                    if (systemPlayerData.monsterGameObjectArray[j] == gameObject)
                     {
-                        int r = RandomUtils.GetRandomNumber(1, 2);
-                        return r == 1;
+                        isAlly = true;
                     }
                 }
             }
+
+            if (systemPlayerData.perspectivePlayer == Player.Enemy && systemPlayerData.monsterGameObjectArray[0] != null)
+            {
+                enemyHasMonster = true;
+            }
         }
 
-        return false;
+        return isAlly && enemyHasMonster;
     }
 }

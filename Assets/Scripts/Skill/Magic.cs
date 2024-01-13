@@ -47,7 +47,7 @@ public class Magic : SkillInBattle
         parameterNode1.parameter = parameter1;
 
         yield return battleProcess.StartCoroutine(gameAction.DoAction(gameAction.SelectEffectTarget, parameterNode1));
-        yield return null;
+        //yield return null;
 
         int[][] skillTargetPriority = new int[][] { new int[] { 0, 1, 2 }, new int[] { 1, 0, 2 }, new int[] { 2, 0, 1 } };
         GameObject effectTarget = null;
@@ -98,7 +98,7 @@ public class Magic : SkillInBattle
         parameterNode2.parameter = damageParameter;
 
         yield return battleProcess.StartCoroutine(gameAction.DoAction(gameAction.HurtMonster, parameterNode2));
-        yield return null;
+        //yield return null;
     }
 
     /// <summary>

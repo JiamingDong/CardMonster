@@ -16,7 +16,8 @@ public class Antiair : SkillInBattle
 
         parameter["DamageValue"] = damageValue + GetSkillValue();
 
-        yield return null;
+        yield break;
+        //yield return null;
     }
 
     /// <summary>
@@ -35,7 +36,8 @@ public class Antiair : SkillInBattle
     {
         Dictionary<string, object> result = parameterNode.result;
         result.Add("BeReplaced", true);
-        yield return null;
+        yield break;
+        //yield return null;
     }
 
     /// <summary>

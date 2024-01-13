@@ -1,4 +1,3 @@
-using Newtonsoft.Json;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -9,9 +8,6 @@ using UnityEngine;
 /// </summary>
 public class LastWords2 : SkillInBattle
 {
-    /// <summary>
-    /// <see cref="GameAction.DestroyMonster"/>
-    /// </summary>
     [TriggerEffect(@"^Before\.GameAction\.DestroyMonster$", "Compare1")]
     public IEnumerator Effect1(ParameterNode parameterNode)
     {
@@ -38,7 +34,7 @@ public class LastWords2 : SkillInBattle
             cardData.Add("CardKind", "{\"leftKind\":\"balance\"}");
             cardData.Add("CardSkill", "{\"coverage_attack\":0,\"drain_crystal\":1,\"magic\":3}");
         }
-        else
+        else if (monsterInBattle.kind == "fortune")
         {
             cardData.Add("CardKind", "{\"leftKind\":\"fortune\"}");
             cardData.Add("CardSkill", "{\"coverage_attack\":0,\"drain_crystal\":1,\"chance\":5}");
@@ -62,7 +58,7 @@ public class LastWords2 : SkillInBattle
         parameterNode1.parameter = parameter;
 
         yield return battleProcess.StartCoroutine(gameAction.DoAction(gameAction.AddCardToDeck, parameterNode1));
-        yield return null;
+        //yield return null;
     }
 
     /// <summary>
@@ -71,7 +67,10 @@ public class LastWords2 : SkillInBattle
     public bool Compare1(ParameterNode parameterNode)
     {
         Dictionary<string, object> parameter = parameterNode.parameter;
-        GameObject monsterBeDestroy = (GameObject)parameter["MonsterBeDestroy"];
-        return monsterBeDestroy == gameObject;
+        GameObject monsterBeDestroy = (GameObject)parameter["EffectTarget"];
+
+        MonsterInBattle monsterInBattle = gameObject.GetComponent<MonsterInBattle>();
+
+        return monsterBeDestroy == gameObject && (monsterInBattle.kind == "balance" || monsterInBattle.kind == "fortune");
     }
 }

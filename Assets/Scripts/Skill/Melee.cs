@@ -1,7 +1,5 @@
-using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
 using UnityEngine;
 
 /// <summary>
@@ -53,7 +51,7 @@ public class Melee : SkillInBattle
         parameterNode1.parameter = damageParameter;
 
         yield return battleProcess.StartCoroutine(gameAction.DoAction(gameAction.HurtMonster, parameterNode1));
-        yield return null;
+        //yield return null;
     }
 
     /// <summary>

@@ -103,4 +103,46 @@ public class RuleEvent2 : OpportunityEffect
 
         yield return null;
     }
+
+    /// <summary>
+    /// 怪兽受伤后，结算死亡
+    /// </summary>
+    [TriggerEffect(@"^After\.GameAction\.HurtMonster$", "Compare1")]
+    public IEnumerator DestroyMonster(ParameterNode parameterNode)
+    {
+        var parameter = parameterNode.parameter;
+        SkillInBattle skillInBattle = (SkillInBattle)parameter["LaunchedSkill"];
+        GameObject monsterBeHurt = (GameObject)parameter["EffectTarget"];
+
+        BattleProcess battleProcess = BattleProcess.GetInstance();
+        GameAction gameAction = GameAction.GetInstance();
+
+        Dictionary<string, object> destroyParameter = new();
+        destroyParameter.Add("EffectTarget", monsterBeHurt);
+        destroyParameter.Add("Destroyer", skillInBattle.gameObject);
+
+        ParameterNode parameterNode1 = parameterNode.AddNodeInMethod();
+        parameterNode1.parameter = destroyParameter;
+
+        yield return battleProcess.StartCoroutine(gameAction.DoAction(gameAction.DestroyMonster, parameterNode1));
+        yield return null;
+    }
+
+    /// <summary>
+    /// 判断生命小于1
+    /// </summary>
+    public bool Compare1(ParameterNode parameterNode)
+    {
+        var parameter = parameterNode.parameter;
+        GameObject monsterBeHurt = (GameObject)parameter["EffectTarget"];
+
+        if (monsterBeHurt == null)
+        {
+            return false;
+        }
+
+        MonsterInBattle monsterInBattle = monsterBeHurt.GetComponent<MonsterInBattle>();
+
+        return monsterInBattle.GetCurrentHp() < 1;
+    }
 }

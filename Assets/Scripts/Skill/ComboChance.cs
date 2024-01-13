@@ -13,21 +13,17 @@ public class ComboChance : SkillInBattle
     {
         BattleProcess battleProcess = BattleProcess.GetInstance();
 
-        if (gameObject.TryGetComponent<Chance>(out var chance))
+        string fullName = "Chance.Effect1";
+        for (int i = 0; i < GetSkillValue(); i++)
         {
-            string fullName = "Chance.Effect1";
-            for (int i = 0; i < GetSkillValue(); i++)
+            if (gameObject.TryGetComponent<Chance>(out var chance))
             {
-                ParameterNode parameterNode1 = new();
+                ParameterNode parameterNode1 = parameterNode.AddNodeInMethod();
                 parameterNode.SetParent(new(), ParameterNodeChildType.EffectChild);
                 parameterNode1.opportunity = "InRoundBattle";
                 parameterNode1.result.Add("isAdditionalExecute", true);
 
-                if (chance.CompareCondition(chance.Effect1, parameterNode1))
-                {
-                    yield return battleProcess.StartCoroutine(battleProcess.ExecuteEffect(chance, fullName, parameterNode1, chance.Effect1));
-                    yield return null;
-                }
+                yield return battleProcess.StartCoroutine(battleProcess.ExecuteEffect(chance, fullName, parameterNode1, chance.Effect1));
             }
         }
     }

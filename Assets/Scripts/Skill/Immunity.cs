@@ -13,7 +13,8 @@ public class Immunity : SkillInBattle
     {
         Dictionary<string, object> result = parameterNode.Parent.result;
         result.Add("BeReplaced", true);
-        yield return null;
+        yield break;
+        //yield return null;
     }
 
     /// <summary>
@@ -27,7 +28,7 @@ public class Immunity : SkillInBattle
         Player player = (Player)parameter["Player"];
         Player targetPlayer = (Player)parameter["TargetPlayer"];
         int battlePanelNumber = (int)parameter["BattlePanelNumber"];
-        Dictionary<string, object> cardDataInBattle = (Dictionary<string, object>)parameter["CardDataInBattle"];
+        int handPanelNumber = (int)parameter["HandPanelNumber"];
 
         BattleProcess battleProcess = BattleProcess.GetInstance();
 
@@ -36,7 +37,22 @@ public class Immunity : SkillInBattle
             return false;
         }
 
-        string cardType = (string)cardDataInBattle["CardType"];
+        Dictionary<string, string> cardData = null;
+        for (int i = 0; i < battleProcess.systemPlayerData.Length; i++)
+        {
+            PlayerData playerData = battleProcess.systemPlayerData[i];
+            if (playerData.perspectivePlayer == player)
+            {
+                cardData = handPanelNumber < 2 ? playerData.handMonster[handPanelNumber] : playerData.handItem[handPanelNumber - 2];
+            }
+        }
+
+        if (cardData == null)
+        {
+            return false;
+        }
+
+        string cardType = cardData["CardType"];
 
         if (!cardType.Equals("consume"))
         {
@@ -74,7 +90,8 @@ public class Immunity : SkillInBattle
     {
         Dictionary<string, object> result = parameterNode.Parent.result;
         result.Add("BeReplaced", true);
-        yield return null;
+        yield break;
+        //yield return null;
     }
 
     /// <summary>
@@ -119,7 +136,8 @@ public class Immunity : SkillInBattle
     {
         Dictionary<string, object> result = parameterNode.Parent.result;
         result.Add("BeReplaced", true);
-        yield return null;
+        yield break;
+        //yield return null;
     }
 
     /// <summary>

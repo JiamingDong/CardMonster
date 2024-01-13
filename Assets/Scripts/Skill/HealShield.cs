@@ -31,7 +31,7 @@ public class HealShield : SkillInBattle
                 parameter1.Add("SkillName", "shield");
                 break;
             case 2:
-                parameter1.Add("SkillName", "mshield");
+                parameter1.Add("SkillName", "magic_shield");
                 break;
             case 3:
                 parameter1.Add("SkillName", "power_shield");
@@ -55,7 +55,7 @@ public class HealShield : SkillInBattle
         parameterNode2.parameter = parameter2;
 
         yield return battleProcess.StartCoroutine(monsterInBattle.DoAction(monsterInBattle.AddSkill, parameterNode2));
-        yield return null;
+        //yield return null;
     }
 
     /// <summary>

@@ -1,7 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using static UnityEditor.Progress;
 
 /// <summary>
 /// 二次攻击
@@ -32,21 +31,16 @@ public class DoubleMelee : SkillInBattle
             }
         }
 
+        Melee melee = gameObject.GetComponent<Melee>();
+
         string fullName = "Melee.Effect1";
-        for (int i = 0; i < GetSkillValue(); i++)
-        {
-            ParameterNode parameterNode1 = new();
-            parameterNode1.SetParent(new(), ParameterNodeChildType.EffectChild);
-            parameterNode1.opportunity = "InRoundBattle";
-            parameterNode1.result.Add("isAdditionalExecute", true);
 
-            if (go != null && go.TryGetComponent<Melee>(out var melee) && melee.CompareCondition(melee.Effect1, parameterNode1))
-            {
-                yield return battleProcess.StartCoroutine(battleProcess.ExecuteEffect(melee, fullName, parameterNode1, melee.Effect1));
-            }
-        }
+        ParameterNode parameterNode1 = new();
+        parameterNode1.SetParent(new(), ParameterNodeChildType.EffectChild);
+        parameterNode1.opportunity = "InRoundBattle";
+        parameterNode1.result.Add("isAdditionalExecute", true);
 
-        yield return null;
+        yield return battleProcess.StartCoroutine(battleProcess.ExecuteEffect(melee, fullName, parameterNode1, melee.Effect1));
     }
 
     public bool Compare1(ParameterNode parameterNode)
@@ -54,15 +48,41 @@ public class DoubleMelee : SkillInBattle
         Dictionary<string, object> result = parameterNode.Parent.result;
         SkillInBattle skillInBattle = (SkillInBattle)parameterNode.creator;
 
-        foreach (var item in parameterNode.Parent.EffectChild.nodeInMethodList[0].EffectChild.parameter)
+        Debug.Log("二次攻击");
+        if (parameterNode.Parent != null)
         {
-            Debug.Log(item.Key + "=" + item.Value);
+            Debug.Log(parameterNode.Parent.creator.GetType().Name);
+
+            if (parameterNode.Parent.EffectChild != null)
+            {
+                Debug.Log(parameterNode.Parent.EffectChild.creator.GetType().Name);
+
+                if (parameterNode.Parent.EffectChild.nodeInMethodList.Count > 0)
+                {
+                    Debug.Log(parameterNode.Parent.EffectChild.nodeInMethodList[0].creator.GetType().Name);
+
+                    if (parameterNode.Parent.EffectChild.nodeInMethodList[0].EffectChild != null)
+                    {
+                        Debug.Log(parameterNode.Parent.EffectChild.nodeInMethodList[0].EffectChild.creator.GetType().Name);
+
+                        if (parameterNode.Parent.EffectChild.nodeInMethodList[0].EffectChild.result != null)
+                        {
+                            Debug.Log("二次攻击----" + result);
+                            foreach (var item in parameterNode.Parent.EffectChild.nodeInMethodList[0].EffectChild.result)
+                            {
+                                Debug.Log(item.Key + "=" + item.Value);
+                            }
+                        }
+                    }
+                }
+            }
         }
 
         Dictionary<string, object> result2 = parameterNode.Parent.EffectChild.nodeInMethodList[0].EffectChild.result;
 
         if (result.ContainsKey("isAdditionalExecute"))
         {
+            Debug.Log("isAdditionalExecute");
             return false;
         }
 
@@ -77,11 +97,7 @@ public class DoubleMelee : SkillInBattle
         GameObject go = skillInBattle.gameObject;
         if (go != gameObject)
         {
-            return false;
-        }
-
-        if (!gameObject.TryGetComponent<Ranged>(out _))
-        {
+            Debug.Log("go != gameObject");
             return false;
         }
 
@@ -97,6 +113,7 @@ public class DoubleMelee : SkillInBattle
 
                     if (launchedRecord.ContainsKey(playerData.roundNumber))
                     {
+                        Debug.Log("launchedRecord.ContainsKey(playerData.roundNumber)");
                         return false;
                     }
                 }
@@ -106,6 +123,7 @@ public class DoubleMelee : SkillInBattle
             {
                 if (playerData.monsterGameObjectArray[0] == null)
                 {
+                    Debug.Log("playerData.monsterGameObjectArray[0] == null");
                     return false;
                 }
             }

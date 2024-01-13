@@ -24,7 +24,7 @@ public class ChargeDerive : SkillInBattle
         parameterNode1.parameter = parameter1;
 
         yield return battleProcess.StartCoroutine(monsterInBattle.DoAction(monsterInBattle.DeleteSkillSource, parameterNode1));
-        yield return null;
+        //yield return null;
 
         List<string> needRemoveSource = new();
         foreach (KeyValuePair<string, int> keyValuePair in sourceAndValue)

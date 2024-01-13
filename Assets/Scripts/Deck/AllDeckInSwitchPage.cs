@@ -15,9 +15,9 @@ public class AllDeckInSwitchPage : MonoBehaviour
 
     public void LoadAllDeck()
     {
-        Debug.Log("AllDeckInSwitchPage.LoadAllDeck:进入");
+        //Debug.Log("AllDeckInSwitchPage.LoadAllDeck:进入");
         GameObject deckItemBackgroundPanel = GameObject.Find("DeckItemBackgroundPanel");
-        for(int i=0;i< deckItemBackgroundPanel.transform.childCount; i++)
+        for (int i = 0; i < deckItemBackgroundPanel.transform.childCount; i++)
         {
             Destroy(deckItemBackgroundPanel.transform.GetChild(i).gameObject);
         }

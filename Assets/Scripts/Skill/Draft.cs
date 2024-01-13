@@ -46,18 +46,6 @@ public class Draft : SkillInBattle
 
                 if (gameObject.TryGetComponent<MonsterInBattle>(out var monsterInBattle))
                 {
-                    //Dictionary<string, object> parameter1 = new();
-                    //parameter1.Add("LaunchedSkill", this);
-                    //parameter1.Add("EffectName", "Effect1");
-                    //parameter1.Add("SkillName", "draft");
-                    //parameter1.Add("SkillValue", -GetSkillValue());
-                    //parameter1.Add("Source", "Skill.Draft.Effect1");
-
-                    //ParameterNode parameterNode2 = parameterNode.AddNodeInMethod();
-                    //parameterNode2.parameter = parameter1;
-
-                    //yield return battleProcess.StartCoroutine(monsterInBattle.DoAction(monsterInBattle.AddSkill, parameterNode2));
-
                     List<string> needRemoveSource = new();
                     foreach (KeyValuePair<string, int> keyValuePair in sourceAndValue)
                     {

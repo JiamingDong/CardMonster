@@ -45,7 +45,7 @@ public class StrengthenArmed : SkillInBattle
                     parameterNode1.parameter = parameter1;
 
                     yield return battleProcess.StartCoroutine(monsterInBattle.DoAction(monsterInBattle.AddSkill, parameterNode1));
-                    yield return null;
+                    //yield return null;
                 }
             }
         }

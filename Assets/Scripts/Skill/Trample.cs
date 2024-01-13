@@ -12,6 +12,11 @@ public class Trample : SkillInBattle
     public IEnumerator Effect1(ParameterNode parameterNode)
     {
         Dictionary<string, object> parameter = parameterNode.parameter;
+
+        Dictionary<string, object> parameter2 = parameterNode.Parent.Parent.EffectChild.parameter;
+
+        GameObject monsterBeHurt = (GameObject)parameter2["EffectTarget"];
+
         BattleProcess battleProcess = BattleProcess.GetInstance();
         GameAction gameAction = GameAction.GetInstance();
 
@@ -33,7 +38,7 @@ public class Trample : SkillInBattle
         for (int i = oppositePlayerData.monsterGameObjectArray.Length - 1; i > -1; i--)
         {
             GameObject go = oppositePlayerData.monsterGameObjectArray[i];
-            if (go != null)
+            if (go != null && go != monsterBeHurt)
             {
                 Dictionary<string, object> damageParameter = new();
                 damageParameter.Add("LaunchedSkill", this);
@@ -49,7 +54,7 @@ public class Trample : SkillInBattle
             }
         }
 
-        yield return null;
+        //yield return null;
     }
 
     /// <summary>

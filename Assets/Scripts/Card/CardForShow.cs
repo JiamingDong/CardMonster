@@ -245,7 +245,7 @@ public class CardForShow : MonoBehaviour
         cardNameText.text = cardName;
         costText.text = cost.ToString();
 
-        List<KeyValuePair<string, int>> skillList = new List<KeyValuePair<string, int>>();
+        List<KeyValuePair<string, int>> skillList = new();
         if (skill != null && !skill.Equals(""))
         {
             Dictionary<string, object> pD = JsonConvert.DeserializeObject<Dictionary<string, object>>(skill);

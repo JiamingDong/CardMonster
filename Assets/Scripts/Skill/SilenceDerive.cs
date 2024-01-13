@@ -15,7 +15,8 @@ public class SilenceDerive : SkillInBattle
     {
         Dictionary<string, object> result = parameterNode.Parent.result;
         result.Add("BeReplaced", true);
-        yield return null;
+        yield break;
+        //yield return null;
     }
 
     /// <summary>
@@ -50,7 +51,7 @@ public class SilenceDerive : SkillInBattle
         parameterNode1.parameter = parameter;
 
         yield return battleProcess.StartCoroutine(monsterInBattle.DoAction(monsterInBattle.AddSkill, parameterNode1));
-        yield return null;
+        //yield return null;
     }
 
     /// <summary>

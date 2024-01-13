@@ -29,15 +29,21 @@ public class Equality : SkillInBattle
                     {
                         Dictionary<string, string> keyValuePairs = battleProcess.systemPlayerData[i].handMonster[k];
 
-                        Dictionary<string, string> cardKind = JsonConvert.DeserializeObject<Dictionary<string, string>>(keyValuePairs["CardKind"]);
-
-                        if (cardKind["leftKind"] == kind || (cardKind.ContainsKey("rightKind") && cardKind["rightKind"] == kind))
+                        if (keyValuePairs != null)
                         {
-                            keyValuePairs["CardCost"] = GetSkillValue().ToString();
+                            Dictionary<string, string> cardKind = JsonConvert.DeserializeObject<Dictionary<string, string>>(keyValuePairs["CardKind"]);
 
-                            CardForShow cardForShow = battleProcess.systemPlayerData[i].handMonsterPanel[k].GetComponent<Transform>().Find("CardForShow").gameObject.GetComponent<CardForShow>();
-                            cardForShow.cost = GetSkillValue();
-                            cardForShow.costText.text = GetSkillValue().ToString();
+                            if (cardKind["leftKind"] == kind || (cardKind.ContainsKey("rightKind") && cardKind["rightKind"] == kind))
+                            {
+                                keyValuePairs["CardCost"] = GetSkillValue().ToString();
+
+                                if (battleProcess.systemPlayerData[i].handMonsterPanel != null)
+                                {
+                                    CardForShow cardForShow = battleProcess.systemPlayerData[i].handMonsterPanel[k].GetComponent<Transform>().Find("CardForShow").gameObject.GetComponent<CardForShow>();
+                                    cardForShow.cost = GetSkillValue();
+                                    cardForShow.costText.text = GetSkillValue().ToString();
+                                }
+                            }
                         }
                     }
 

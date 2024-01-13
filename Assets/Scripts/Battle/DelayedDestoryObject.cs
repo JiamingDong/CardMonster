@@ -12,7 +12,7 @@ public class DelayedDestoryObject : MonoBehaviour
 
     private IEnumerator Clear()
     {
-        Destroy(o, 1);
+        Destroy(o, 0.5f);
         yield return null;
     }
 }

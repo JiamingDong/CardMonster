@@ -48,7 +48,28 @@ public class Swap : SkillInBattle
         parameterNode1.parameter = parameter;
 
         yield return battleProcess.StartCoroutine(gameAction.DoAction(gameAction.SwapMonsterPosition, parameterNode1));
-        yield return null;
+
+        MonsterInBattle monsterInBattle1 = gameObject.GetComponent<MonsterInBattle>();
+
+        List<string> needRemoveSource = new();
+        foreach (KeyValuePair<string, int> keyValuePair in sourceAndValue)
+        {
+            needRemoveSource.Add(keyValuePair.Key);
+        }
+
+        foreach (var item in needRemoveSource)
+        {
+            Dictionary<string, object> parameter4 = new();
+            parameter4.Add("LaunchedSkill", this);
+            parameter4.Add("EffectName", "Effect1");
+            parameter4.Add("SkillName", "swap");
+            parameter4.Add("Source", item);
+
+            ParameterNode parameterNode4 = new();
+            parameterNode4.parameter = parameter4;
+
+            yield return battleProcess.StartCoroutine(monsterInBattle1.DoAction(monsterInBattle1.DeleteSkillSource, parameterNode4));
+        }
     }
 
     /// <summary>
@@ -62,11 +83,29 @@ public class Swap : SkillInBattle
 
         BattleProcess battleProcess = BattleProcess.GetInstance();
 
+        //消耗品物体
+        if (result.ContainsKey("ConsumeBeGenerated"))
+        {
+            GameObject consumeBeGenerated = (GameObject)result["ConsumeBeGenerated"];
+            if (consumeBeGenerated != gameObject)
+            {
+                return false;
+            }
+        }
         //怪兽
-        if (result.ContainsKey("MonsterBeGenerated"))
+        else if (result.ContainsKey("MonsterBeGenerated"))
         {
             GameObject monsterBeGenerated = (GameObject)result["MonsterBeGenerated"];
             if (monsterBeGenerated != gameObject)
+            {
+                return false;
+            }
+        }
+        //装备
+        else if (result.ContainsKey("MonsterBeEquipped"))
+        {
+            GameObject monsterBeEquipped = (GameObject)result["MonsterBeEquipped"];
+            if (monsterBeEquipped != gameObject)
             {
                 return false;
             }
@@ -79,7 +118,7 @@ public class Swap : SkillInBattle
         for (int i = 0; i < battleProcess.systemPlayerData.Length; i++)
         {
             PlayerData systemPlayerData = battleProcess.systemPlayerData[i];
-            if (systemPlayerData.perspectivePlayer != player && systemPlayerData.monsterGameObjectArray[0] == null && systemPlayerData.monsterGameObjectArray[1] == null)
+            if (systemPlayerData.perspectivePlayer != player && systemPlayerData.monsterGameObjectArray[1] == null)
             {
                 return false;
             }

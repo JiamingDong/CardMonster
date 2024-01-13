@@ -40,7 +40,6 @@ public class Reflect : SkillInBattle
         parameterNode1.parameter = damageParameter;
 
         yield return battleProcess.StartCoroutine(gameAction.DoAction(gameAction.HurtMonster, parameterNode1));
-        yield return null;
     }
 
     /// <summary>
@@ -52,15 +51,18 @@ public class Reflect : SkillInBattle
         Dictionary<string, object> result = parameterNode.result;
         GameObject monsterBeHurt = (GameObject)parameter["EffectTarget"];
         SkillInBattle skillInBattle = (SkillInBattle)parameter["LaunchedSkill"];
+
         if (result.ContainsKey("BeReplaced"))
         {
             return false;
         }
+
         if (monsterBeHurt == gameObject && (skillInBattle is Magic || skillInBattle is Reflect))
         {
             int r = RandomUtils.GetRandomNumber(1, 4);
             return r <= 3;
         }
+
         return false;
     }
 }

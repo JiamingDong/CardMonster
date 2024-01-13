@@ -10,24 +10,16 @@ public class Opportunity : SkillInBattle
     [TriggerEffect(@"^After\.Melee\.Effect1$", "Compare1")]
     public IEnumerator Effect1(ParameterNode parameterNode)
     {
-        SkillInBattle skillInBattle = (SkillInBattle)parameterNode.Parent.creator;
-        GameObject go = skillInBattle.gameObject;
-
         BattleProcess battleProcess = BattleProcess.GetInstance();
 
-        string fullName = "Ranged.Effect1";
-        for (int i = 0; i < GetSkillValue(); i++)
-        {
-            ParameterNode parameterNode1 = new();
-            parameterNode1.SetParent(new(), ParameterNodeChildType.EffectChild);
-            parameterNode1.opportunity = "InRoundBattle";
+        Ranged ranged = gameObject.GetComponent<Ranged>();
 
-            if (go != null && go.TryGetComponent<Ranged>(out var ranged) && ranged.CompareCondition(ranged.Effect1, parameterNode1))
-            {
-                yield return battleProcess.StartCoroutine(battleProcess.ExecuteEffect(ranged, fullName, parameterNode1, ranged.Effect1));
-                yield return null;
-            }
-        }
+        string fullName = "Ranged.Effect1";
+        ParameterNode parameterNode1 = parameterNode.AddNodeInMethod();
+        parameterNode1.SetParent(new(), ParameterNodeChildType.EffectChild);
+        parameterNode1.opportunity = "InRoundBattle";
+
+        yield return battleProcess.StartCoroutine(battleProcess.ExecuteEffect(ranged, fullName, parameterNode1, ranged.Effect1));
     }
 
     /// <summary>
@@ -45,18 +37,31 @@ public class Opportunity : SkillInBattle
             return false;
         }
 
+        bool f1 = false;
+        bool f2 = false;
         for (int i = 0; i < battleProcess.systemPlayerData.Length; i++)
         {
             PlayerData playerData = battleProcess.systemPlayerData[i];
+            bool isAlly = false;
             for (int j = 0; j < playerData.monsterGameObjectArray.Length; j++)
             {
-                if ((playerData.monsterGameObjectArray[1] == gameObject || playerData.monsterGameObjectArray[2] == gameObject) && playerData.monsterGameObjectArray[1] != go && playerData.monsterGameObjectArray[2] != go)
+                if (playerData.monsterGameObjectArray[j] == gameObject)
                 {
-                    return true;
+                    isAlly = true;
                 }
+            }
+
+            if (isAlly && (playerData.monsterGameObjectArray[1] == gameObject || playerData.monsterGameObjectArray[2] == gameObject))
+            {
+                f1 = true;
+            }
+
+            if (!isAlly && (playerData.monsterGameObjectArray[1] == go || playerData.monsterGameObjectArray[2] == go))
+            {
+                f2 = true;
             }
         }
 
-        return false;
+        return f1 && f2;
     }
 }

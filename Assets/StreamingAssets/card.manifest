@@ -1,15 +1,15 @@
 ManifestFileVersion: 0
-CRC: 2682604276
+CRC: 1462111258
 Hashes:
   AssetFileHash:
     serializedVersion: 2
-    Hash: 2faa7d258ab7aa8b2bfaa74d78a117c0
+    Hash: 8adfbe0e1b958d606419cd6cc1ece21c
   TypeTreeHash:
     serializedVersion: 2
     Hash: 2d8df09e698f722ada1caa03d3413830
   IncrementalBuildHash:
     serializedVersion: 2
-    Hash: 2faa7d258ab7aa8b2bfaa74d78a117c0
+    Hash: 8adfbe0e1b958d606419cd6cc1ece21c
 HashAppended: 0
 ClassTypes:
 - Class: 28
@@ -296,6 +296,7 @@ Assets:
 - Assets/Image/Card/Skill/disarmament.png
 - Assets/Image/Card/Skill/decoy_lose.png
 - Assets/Image/Card/Skill/see_through.png
+- Assets/Image/Card/Skill/buff_heal_shield.png
 - Assets/Image/Card/Skill/curse.png
 - Assets/Image/Card/Skill/weak.png
 - Assets/Image/Card/CardBackground/BackgroundLchaos.png

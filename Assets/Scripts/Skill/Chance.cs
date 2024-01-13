@@ -44,7 +44,7 @@ public class Chance : SkillInBattle
         parameterNode1.parameter = parameter1;
 
         yield return battleProcess.StartCoroutine(gameAction.DoAction(gameAction.SelectEffectTarget, parameterNode1));
-        yield return null;
+        //yield return null;
 
         GameObject effectTarget = null;
         if (priorTargetList.Count > 0)
@@ -88,7 +88,7 @@ public class Chance : SkillInBattle
         parameterNode2.parameter = damageParameter;
 
         yield return battleProcess.StartCoroutine(gameAction.DoAction(gameAction.HurtMonster, parameterNode2));
-        yield return null;
+        //yield return null;
     }
 
     /// <summary>

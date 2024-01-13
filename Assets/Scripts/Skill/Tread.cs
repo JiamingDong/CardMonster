@@ -13,8 +13,8 @@ public class Tread : SkillInBattle
     {
         Dictionary<string, object> parameter = parameterNode.parameter;
 
-        Dictionary<string, object> parameter2 = parameterNode.Parent.EffectChild.nodeInMethodList[0].EffectChild.parameter;
-        Dictionary<string, object> result2 = parameterNode.Parent.EffectChild.nodeInMethodList[0].EffectChild.result;
+        Dictionary<string, object> parameter2 = parameterNode.Parent.Parent.EffectChild.parameter;
+        Dictionary<string, object> result2 = parameterNode.Parent.Parent.EffectChild.result;
 
         GameObject monsterBeHurt = (GameObject)parameter2["EffectTarget"];
         int excessiveDamage = (int)result2["ExcessiveDamage"];
@@ -51,7 +51,7 @@ public class Tread : SkillInBattle
         for (int i = oppositePlayerData.monsterGameObjectArray.Length - 1; i > -1; i--)
         {
             GameObject go = oppositePlayerData.monsterGameObjectArray[i];
-            if (go != null)
+            if (go != null && go != monsterBeHurt)
             {
                 Dictionary<string, object> damageParameter = new();
                 damageParameter.Add("LaunchedSkill", this);
@@ -67,7 +67,7 @@ public class Tread : SkillInBattle
             }
         }
 
-        yield return null;
+        //yield return null;
     }
 
     /// <summary>
@@ -79,19 +79,19 @@ public class Tread : SkillInBattle
         SkillInBattle launchedSkill = (SkillInBattle)parameter["LaunchedSkill"];
         string effectName = (string)parameter["EffectName"];
 
-        foreach (var item in parameterNode.Parent.EffectChild.nodeInMethodList[0].EffectChild.parameter)
+        foreach (var item in parameterNode.Parent.EffectChild.parameter)
         {
             Debug.Log(item.Key + "=" + item.Value);
         }
 
-        Dictionary<string, object> parameter2 = parameterNode.Parent.EffectChild.nodeInMethodList[0].EffectChild.parameter;
-        Dictionary<string, object> result2 = parameterNode.Parent.EffectChild.nodeInMethodList[0].EffectChild.result;
+        Dictionary<string, object> parameter2 = parameterNode.Parent.EffectChild.parameter;
+        Dictionary<string, object> result2 = parameterNode.Parent.EffectChild.result;
 
         GameObject monsterBeHurt = (GameObject)parameter2["EffectTarget"];
 
         BattleProcess battleProcess = BattleProcess.GetInstance();
 
-        if (result2.ContainsKey("ExcessiveDamage"))
+        if (!result2.ContainsKey("ExcessiveDamage"))
         {
             Debug.Log("ExcessiveDamage");
             return false;

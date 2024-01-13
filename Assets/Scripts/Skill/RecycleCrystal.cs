@@ -32,14 +32,12 @@ public class RecycleCrystal : SkillInBattle
                     parameterNode1.parameter = parameter;
 
                     yield return battleProcess.StartCoroutine(gameAction.DoAction(gameAction.ChangeCrystalAmount, parameterNode1));
-                    goto a;
+                    yield break;
                 }
             }
         }
 
-    a:;
-
-        yield return null;
+        //yield return null;
     }
 
     /// <summary>
@@ -50,7 +48,7 @@ public class RecycleCrystal : SkillInBattle
     public bool Compare1(ParameterNode parameterNode)
     {
         Dictionary<string, object> parameter = parameterNode.parameter;
-        GameObject monsterBeDestroy = (GameObject)parameter["MonsterBeDestroy"];
+        GameObject monsterBeDestroy = (GameObject)parameter["EffectTarget"];
         return monsterBeDestroy == gameObject;
     }
 }

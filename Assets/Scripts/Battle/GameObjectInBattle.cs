@@ -19,10 +19,31 @@ public class GameObjectInBattle : MonoBehaviour
     public IEnumerator LaunchSkill(ParameterNode parameterNode)
     {
         BattleProcess battleProcess = BattleProcess.GetInstance();
-        for (int i = 0; i < skillList.Count; i++)
+
+        //循环过程中可能有技能被移除
+        HashSet<SkillInBattle> hasLaunchedSkill = new();
+        var maxCount = skillList.Count * 2;
+        var j = 0;
+        while (j < maxCount)
         {
-            SkillInBattle skill = skillList[i];
-            yield return battleProcess.StartCoroutine(skill.ExecuteEligibleEffect(parameterNode));
+            bool a = true;
+
+            for (int i = 0; i < skillList.Count; i++)
+            {
+                SkillInBattle skill = skillList[i];
+                if (!hasLaunchedSkill.Contains(skill))
+                {
+                    yield return battleProcess.StartCoroutine(skill.ExecuteEligibleEffect(parameterNode));
+                    hasLaunchedSkill.Add(skill);
+                    a = false;
+                    break;
+                }
+            }
+
+            if (a)
+            {
+                break;
+            }
         }
     }
 

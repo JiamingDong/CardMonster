@@ -1,4 +1,3 @@
-using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -72,7 +71,7 @@ public class CoverageAttack : SkillInBattle
                 parameterNode1.parameter = damageParameter;
 
                 yield return battleProcess.StartCoroutine(gameAction.DoAction(gameAction.HurtMonster, parameterNode1));
-                yield return null;
+                //yield return null;
             }
 
             string fullName = "Magic.Effect1";
@@ -89,7 +88,7 @@ public class CoverageAttack : SkillInBattle
             }
 
             yield return battleProcess.StartCoroutine(battleProcess.ExecuteEffect(magic, fullName, parameterNode1, Effect));
-            yield return null;
+            //yield return null;
         }
     }
 
@@ -122,6 +121,12 @@ public class CoverageAttack : SkillInBattle
         if (result.ContainsKey("isAdditionalExecute"))
         {
             //Debug.Log("isAdditionalExecute1");
+            return false;
+        }
+
+        MonsterInBattle monsterInBattle = gameObject.GetComponent<MonsterInBattle>();
+        if (monsterInBattle.kind != "balance")
+        {
             return false;
         }
 
@@ -243,6 +248,12 @@ public class CoverageAttack : SkillInBattle
         }
 
         if (result.ContainsKey("isAdditionalExecute"))
+        {
+            return false;
+        }
+
+        MonsterInBattle monsterInBattle = gameObject.GetComponent<MonsterInBattle>();
+        if (monsterInBattle.kind != "fortune")
         {
             return false;
         }

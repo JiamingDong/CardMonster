@@ -16,7 +16,8 @@ public class SilenceArmor : SkillInBattle
 
         parameter["DamageValue"] = damageValue / 2;
 
-        yield return null;
+        yield break;
+        //yield return null;
     }
 
     /// <summary>

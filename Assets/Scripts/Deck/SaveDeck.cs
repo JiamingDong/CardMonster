@@ -20,6 +20,10 @@ public class SaveDeck : MonoBehaviour
         deck.Add("HeroSkillId", deckInCollection.heroSkillId);
         deck.Add("DeckCard", JsonConvert.SerializeObject(deckCard));
 
-        Database.cardMonster.Update("PlayerDeck", deck, "and DeckId=" + deckInCollection.deckId);
+        Database.cardMonster.Update("PlayerDeck", deck, "and DeckId='" + deckInCollection.deckId + "'");
+
+        Dictionary<string, string> record = new();
+        record.Add("itemvalue", deckInCollection.deckId);
+        Database.cardMonster.Update("ConfigParameter", record, "and itemname='defalutDeckId'");
     }
 }

@@ -35,7 +35,7 @@ public class MagicOutburstDerive : SkillInBattle
         parameterNode2.parameter = parameter2;
 
         yield return battleProcess.StartCoroutine(monsterInBattle.DoAction(monsterInBattle.DeleteSkillSource, parameterNode2));
-        yield return null;
+        //yield return null;
     }
 
     /// <summary>
@@ -55,12 +55,12 @@ public class MagicOutburstDerive : SkillInBattle
                 {
                     if (systemPlayerData.monsterGameObjectArray[j] == gameObject)
                     {
-                        return false;
+                        return true;
                     }
                 }
             }
         }
 
-        return true;
+        return false;
     }
 }

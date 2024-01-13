@@ -36,7 +36,7 @@ public class Determination : SkillInBattle
                 parameterNode1.parameter = parameter1;
 
                 yield return battleProcess.StartCoroutine(monsterInBattle.DoAction(monsterInBattle.AddSkill, parameterNode1));
-                yield return null;
+                //yield return null;
             }
         }
 
@@ -50,7 +50,7 @@ public class Determination : SkillInBattle
         parameterNode2.parameter = parameter2;
 
         yield return battleProcess.StartCoroutine(monsterInBattle.DoAction(monsterInBattle.DeleteSkillSource, parameterNode2));
-        yield return null;
+        //yield return null;
 
         Dictionary<string, object> parameter3 = new();
         parameter3.Add("LaunchedSkill", this);
@@ -62,7 +62,7 @@ public class Determination : SkillInBattle
         parameterNode3.parameter = parameter3;
 
         yield return battleProcess.StartCoroutine(monsterInBattle.DoAction(monsterInBattle.DeleteSkillSource, parameterNode3));
-        yield return null;
+        //yield return null;
 
         Dictionary<string, object> parameter4 = new();
         parameter4.Add("LaunchedSkill", this);
@@ -74,7 +74,7 @@ public class Determination : SkillInBattle
         parameterNode4.parameter = parameter4;
 
         yield return battleProcess.StartCoroutine(monsterInBattle.DoAction(monsterInBattle.DeleteSkillSource, parameterNode4));
-        yield return null;
+        //yield return null;
     }
 
     /// <summary>
@@ -118,7 +118,8 @@ public class Determination : SkillInBattle
     {
         Dictionary<string, object> result = parameterNode.Parent.result;
         result.Add("BeReplaced", true);
-        yield return null;
+        yield break;
+        //yield return null;
     }
 
     /// <summary>

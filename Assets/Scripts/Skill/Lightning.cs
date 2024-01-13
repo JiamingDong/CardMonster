@@ -34,7 +34,7 @@ public class Lightning : SkillInBattle
         parameterNode1.parameter = damageParameter;
 
         yield return battleProcess.StartCoroutine(gameAction.DoAction(gameAction.HurtMonster, parameterNode1));
-        yield return null;
+        //yield return null;
     }
 
     /// <summary>

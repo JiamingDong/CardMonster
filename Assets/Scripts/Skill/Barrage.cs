@@ -19,15 +19,14 @@ public class Barrage : SkillInBattle
         string fullName = "Chance.Effect1";
         for (int i = 0; i < GetSkillValue(); i++)
         {
-            ParameterNode parameterNode1 = new();
-            parameterNode1.SetParent(new(), ParameterNodeChildType.EffectChild);
-            parameterNode1.opportunity = "InRoundBattle";
-            parameterNode1.result.Add("isAdditionalExecute", true);
-
-            if (go != null && go.TryGetComponent<Chance>(out var chance) && chance.CompareCondition(chance.Effect1, parameterNode1))
+            if (go.TryGetComponent<Chance>(out var chance))
             {
+                ParameterNode parameterNode1 = parameterNode.AddNodeInMethod();
+                parameterNode1.SetParent(new(), ParameterNodeChildType.EffectChild);
+                parameterNode1.opportunity = "InRoundBattle";
+                parameterNode1.result.Add("isAdditionalExecute", true);
+
                 yield return battleProcess.StartCoroutine(battleProcess.ExecuteEffect(chance, fullName, parameterNode1, chance.Effect1));
-                yield return null;
             }
         }
     }
@@ -82,8 +81,6 @@ public class Barrage : SkillInBattle
         MonsterInBattle thisMonster = gameObject.GetComponent<MonsterInBattle>();
         MonsterInBattle targetMonster = go.GetComponent<MonsterInBattle>();
 
-        //Debug.Log(thisMonster.kind);
-        //Debug.Log(targetMonster.kind);
         if (!thisMonster.kind.Equals(targetMonster.kind))
         {
             return false;

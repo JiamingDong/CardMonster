@@ -47,7 +47,7 @@ public class SurpriseGift : SkillInBattle
                         parameterNode1.parameter = parameter1;
 
                         yield return battleProcess.StartCoroutine(gameAction.DoAction(gameAction.EquipmentEnterBattle, parameterNode1));
-                        yield return null;
+                        //yield return null;
                     }
                 }
             }

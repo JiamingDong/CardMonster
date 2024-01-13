@@ -8,7 +8,7 @@ using UnityEngine;
 /// </summary>
 public class HealShieldDerive : SkillInBattle
 {
-    [TriggerEffect("^InRoundReady$", "Compare1")]
+    [TriggerEffect("^AfterRoundBattle$", "Compare1")]
     public IEnumerator Effect2(ParameterNode parameterNode)
     {
         BattleProcess battleProcess = BattleProcess.GetInstance();
@@ -29,7 +29,7 @@ public class HealShieldDerive : SkillInBattle
         Dictionary<string, object> parameter2 = new();
         parameter2.Add("LaunchedSkill", this);
         parameter2.Add("EffectName", "Effect1");
-        parameter2.Add("SkillName", "mshield");
+        parameter2.Add("SkillName", "magic_shield");
         parameter2.Add("Source", "Skill.HealShield.Effect1");
 
         ParameterNode parameterNode2 = parameterNode.AddNodeInMethod();
@@ -58,7 +58,7 @@ public class HealShieldDerive : SkillInBattle
         parameterNode4.parameter = parameter4;
 
         yield return battleProcess.StartCoroutine(monsterInBattle.DoAction(monsterInBattle.DeleteSkillSource, parameterNode4));
-        yield return null;
+        //yield return null;
     }
 
     /// <summary>
@@ -70,11 +70,13 @@ public class HealShieldDerive : SkillInBattle
 
         for (int i = 0; i < battleProcess.systemPlayerData.Length; i++)
         {
-            if (battleProcess.systemPlayerData[i].perspectivePlayer == Player.Enemy)
+            PlayerData systemPlayerData = battleProcess.systemPlayerData[i];
+
+            if (systemPlayerData.perspectivePlayer == Player.Enemy)
             {
-                for (int j = 0; j < battleProcess.systemPlayerData[i].monsterGameObjectArray.Length; j++)
+                for (int j = 0; j < systemPlayerData.monsterGameObjectArray.Length; j++)
                 {
-                    if (battleProcess.systemPlayerData[i].monsterGameObjectArray[j] == gameObject)
+                    if (systemPlayerData.monsterGameObjectArray[j] == gameObject)
                     {
                         return true;
                     }

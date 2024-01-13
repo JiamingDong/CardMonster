@@ -23,23 +23,31 @@ public class SmallBurst : SkillInBattle
                 {
                     for (int k = 0; k < systemPlayerData.monsterGameObjectArray.Length; k++)
                     {
-                        Dictionary<string, object> damageParameter = new();
-                        damageParameter.Add("LaunchedSkill", this);
-                        damageParameter.Add("EffectName", "Effect1");
-                        damageParameter.Add("EffectTarget", systemPlayerData.monsterGameObjectArray[k]);
-                        damageParameter.Add("DamageValue", GetSkillValue());
-                        damageParameter.Add("DamageType", DamageType.Real);
+                        GameObject go = systemPlayerData.monsterGameObjectArray[k];
+                        if (go != null)
+                        {
+                            MonsterInBattle monsterInBattle = go.GetComponent<MonsterInBattle>();
+                            if (monsterInBattle.GetCurrentHp() > 0)
+                            {
+                                Dictionary<string, object> damageParameter = new();
+                                damageParameter.Add("LaunchedSkill", this);
+                                damageParameter.Add("EffectName", "Effect1");
+                                damageParameter.Add("EffectTarget", systemPlayerData.monsterGameObjectArray[k]);
+                                damageParameter.Add("DamageValue", GetSkillValue());
+                                damageParameter.Add("DamageType", DamageType.Real);
 
-                        ParameterNode parameterNode2 = parameterNode.AddNodeInMethod();
-                        parameterNode2.parameter = damageParameter;
+                                ParameterNode parameterNode2 = parameterNode.AddNodeInMethod();
+                                parameterNode2.parameter = damageParameter;
 
-                        yield return battleProcess.StartCoroutine(gameAction.DoAction(gameAction.HurtMonster, parameterNode2));
+                                yield return battleProcess.StartCoroutine(gameAction.DoAction(gameAction.HurtMonster, parameterNode2));
+                            }
+                        }
                     }
                 }
             }
         }
 
-        yield return null;
+        //yield return null;
     }
 
     /// <summary>
@@ -48,7 +56,7 @@ public class SmallBurst : SkillInBattle
     public bool Compare1(ParameterNode parameterNode)
     {
         Dictionary<string, object> parameter = parameterNode.parameter;
-        GameObject monster = (GameObject)parameter["MonsterBeDestroyEquipment"];
+        GameObject monster = (GameObject)parameter["EffectTarget"];
         if (monster == gameObject)
         {
             return true;
@@ -72,19 +80,24 @@ public class SmallBurst : SkillInBattle
                 {
                     for (int k = 0; k < systemPlayerData.monsterGameObjectArray.Length; k++)
                     {
-                        if (systemPlayerData.monsterGameObjectArray[k] != gameObject)
+                        GameObject go = systemPlayerData.monsterGameObjectArray[k];
+                        if (go != null && go != gameObject)
                         {
-                            Dictionary<string, object> damageParameter = new();
-                            damageParameter.Add("LaunchedSkill", this);
-                            damageParameter.Add("EffectName", "Effect1");
-                            damageParameter.Add("EffectTarget", systemPlayerData.monsterGameObjectArray[k]);
-                            damageParameter.Add("DamageValue", GetSkillValue());
-                            damageParameter.Add("DamageType", DamageType.Real);
+                            MonsterInBattle monsterInBattle = go.GetComponent<MonsterInBattle>();
+                            if (monsterInBattle.GetCurrentHp() > 0)
+                            {
+                                Dictionary<string, object> damageParameter = new();
+                                damageParameter.Add("LaunchedSkill", this);
+                                damageParameter.Add("EffectName", "Effect1");
+                                damageParameter.Add("EffectTarget", systemPlayerData.monsterGameObjectArray[k]);
+                                damageParameter.Add("DamageValue", GetSkillValue());
+                                damageParameter.Add("DamageType", DamageType.Real);
 
-                            ParameterNode parameterNode2 = parameterNode.AddNodeInMethod();
-                            parameterNode2.parameter = damageParameter;
+                                ParameterNode parameterNode2 = parameterNode.AddNodeInMethod();
+                                parameterNode2.parameter = damageParameter;
 
-                            yield return battleProcess.StartCoroutine(gameAction.DoAction(gameAction.HurtMonster, parameterNode2));
+                                yield return battleProcess.StartCoroutine(gameAction.DoAction(gameAction.HurtMonster, parameterNode2));
+                            }
                         }
                     }
                 }
@@ -100,7 +113,7 @@ public class SmallBurst : SkillInBattle
     public bool Compare2(ParameterNode parameterNode)
     {
         Dictionary<string, object> parameter = parameterNode.parameter;
-        GameObject monster = (GameObject)parameter["MonsterBeDestroyEquipment"];
+        GameObject monster = (GameObject)parameter["EffectTarget"];
         if (monster == gameObject)
         {
             return true;

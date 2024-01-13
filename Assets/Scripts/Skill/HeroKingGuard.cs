@@ -16,10 +16,12 @@ public class HeroKingGuard : SkillInBattle
         GameObject monsterBeGenerated = (GameObject)result["MonsterBeGenerated"];
 
         MonsterInBattle monsterInBattle = monsterBeGenerated.GetComponent<MonsterInBattle>();
+        monsterInBattle.maxHp += 2;
         int currentHp = monsterInBattle.GetCurrentHp();
         monsterInBattle.SetCurrentHp(currentHp + 2);
 
-        yield return null;
+        yield break;
+        //yield return null;
     }
 
     /// <summary>

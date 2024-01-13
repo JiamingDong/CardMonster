@@ -1,5 +1,4 @@
 using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -47,7 +46,7 @@ public class RuleEvent : OpportunityEffect
 
         //取出我方卡组
         Dictionary<string, object> allyDeckDictionary = new();
-        string defaultDeckId = Database.cardMonster.Query("PlayerData", "and PlayerID='1'")[0]["DefaultDeckID"];
+        string defaultDeckId = Database.cardMonster.Query("ConfigParameter", "and itemname='defalutDeckId'")[0]["itemvalue"];
         var deckList = Database.cardMonster.Query("PlayerDeck", "and DeckID='" + defaultDeckId + "'");
         if (deckList.Count == 0)
         {
@@ -62,11 +61,6 @@ public class RuleEvent : OpportunityEffect
         List<string> allyMonster = allyDeckCardD["monster"];
         List<string> allyItem = allyDeckCardD["item"];
 
-        //foreach (var item in allyMonster)
-        //{
-        //    Debug.Log(item);
-        //}
-
         Dictionary<string, List<string>> allyDeckCardSend = new();
         allyDeckCardSend.Add("Monster", allyMonster);
         allyDeckCardSend.Add("Item", allyItem);
@@ -76,75 +70,6 @@ public class RuleEvent : OpportunityEffect
         List<string> enemyItem;
 
         if (SocketTool.clientOrListening)
-        {
-            //游戏开始
-            NetworkMessage networkMessage1 = new();
-            networkMessage1.Type = NetworkMessageType.GameStart;
-            networkMessage1.Parameter = new();
-
-            SocketTool.SendMessage(networkMessage1);
-
-            yield return null;
-
-            //接收随机数种子
-            Debug.Log("接收随机数种子1");
-            NetworkMessage networkMessage = null;
-            do
-            {
-                networkMessage = SocketTool.GetNetworkMessage();
-                yield return null;
-            } while (networkMessage == null);
-
-            RandomUtils.seed = (int)networkMessage.Parameter["RandomSeed"];
-            RandomUtils.Init();
-
-            yield return null;
-
-            Debug.Log("接收随机数种子2");
-
-            //发送卡组
-            allyDeckDictionary.Add("HeroSkillId", allyHeroSkillId);
-            allyDeckDictionary.Add("DeckCard", allyDeckCardSend);
-
-            NetworkMessage priorityNumberAndAllydeck = new(NetworkMessageType.PriorityAndDeck, allyDeckDictionary);
-            SocketTool.SendMessage(priorityNumberAndAllydeck);
-
-            yield return null;
-
-            //接收对方卡组
-            do
-            {
-                enemyDeckMessage = SocketTool.GetNetworkMessage();
-                yield return null;
-            } while (enemyDeckMessage == null);
-
-            yield return null;
-
-            Dictionary<string, List<string>> enemyDeckDictionary = (Dictionary<string, List<string>>)enemyDeckMessage.Parameter["DeckCard"];
-            enemyMonster = enemyDeckDictionary["Monster"];
-            enemyItem = enemyDeckDictionary["Item"];
-
-            //确定先后手，0己方，1对方
-            int priorityNumber = RandomUtils.GetRandomNumber(0, 1);
-            battleProcess.nextTurn = priorityNumber == 0 ? Player.Ally : Player.Enemy;
-
-            //洗牌
-            for (int i = 0; i < 8; i++)
-            {
-                int a = RandomUtils.GetRandomNumber(i, 7);
-                (allyMonster[a], allyMonster[i]) = (allyMonster[i], allyMonster[a]);
-                a = RandomUtils.GetRandomNumber(i, 7);
-                (allyItem[a], allyItem[i]) = (allyItem[i], allyItem[a]);
-            }
-            for (int i = 0; i < 8; i++)
-            {
-                int a = RandomUtils.GetRandomNumber(i, 7);
-                (enemyMonster[a], enemyMonster[i]) = (enemyMonster[i], enemyMonster[a]);
-                a = RandomUtils.GetRandomNumber(i, 7);
-                (enemyItem[a], enemyItem[i]) = (enemyItem[i], enemyItem[a]);
-            }
-        }
-        else
         {
             //初始化随机数种子 初始化随机数 发送随机数种子
             RandomUtils.seed = Environment.TickCount;
@@ -156,7 +81,7 @@ public class RuleEvent : OpportunityEffect
             NetworkMessage networkMessage = new();
             networkMessage.Type = NetworkMessageType.RandomSeed;
             networkMessage.Parameter = randomSeedDictionary;
-            Debug.Log(networkMessage.Parameter);
+            //Debug.Log(networkMessage.Parameter);
 
             SocketTool.SendMessage(networkMessage);
 
@@ -205,161 +130,267 @@ public class RuleEvent : OpportunityEffect
                 a = RandomUtils.GetRandomNumber(i, 7);
                 (allyItem[a], allyItem[i]) = (allyItem[i], allyItem[a]);
             }
+
+            //加载双方卡组和英雄技能
+            //string a1 = "";
+            //对方怪兽
+            for (int i = 0; i < 8; i++)
+            {
+                Dictionary<string, string> cardDictionary3 = Database.cardMonster.Query("AllCardConfig", "and CardID='" + enemyMonster[i] + "'")[0];
+                //a1 += cardDictionary3["CardName"] + ";";
+
+                Dictionary<string, object> parameter3 = new();
+                parameter3.Add("LaunchedSkill", this);
+                parameter3.Add("EffectName", "InitializeBothDeck");
+                parameter3.Add("Player", Player.Enemy);
+                parameter3.Add("CardData", cardDictionary3);
+
+                ParameterNode parameterNode3 = parameterNode.AddNodeInMethod();
+                parameterNode3.parameter = parameter3;
+
+                yield return battleProcess.StartCoroutine(gameAction.DoAction(gameAction.AddCardToDeck, parameterNode3));
+            }
+
+            //对方道具
+            for (int i = 0; i < 8; i++)
+            {
+                Dictionary<string, string> cardDictionary4 = Database.cardMonster.Query("AllCardConfig", "and CardID='" + enemyItem[i] + "'")[0];
+                //a1 += cardDictionary4["CardName"] + ";";
+
+                Dictionary<string, object> parameter4 = new();
+                parameter4.Add("LaunchedSkill", this);
+                parameter4.Add("EffectName", "InitializeBothDeck");
+                parameter4.Add("Player", Player.Enemy);
+                parameter4.Add("CardData", cardDictionary4);
+
+                ParameterNode parameterNode4 = parameterNode.AddNodeInMethod();
+                parameterNode4.parameter = parameter4;
+
+                yield return battleProcess.StartCoroutine(gameAction.DoAction(gameAction.AddCardToDeck, parameterNode4));
+            }
+
+            //我方怪兽
+            for (int i = 0; i < 8; i++)
+            {
+                Dictionary<string, string> cardDictionary1 = Database.cardMonster.Query("AllCardConfig", "and CardID='" + allyMonster[i] + "'")[0];
+                //a1 += cardDictionary1["CardName"] + ";";
+
+                Dictionary<string, object> parameter1 = new();
+                parameter1.Add("LaunchedSkill", this);
+                parameter1.Add("EffectName", "InitializeBothDeck");
+                parameter1.Add("Player", Player.Ally);
+                parameter1.Add("CardData", cardDictionary1);
+
+                ParameterNode parameterNode1 = parameterNode.AddNodeInMethod();
+                parameterNode1.parameter = parameter1;
+
+                yield return battleProcess.StartCoroutine(gameAction.DoAction(gameAction.AddCardToDeck, parameterNode1));
+            }
+
+            //我方道具
+            for (int i = 0; i < 8; i++)
+            {
+                Dictionary<string, string> cardDictionary2 = Database.cardMonster.Query("AllCardConfig", "and CardID='" + allyItem[i] + "'")[0];
+                //a1 += cardDictionary2["CardName"] + ";";
+
+                Dictionary<string, object> parameter2 = new();
+                parameter2.Add("LaunchedSkill", this);
+                parameter2.Add("EffectName", "InitializeBothDeck");
+                parameter2.Add("Player", Player.Ally);
+                parameter2.Add("CardData", cardDictionary2);
+
+                ParameterNode parameterNode2 = parameterNode.AddNodeInMethod();
+                parameterNode2.parameter = parameter2;
+
+                yield return battleProcess.StartCoroutine(gameAction.DoAction(gameAction.AddCardToDeck, parameterNode2));
+            }
+            //Debug.Log(a1);
+
+            //对方英雄技能，把技能类挂到物体上
+            string enemyHeroSkillId = (string)enemyDeckMessage.Parameter["HeroSkillId"];
+
+            GameObject enemyHeroSkill = battleProcess.enemyPlayerData.heroSkillGameObject;
+            enemyHeroSkill.AddComponent<HeroSkillInBattle>().AddSkill(enemyHeroSkillId);
+
+            //我方英雄技能，把技能类挂到物体上
+            GameObject allyHeroSkill = battleProcess.allyPlayerData.heroSkillGameObject;
+            allyHeroSkill.AddComponent<HeroSkillInBattle>().AddSkill(allyHeroSkillId);
         }
-
-        Debug.Log(battleProcess.nextTurn == Player.Ally ? "我方先手" : "对方先手");
-        Debug.Log("我方怪兽");
-        Debug.Log(allyMonster);
-        Debug.Log("我方道具");
-        Debug.Log(allyItem);
-        Debug.Log("对方怪兽");
-        Debug.Log(enemyMonster);
-        Debug.Log("对方道具");
-        Debug.Log(enemyItem);
-
-        //加载双方卡组和英雄技能
-        for (int i = 0; i < 8; i++)
+        else
         {
-            //己方卡组
-            Dictionary<string, string> cardDictionary1 = Database.cardMonster.Query("AllCardConfig", "and CardID='" + allyMonster[i] + "'")[0];
-            //battleProcess.allyPlayerData.monsterDeck.Add(cardDictionary1);
+            //接收随机数种子
+            //Debug.Log("接收随机数种子1");
+            NetworkMessage networkMessage = null;
+            do
+            {
+                networkMessage = SocketTool.GetNetworkMessage();
+                yield return null;
+            } while (networkMessage == null || networkMessage.Type == NetworkMessageType.SendChallenge);
 
-            Dictionary<string, object> parameter1 = new();
-            parameter1.Add("LaunchedSkill", this);
-            parameter1.Add("EffectName", "InitializeBothDeck");
-            parameter1.Add("Player", Player.Ally);
-            parameter1.Add("CardData", cardDictionary1);
+            RandomUtils.seed = (int)networkMessage.Parameter["RandomSeed"];
+            RandomUtils.Init();
 
-            ParameterNode parameterNode1 = parameterNode.AddNodeInMethod();
-            parameterNode1.parameter = parameter1;
+            yield return null;
 
-            yield return battleProcess.StartCoroutine(gameAction.DoAction(gameAction.AddCardToDeck, parameterNode1));
+            //Debug.Log("接收随机数种子2");
 
-            Dictionary<string, string> cardDictionary2 = Database.cardMonster.Query("AllCardConfig", "and CardID='" + allyItem[i] + "'")[0];
-            //battleProcess.allyPlayerData.itemDeck.Add(cardDictionary2);
+            //发送卡组
+            allyDeckDictionary.Add("HeroSkillId", allyHeroSkillId);
+            allyDeckDictionary.Add("DeckCard", allyDeckCardSend);
 
-            Dictionary<string, object> parameter2 = new();
-            parameter2.Add("LaunchedSkill", this);
-            parameter2.Add("EffectName", "InitializeBothDeck");
-            parameter2.Add("Player", Player.Ally);
-            parameter2.Add("CardData", cardDictionary2);
+            NetworkMessage priorityNumberAndAllydeck = new(NetworkMessageType.PriorityAndDeck, allyDeckDictionary);
+            SocketTool.SendMessage(priorityNumberAndAllydeck);
 
-            ParameterNode parameterNode2 = parameterNode.AddNodeInMethod();
-            parameterNode2.parameter = parameter2;
+            yield return null;
 
-            yield return battleProcess.StartCoroutine(gameAction.DoAction(gameAction.AddCardToDeck, parameterNode2));
+            //接收对方卡组
+            do
+            {
+                enemyDeckMessage = SocketTool.GetNetworkMessage();
+                yield return null;
+            } while (enemyDeckMessage == null);
 
-            //对方卡组
-            Dictionary<string, string> cardDictionary3 = Database.cardMonster.Query("AllCardConfig", "and CardID='" + enemyMonster[i] + "'")[0];
-            //battleProcess.enemyPlayerData.monsterDeck.Add(cardDictionary3);
+            yield return null;
 
-            Dictionary<string, object> parameter3 = new();
-            parameter3.Add("LaunchedSkill", this);
-            parameter3.Add("EffectName", "InitializeBothDeck");
-            parameter3.Add("Player", Player.Enemy);
-            parameter3.Add("CardData", cardDictionary3);
+            Dictionary<string, List<string>> enemyDeckDictionary = (Dictionary<string, List<string>>)enemyDeckMessage.Parameter["DeckCard"];
+            enemyMonster = enemyDeckDictionary["Monster"];
+            enemyItem = enemyDeckDictionary["Item"];
 
-            ParameterNode parameterNode3 = parameterNode.AddNodeInMethod();
-            parameterNode3.parameter = parameter3;
+            //确定先后手，0己方，1对方
+            int priorityNumber = RandomUtils.GetRandomNumber(0, 1);
+            battleProcess.nextTurn = priorityNumber == 0 ? Player.Ally : Player.Enemy;
 
-            yield return battleProcess.StartCoroutine(gameAction.DoAction(gameAction.AddCardToDeck, parameterNode3));
+            //洗牌
+            for (int i = 0; i < 8; i++)
+            {
+                int a = RandomUtils.GetRandomNumber(i, 7);
+                (allyMonster[a], allyMonster[i]) = (allyMonster[i], allyMonster[a]);
+                a = RandomUtils.GetRandomNumber(i, 7);
+                (allyItem[a], allyItem[i]) = (allyItem[i], allyItem[a]);
+            }
+            for (int i = 0; i < 8; i++)
+            {
+                int a = RandomUtils.GetRandomNumber(i, 7);
+                (enemyMonster[a], enemyMonster[i]) = (enemyMonster[i], enemyMonster[a]);
+                a = RandomUtils.GetRandomNumber(i, 7);
+                (enemyItem[a], enemyItem[i]) = (enemyItem[i], enemyItem[a]);
+            }
 
-            Dictionary<string, string> cardDictionary4 = Database.cardMonster.Query("AllCardConfig", "and CardID='" + enemyItem[i] + "'")[0];
-            //battleProcess.enemyPlayerData.itemDeck.Add(cardDictionary4);
+            //加载双方卡组和英雄技能
+            //string a1 = "";
+            //我方怪兽
+            for (int i = 0; i < 8; i++)
+            {
+                Dictionary<string, string> cardDictionary1 = Database.cardMonster.Query("AllCardConfig", "and CardID='" + allyMonster[i] + "'")[0];
+                //a1 += cardDictionary1["CardName"] + ";";
 
-            Dictionary<string, object> parameter4 = new();
-            parameter4.Add("LaunchedSkill", this);
-            parameter4.Add("EffectName", "InitializeBothDeck");
-            parameter4.Add("Player", Player.Enemy);
-            parameter4.Add("CardData", cardDictionary4);
+                Dictionary<string, object> parameter1 = new();
+                parameter1.Add("LaunchedSkill", this);
+                parameter1.Add("EffectName", "InitializeBothDeck");
+                parameter1.Add("Player", Player.Ally);
+                parameter1.Add("CardData", cardDictionary1);
 
-            ParameterNode parameterNode4 = parameterNode.AddNodeInMethod();
-            parameterNode4.parameter = parameter4;
+                ParameterNode parameterNode1 = parameterNode.AddNodeInMethod();
+                parameterNode1.parameter = parameter1;
 
-            yield return battleProcess.StartCoroutine(gameAction.DoAction(gameAction.AddCardToDeck, parameterNode4));
+                yield return battleProcess.StartCoroutine(gameAction.DoAction(gameAction.AddCardToDeck, parameterNode1));
+            }
+
+            //我方道具
+            for (int i = 0; i < 8; i++)
+            {
+                Dictionary<string, string> cardDictionary2 = Database.cardMonster.Query("AllCardConfig", "and CardID='" + allyItem[i] + "'")[0];
+                //a1 += cardDictionary2["CardName"] + ";";
+
+                Dictionary<string, object> parameter2 = new();
+                parameter2.Add("LaunchedSkill", this);
+                parameter2.Add("EffectName", "InitializeBothDeck");
+                parameter2.Add("Player", Player.Ally);
+                parameter2.Add("CardData", cardDictionary2);
+
+                ParameterNode parameterNode2 = parameterNode.AddNodeInMethod();
+                parameterNode2.parameter = parameter2;
+
+                yield return battleProcess.StartCoroutine(gameAction.DoAction(gameAction.AddCardToDeck, parameterNode2));
+            }
+
+            //对方怪兽
+            for (int i = 0; i < 8; i++)
+            {
+                Dictionary<string, string> cardDictionary3 = Database.cardMonster.Query("AllCardConfig", "and CardID='" + enemyMonster[i] + "'")[0];
+                //a1 += cardDictionary3["CardName"] + ";";
+
+                Dictionary<string, object> parameter3 = new();
+                parameter3.Add("LaunchedSkill", this);
+                parameter3.Add("EffectName", "InitializeBothDeck");
+                parameter3.Add("Player", Player.Enemy);
+                parameter3.Add("CardData", cardDictionary3);
+
+                ParameterNode parameterNode3 = parameterNode.AddNodeInMethod();
+                parameterNode3.parameter = parameter3;
+
+                yield return battleProcess.StartCoroutine(gameAction.DoAction(gameAction.AddCardToDeck, parameterNode3));
+            }
+
+            //对方道具
+            for (int i = 0; i < 8; i++)
+            {
+                Dictionary<string, string> cardDictionary4 = Database.cardMonster.Query("AllCardConfig", "and CardID='" + enemyItem[i] + "'")[0];
+                //a1 += cardDictionary4["CardName"] + ";";
+
+                Dictionary<string, object> parameter4 = new();
+                parameter4.Add("LaunchedSkill", this);
+                parameter4.Add("EffectName", "InitializeBothDeck");
+                parameter4.Add("Player", Player.Enemy);
+                parameter4.Add("CardData", cardDictionary4);
+
+                ParameterNode parameterNode4 = parameterNode.AddNodeInMethod();
+                parameterNode4.parameter = parameter4;
+
+                yield return battleProcess.StartCoroutine(gameAction.DoAction(gameAction.AddCardToDeck, parameterNode4));
+            }
+            //Debug.Log(a1);
+
+            //我方英雄技能，把技能类挂到物体上
+            GameObject allyHeroSkill = battleProcess.allyPlayerData.heroSkillGameObject;
+            allyHeroSkill.AddComponent<HeroSkillInBattle>().AddSkill(allyHeroSkillId);
+
+            //对方英雄技能，把技能类挂到物体上
+            string enemyHeroSkillId = (string)enemyDeckMessage.Parameter["HeroSkillId"];
+
+            GameObject enemyHeroSkill = battleProcess.enemyPlayerData.heroSkillGameObject;
+            enemyHeroSkill.AddComponent<HeroSkillInBattle>().AddSkill(enemyHeroSkillId);
         }
 
-        //我方英雄技能，把技能类挂到物体上
-        GameObject allyHeroSkill = battleProcess.allyPlayerData.heroSkillGameObject;
-        allyHeroSkill.AddComponent<HeroSkillInBattle>().AddSkill(allyHeroSkillId);
 
-        //对方英雄技能，把技能类挂到物体上
-        string enemyHeroSkillId = (string)enemyDeckMessage.Parameter["HeroSkillId"];
 
-        GameObject enemyHeroSkill = battleProcess.enemyPlayerData.heroSkillGameObject;
-        enemyHeroSkill.AddComponent<HeroSkillInBattle>().AddSkill(enemyHeroSkillId);
-
-        ////加载手牌
-        //for (int j = 0; j < battleProcess.systemPlayerData.Length; j++)
+        //string a2 = "";
+        //foreach (var item in battleProcess.systemPlayerData[0].monsterDeck)
         //{
-        //    for (int i = 0; i < 4; i++)
-        //    {
-        //        Dictionary<string, object> parameter1 = new();
-        //        parameter1.Add("HandPanelNumber", i);
-        //        parameter1.Add("PlayerData", battleProcess.systemPlayerData[j]);
-        //        yield return StartCoroutine(gameAction.DoAction(gameAction.SupplyAHandCard, parameter1));
-        //    }
+        //    a2 += item["CardName"] + ";";
         //}
+        //Debug.Log(a2);
+        //string a3 = "";
+        //foreach (var item in battleProcess.systemPlayerData[0].itemDeck)
+        //{
+        //    a3 += item["CardName"] + ";";
+        //}
+        //Debug.Log(a3);
+        //string a4 = "";
+        //foreach (var item in battleProcess.systemPlayerData[1].monsterDeck)
+        //{
+        //    a4 += item["CardName"] + ";";
+        //}
+        //Debug.Log(a4);
+        //string a5 = "";
+        //foreach (var item in battleProcess.systemPlayerData[1].itemDeck)
+        //{
+        //    a5 += item["CardName"] + ";";
+        //}
+        //Debug.Log(a5);
 
         Debug.Log("RuleEvent.initializeBothDeck:加载手牌，执行完毕");
         yield return null;
-    }
-
-    /// <summary>
-    /// 死斗模式
-    /// </summary>
-    [TriggerEffect(@"^InRoundBattle$", "Compare1")]
-    public IEnumerator FightToTheDeath(ParameterNode parameterNode)
-    {
-        BattleProcess battleProcess = BattleProcess.GetInstance();
-        GameAction gameAction = GameAction.GetInstance();
-
-        for (int i = 0; i < battleProcess.systemPlayerData.Length; i++)
-        {
-            PlayerData playerData = battleProcess.systemPlayerData[i];
-            if (playerData.perspectivePlayer == Player.Ally)
-            {
-                int roundNumber = playerData.roundNumber;
-                int damageValue = roundNumber - 10;
-
-                //伤害参数
-                Dictionary<string, object> damageParameter = new();
-                //当前技能
-                damageParameter.Add("LaunchedSkill", this);
-                //效果名称
-                damageParameter.Add("EffectName", "Effect1");
-                //受到伤害的怪兽
-                damageParameter.Add("EffectTarget", playerData.monsterGameObjectArray[0]);
-                //伤害数值
-                damageParameter.Add("DamageValue", damageValue);
-                //伤害类型
-                damageParameter.Add("DamageType", DamageType.Real);
-
-                ParameterNode parameterNode2 = parameterNode.AddNodeInMethod();
-                parameterNode2.parameter = damageParameter;
-
-                yield return battleProcess.StartCoroutine(gameAction.DoAction(gameAction.HurtMonster, parameterNode2));
-                yield return null;
-            }
-        }
-    }
-
-    /// <summary>
-    /// 场上没有怪兽
-    /// </summary>
-    public bool Compare1(ParameterNode parameterNode)
-    {
-        BattleProcess battleProcess = BattleProcess.GetInstance();
-
-        for (int i = 0; i < battleProcess.systemPlayerData.Length; i++)
-        {
-            PlayerData playerData = battleProcess.systemPlayerData[i];
-            if (playerData.perspectivePlayer == Player.Ally && playerData.roundNumber > 10 && playerData.monsterGameObjectArray[0] != null)
-            {
-                return true;
-            }
-        }
-        return false;
     }
 
     /// <summary>
@@ -375,7 +406,7 @@ public class RuleEvent : OpportunityEffect
         //切换系统视角
         if (battleProcess.nextTurn == Player.Ally)
         {
-            Debug.Log("RuleEvent.EnterTurnReady:我方回合准备阶段开始");
+            //Debug.Log("RuleEvent.EnterTurnReady:我方回合准备阶段开始");
 
             //回合指示动画
             GameObject prefab = LoadAssetBundle.prefabAssetBundle.LoadAsset<GameObject>("AllyRoundPrefab");
@@ -397,7 +428,7 @@ public class RuleEvent : OpportunityEffect
         }
         else if (battleProcess.nextTurn == Player.Enemy)
         {
-            Debug.Log("RuleEvent.EnterTurnReady：对方回合准备阶段开始");
+            //Debug.Log("RuleEvent.EnterTurnReady：对方回合准备阶段开始");
 
             GameObject prefab = LoadAssetBundle.prefabAssetBundle.LoadAsset<GameObject>("EnemyRoundPrefab");
             GameObject battleSceneCanvas = GameObject.Find("BattleSceneCanvas");
@@ -420,7 +451,7 @@ public class RuleEvent : OpportunityEffect
 
         //加3水晶
         Dictionary<string, object> parameter1 = new();
-        parameter1.Add("CrystalAmount", 18);
+        parameter1.Add("CrystalAmount", 3);
         parameter1.Add("Player", Player.Ally);
 
         ParameterNode parameterNode1 = parameterNode.AddNodeInMethod();
@@ -478,11 +509,64 @@ public class RuleEvent : OpportunityEffect
 
                         yield return battleProcess.StartCoroutine(playerAction.DoAction(playerAction.StartRoundBattle, new()));
                         break;
-
                 }
             }
             yield return null;
         }
+    }
+
+    /// <summary>
+    /// 死斗模式
+    /// </summary>
+    [TriggerEffect(@"^InRoundBattle$", "Compare1")]
+    public IEnumerator FightToTheDeath(ParameterNode parameterNode)
+    {
+        BattleProcess battleProcess = BattleProcess.GetInstance();
+        GameAction gameAction = GameAction.GetInstance();
+
+        for (int i = 0; i < battleProcess.systemPlayerData.Length; i++)
+        {
+            PlayerData playerData = battleProcess.systemPlayerData[i];
+            if (playerData.perspectivePlayer == Player.Ally)
+            {
+                int roundNumber = playerData.roundNumber;
+                int damageValue = roundNumber - 10;
+
+                //伤害参数
+                Dictionary<string, object> damageParameter = new();
+                //当前技能
+                damageParameter.Add("LaunchedSkill", this);
+                //效果名称
+                damageParameter.Add("EffectName", "Effect1");
+                //受到伤害的怪兽
+                damageParameter.Add("EffectTarget", playerData.monsterGameObjectArray[0]);
+                //伤害数值
+                damageParameter.Add("DamageValue", damageValue);
+                //伤害类型
+                damageParameter.Add("DamageType", DamageType.Real);
+
+                ParameterNode parameterNode2 = parameterNode.AddNodeInMethod();
+                parameterNode2.parameter = damageParameter;
+
+                yield return battleProcess.StartCoroutine(gameAction.DoAction(gameAction.HurtMonster, parameterNode2));
+                yield return null;
+            }
+        }
+    }
+
+    public bool Compare1(ParameterNode parameterNode)
+    {
+        BattleProcess battleProcess = BattleProcess.GetInstance();
+
+        for (int i = 0; i < battleProcess.systemPlayerData.Length; i++)
+        {
+            PlayerData playerData = battleProcess.systemPlayerData[i];
+            if (playerData.perspectivePlayer == Player.Ally && playerData.roundNumber > 10 && playerData.monsterGameObjectArray[0] != null)
+            {
+                return true;
+            }
+        }
+        return false;
     }
 
     /// <summary>
@@ -765,10 +849,6 @@ public class RuleEvent : OpportunityEffect
         yield return null;
     }
 
-    /// <summary>
-    /// </summary>
-    /// <param name="condition"></param>
-    /// <returns></returns>
     public bool Compare4(ParameterNode parameterNode)
     {
         Dictionary<string, object> parameter = parameterNode.parameter;
@@ -780,7 +860,7 @@ public class RuleEvent : OpportunityEffect
         {
             PlayerData systemPlayerData = battleProcess.systemPlayerData[i];
 
-            Debug.Log(systemPlayerData.perspectivePlayer + "----" + systemPlayerData.canSacrifice);
+            //Debug.Log(systemPlayerData.perspectivePlayer + "----" + systemPlayerData.canSacrifice);
             if (systemPlayerData.perspectivePlayer == player && systemPlayerData.canSacrifice)
             {
                 return true;
@@ -806,12 +886,12 @@ public class RuleEvent : OpportunityEffect
         Dictionary<string, object> parameter1 = new();
         parameter1.Add("LaunchedSkill", this);
         parameter1.Add("EffectName", "DestoryEquipmentForNoArmor");
-        parameter1.Add("TargetMonster", targetMonster);
+        parameter1.Add("EffectTarget", targetMonster);
 
         ParameterNode parameterNode1 = parameterNode.AddNodeInMethod();
         parameterNode1.parameter = parameter1;
 
-        yield return battleProcess.StartCoroutine(gameAction.DoAction(gameAction.EquipmentLeave, parameterNode1));
+        yield return battleProcess.StartCoroutine(gameAction.DoAction(gameAction.DestroyEquipment, parameterNode1));
         yield return null;
     }
 
@@ -833,6 +913,8 @@ public class RuleEvent : OpportunityEffect
     [TriggerEffect(@"^InRoundBattle$", "Compare6")]
     public IEnumerator NegativePunishment(ParameterNode parameterNode)
     {
+        //Debug.Log("开始战斗时，场上没有怪兽，消灭一张卡");
+
         BattleProcess battleProcess = BattleProcess.GetInstance();
         GameAction gameAction = GameAction.GetInstance();
 
@@ -841,8 +923,12 @@ public class RuleEvent : OpportunityEffect
             PlayerData playerData = battleProcess.systemPlayerData[i];
             if (playerData.perspectivePlayer == Player.Ally)
             {
-                Queue<Dictionary<string, string>> monsterDeck = playerData.monsterDeck;
-                Queue<Dictionary<string, string>> itemDeck = playerData.itemDeck;
+                string color = playerData.actualPlayer == Player.Ally ? "#00ff00" : "#ff0000";
+                string playerC = playerData.actualPlayer == Player.Ally ? "我方" : "敌方";
+                battleProcess.Log($"<color={color}>{playerC}</color>受到消极惩罚");
+
+                List<Dictionary<string, string>> monsterDeck = playerData.monsterDeck;
+                List<Dictionary<string, string>> itemDeck = playerData.itemDeck;
                 if (monsterDeck.Count > 0 && itemDeck.Count > 0)
                 {
                     int r = RandomUtils.GetRandomNumber(0, 1);

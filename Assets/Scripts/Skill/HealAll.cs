@@ -35,30 +35,47 @@ public class HealAll : SkillInBattle
             GameObject go = playerMessage.monsterGameObjectArray[i];
             if (go != null)
             {
-                //治疗
-                Dictionary<string, object> treatParameter = new();
-                //当前技能
-                treatParameter.Add("LaunchedSkill", this);
-                //效果名称
-                treatParameter.Add("EffectName", "Effect1");
-                //受到治疗的怪兽
-                treatParameter.Add("EffectTarget", go);
-                //治疗数值
-                treatParameter.Add("TreatValue", GetSkillValue());
+                bool needHeal = false;
 
-                ParameterNode parameterNode1 = parameterNode.AddNodeInMethod();
-                parameterNode1.parameter = treatParameter;
+                MonsterInBattle monsterInBattle = go.GetComponent<MonsterInBattle>();
 
-                yield return battleProcess.StartCoroutine(gameAction.DoAction(gameAction.TreatMonster, parameterNode1));
-                yield return null;
+                if (monsterInBattle.GetCurrentHp() < monsterInBattle.maxHp)
+                {
+                    needHeal = true;
+                }
+
+                if (go.TryGetComponent<DiseaseDerive>(out _))
+                {
+                    needHeal = true;
+                }
+
+                if (needHeal)
+                {
+                    //治疗
+                    Dictionary<string, object> treatParameter = new();
+                    //当前技能
+                    treatParameter.Add("LaunchedSkill", this);
+                    //效果名称
+                    treatParameter.Add("EffectName", "Effect1");
+                    //受到治疗的怪兽
+                    treatParameter.Add("EffectTarget", go);
+                    //治疗数值
+                    treatParameter.Add("TreatValue", GetSkillValue());
+
+                    ParameterNode parameterNode1 = parameterNode.AddNodeInMethod();
+                    parameterNode1.parameter = treatParameter;
+
+                    yield return battleProcess.StartCoroutine(gameAction.DoAction(gameAction.TreatMonster, parameterNode1));
+                    //yield return null;
+                }
             }
         }
     }
 
     /// <summary>
-    /// 判断是否是当前回合角色、我方有没有受伤的怪兽
+    /// 判断是否是当前回合角色、我方有没有受伤或带疾病的怪兽
     /// </summary>
-    public bool Compare2(ParameterNode parameterNode)
+    public bool Compare1(ParameterNode parameterNode)
     {
         BattleProcess battleProcess = BattleProcess.GetInstance();
 
@@ -71,7 +88,24 @@ public class HealAll : SkillInBattle
                 {
                     if (gameObjects[j] == gameObject)
                     {
-                        return true;
+                        for (int k = 0; k < gameObjects.Length; k++)
+                        {
+                            GameObject go = gameObjects[k];
+                            if (go != null)
+                            {
+                                MonsterInBattle monsterInBattle = go.GetComponent<MonsterInBattle>();
+
+                                if (monsterInBattle.GetCurrentHp() < monsterInBattle.maxHp)
+                                {
+                                    return true;
+                                }
+
+                                if (go.TryGetComponent<DiseaseDerive>(out _))
+                                {
+                                    return true;
+                                }
+                            }
+                        }
                     }
                 }
             }

@@ -31,21 +31,30 @@ public class Heal : SkillInBattle
         }
     end:;
 
-        GameObject woundedMonster = null;
-        int woundedMonsterHp = 0;
-        int woundedMonsterMaxHp = 0;
+        GameObject effectTarget = null;
+        int maxValue = 0;
         for (int i = 2; i > -1; i--)
         {
             GameObject go = playerMessage.monsterGameObjectArray[i];
             if (go != null)
             {
+                int t = 0;
+
                 MonsterInBattle monsterInBattle = go.GetComponent<MonsterInBattle>();
-                int currentHp = monsterInBattle.GetCurrentHp();
-                if (woundedMonster == null || (monsterInBattle.maxHp > currentHp && (currentHp < woundedMonsterHp || (currentHp == woundedMonsterHp && monsterInBattle.maxHp > woundedMonsterMaxHp))))
+
+                if (monsterInBattle.GetCurrentHp() < monsterInBattle.maxHp)
                 {
-                    woundedMonster = go;
-                    woundedMonsterHp = currentHp;
-                    woundedMonsterMaxHp = monsterInBattle.maxHp;
+                    t += monsterInBattle.maxHp - monsterInBattle.GetCurrentHp();
+                }
+
+                if (go.TryGetComponent(out DiseaseDerive diseaseDerive))
+                {
+                    t += diseaseDerive.GetSkillValue();
+                }
+
+                if(t> maxValue)
+                {
+                    effectTarget = go;
                 }
             }
         }
@@ -57,7 +66,7 @@ public class Heal : SkillInBattle
         //效果名称
         treatParameter.Add("EffectName", "Effect1");
         //受到治疗的怪兽
-        treatParameter.Add("MonsterBeTreat", woundedMonster);
+        treatParameter.Add("EffectTarget", effectTarget);
         //治疗数值
         treatParameter.Add("TreatValue", GetSkillValue());
 
@@ -65,7 +74,7 @@ public class Heal : SkillInBattle
         parameterNode1.parameter = treatParameter;
 
         yield return battleProcess.StartCoroutine(gameAction.DoAction(gameAction.TreatMonster, parameterNode1));
-        yield return null;
+        //yield return null;
     }
 
     /// <summary>
@@ -84,7 +93,24 @@ public class Heal : SkillInBattle
                 {
                     if (gameObjects[j] == gameObject)
                     {
-                        return true;
+                        for (int k = 0; k < gameObjects.Length; k++)
+                        {
+                            GameObject go = gameObjects[k];
+                            if (go != null)
+                            {
+                                MonsterInBattle monsterInBattle = go.GetComponent<MonsterInBattle>();
+
+                                if (monsterInBattle.GetCurrentHp() < monsterInBattle.maxHp)
+                                {
+                                    return true;
+                                }
+
+                                if (go.TryGetComponent<DiseaseDerive>(out _))
+                                {
+                                    return true;
+                                }
+                            }
+                        }
                     }
                 }
             }

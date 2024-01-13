@@ -41,7 +41,7 @@ public class HealAllConsume : SkillInBattle
                         parameterNode1.parameter = treatParameter;
 
                         yield return battleProcess.StartCoroutine(gameAction.DoAction(gameAction.TreatMonster, parameterNode1));
-                        yield return null;
+                        //yield return null;
                     }
                 }
             }

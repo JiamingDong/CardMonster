@@ -6,7 +6,7 @@ using UnityEngine;
 /// 嘲讽
 /// 成为<远程>的优先目标
 /// </summary>
-public class Aggro : MonoBehaviour
+public class Aggro : SkillInBattle
 {
     [TriggerEffect(@"^Before\.GameAction\.SelectEffectTarget$", "Compare1")]
     public IEnumerator Effect1(ParameterNode parameterNode)
@@ -16,7 +16,8 @@ public class Aggro : MonoBehaviour
 
         priorTargetList.Add(gameObject);
 
-        yield return null;
+        yield break;
+        //yield return null;
     }
 
     /// <summary>

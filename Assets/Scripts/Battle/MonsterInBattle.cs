@@ -2,10 +2,8 @@ using Newtonsoft.Json;
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Text.RegularExpressions;
 using UnityEngine;
 using UnityEngine.UI;
-using static UnityEditor.Progress;
 
 /// <summary>
 /// 怪兽在战场上的数据
@@ -34,9 +32,9 @@ public class MonsterInBattle : GameObjectInBattle
     private int cost;
     public string race;
     /// <summary>
-    /// 技能配置json，同数据库样式
+    /// 原始卡牌数据
     /// </summary>
-    public string skill;
+    public Dictionary<string, string> cardData;
 
     /// <summary>
     /// 血量上限
@@ -76,15 +74,15 @@ public class MonsterInBattle : GameObjectInBattle
     void Start()
     {
         //Debug.Log("MonsterInBattle.Start()");
-        if (NonBasicSkillBackgroundImage == null)
-        {
-            return;
-        }
+        //if (NonBasicSkillBackgroundImage == null)
+        //{
+        //    return;
+        //}
         NonBasicSkillBackgroundImage.enabled = true;
         NonBasicSkillBackgroundImage.sprite = LoadAssetBundle.cardAssetBundle.LoadAsset<Sprite>("NonBasicSkillBackgroundInBattle");
 
         MonsterCardImage.enabled = true;
-        StartCoroutine(Utils.SAToRawImage(MonsterCardImage, "/Image/Card/" + skinId + ".jpg"));
+        //StartCoroutine(Utils.SAToRawImage(MonsterCardImage, "/Image/Card/" + skinId + ".jpg"));
 
         EquipmentBackgroundLImage.enabled = false;
         EquipmentBackgroundLImage.texture = null;
@@ -122,15 +120,15 @@ public class MonsterInBattle : GameObjectInBattle
         maxHp = Convert.ToInt32(cardData["CardHP"]);
         skinId = cardData["CardSkinID"];
         int cost = Convert.ToInt32(cardData["CardCost"]);
-        skill = cardData["CardSkill"];
+        this.cardData = cardData;
 
-        equipment = new();
+        //equipment = new();
 
         SetCurrentHp(maxHp);
         SetCost(cost);
         GenerateCardImage();
 
-        Dictionary<string, int> skillConfig = JsonConvert.DeserializeObject<Dictionary<string, int>>(skill);
+        Dictionary<string, int> skillConfig = JsonConvert.DeserializeObject<Dictionary<string, int>>(cardData["CardSkill"]);
         foreach (var keyValuePair in skillConfig)
         {
             Dictionary<string, object> parameter = new();
@@ -438,20 +436,25 @@ public class MonsterInBattle : GameObjectInBattle
             yield return StartCoroutine(DoAction(AddSkill, parameterNode2));
         }
 
-        Dictionary<string, int> cardP = JsonConvert.DeserializeObject<Dictionary<string, int>>(equipment["CardSkill"]);
-        foreach (var keyValuePair in cardP)
+        string cardSkill = equipment["CardSkill"];
+        //Debug.Log(cardSkill);
+        if (!string.IsNullOrEmpty(cardSkill))
         {
-            Dictionary<string, object> parameter2 = new();
-            parameter2.Add("LaunchedSkill", this);
-            parameter2.Add("EffectName", "AddEquipment");
-            parameter2.Add("SkillName", keyValuePair.Key);
-            parameter2.Add("SkillValue", keyValuePair.Value);
-            parameter2.Add("Source", "Equipment");
+            Dictionary<string, int> cardP = JsonConvert.DeserializeObject<Dictionary<string, int>>(equipment["CardSkill"]);
+            foreach (var keyValuePair in cardP)
+            {
+                Dictionary<string, object> parameter2 = new();
+                parameter2.Add("LaunchedSkill", this);
+                parameter2.Add("EffectName", "AddEquipment");
+                parameter2.Add("SkillName", keyValuePair.Key);
+                parameter2.Add("SkillValue", keyValuePair.Value);
+                parameter2.Add("Source", "Equipment");
 
-            ParameterNode parameterNode3 = new();
-            parameterNode3.parameter = parameter2;
+                ParameterNode parameterNode3 = new();
+                parameterNode3.parameter = parameter2;
 
-            yield return StartCoroutine(DoAction(AddSkill, parameterNode3));
+                yield return StartCoroutine(DoAction(AddSkill, parameterNode3));
+            }
         }
     }
 
@@ -520,6 +523,8 @@ public class MonsterInBattle : GameObjectInBattle
         string source = (string)parameter["Source"];
         object launchedSkill = parameter["LaunchedSkill"];
 
+        BattleProcess battleProcess = BattleProcess.GetInstance();
+
         //Debug.Log($"{cardName}添加技能{skillName}数值{skillValue}来源{source}");
         if (launchedSkill is SkillInBattle skill1 && skill1.gameObject != gameObject)
         {
@@ -541,8 +546,28 @@ public class MonsterInBattle : GameObjectInBattle
                 //Debug.Log(skillClassName + "----" + skillValue);
                 if (skillValue < 0 || (skillValue < 1 && skillType == "value"))
                 {
-                    skillList.Remove(skillInCard);
-                    Destroy(skillInCard);
+                    //skillList.Remove(skillInCard);
+                    //Destroy(skillInCard);
+
+                    List<string> needRemoveSource = new();
+                    foreach (KeyValuePair<string, int> keyValuePair in skillInCard.sourceAndValue)
+                    {
+                        needRemoveSource.Add(keyValuePair.Key);
+                    }
+
+                    foreach (var item in needRemoveSource)
+                    {
+                        Dictionary<string, object> parameter4 = new();
+                        parameter4.Add("LaunchedSkill", this);
+                        parameter4.Add("EffectName", "AddSkill");
+                        parameter4.Add("SkillName", skillName);
+                        parameter4.Add("Source", item);
+
+                        ParameterNode parameterNode4 = new();
+                        parameterNode4.parameter = parameter4;
+
+                        yield return battleProcess.StartCoroutine(DoAction(DeleteSkillSource, parameterNode4));
+                    }
                 }
                 LoadSkillImageValue(skillName, skillValue, skillType);
                 yield break;
@@ -557,6 +582,9 @@ public class MonsterInBattle : GameObjectInBattle
 
             skillValue = skill.AddValue(source, skillValue);
             skillList.Add(skill);
+
+            //排序
+            skillList.Sort((a, b) => battleProcess.skillPriority[b.GetType().Name].CompareTo(battleProcess.skillPriority[a.GetType().Name]));
         }
 
         LoadSkillImageValue(skillName, skillValue, skillType);
@@ -575,6 +603,8 @@ public class MonsterInBattle : GameObjectInBattle
         string source = (string)parameter["Source"];
         object launchedSkill = parameter["LaunchedSkill"];
 
+        BattleProcess battleProcess = BattleProcess.GetInstance();
+
         if (launchedSkill is SkillInBattle skill1 && skill1.gameObject != gameObject)
         {
             yield return StartCoroutine(ArrowUtils.CreateArrow(skill1.gameObject.transform.position, gameObject.transform.position));
@@ -591,20 +621,6 @@ public class MonsterInBattle : GameObjectInBattle
         {
             if (skillInBattle.GetType().Name.Equals(skillClassName))
             {
-                //List<string> needRemoveSource = new();
-                //foreach(KeyValuePair<string,int> keyValuePair in skillInBattle.sourceAndValue)
-                //{
-                //    if(keyValuePair.Key == source || Regex.IsMatch(keyValuePair.Key, source))
-                //    {
-                //        needRemoveSource.Add(keyValuePair.Key);
-                //    }
-                //}
-
-                //foreach (var item in needRemoveSource)
-                //{
-                //    skillInBattle.RemoveValue(item);
-                //}
-
                 skillInBattle.RemoveValue(source);
 
                 int skillValue = skillInBattle.GetSkillValue();
@@ -615,11 +631,15 @@ public class MonsterInBattle : GameObjectInBattle
                 {
                     skillList.Remove(skillInBattle);
                     Destroy(skillInBattle);
+
+                    //排序
+                    skillList.Sort((a, b) => battleProcess.skillPriority[b.GetType().Name].CompareTo(battleProcess.skillPriority[a.GetType().Name]));
                 }
 
                 yield break;
             }
         }
-        yield return null;
+        yield break;
+        //yield return null;
     }
 }

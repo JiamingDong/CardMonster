@@ -39,10 +39,32 @@ public class Silence : SkillInBattle
                         parameterNode1.parameter = parameter1;
 
                         yield return battleProcess.StartCoroutine(monsterInBattle.DoAction(monsterInBattle.AddSkill, parameterNode1));
-                        yield return null;
+                        //yield return null;
                     }
                 }
             }
+        }
+
+        List<string> needRemoveSource = new();
+        foreach (KeyValuePair<string, int> keyValuePair in sourceAndValue)
+        {
+            needRemoveSource.Add(keyValuePair.Key);
+        }
+
+        foreach (var item in needRemoveSource)
+        {
+            Dictionary<string, object> parameter2 = new();
+            parameter2.Add("LaunchedSkill", this);
+            parameter2.Add("EffectName", "Effect1");
+            parameter2.Add("SkillName", "silence");
+            parameter2.Add("Source", item);
+
+            ParameterNode parameterNode2 = new();
+            parameterNode2.parameter = parameter2;
+
+            MonsterInBattle monsterInBattle1 = gameObject.GetComponent<MonsterInBattle>();
+
+            yield return battleProcess.StartCoroutine(monsterInBattle1.DoAction(monsterInBattle1.DeleteSkillSource, parameterNode2));
         }
     }
 
@@ -88,15 +110,6 @@ public class Silence : SkillInBattle
         else
         {
             return false;
-        }
-
-        for (int i = 0; i < battleProcess.systemPlayerData.Length; i++)
-        {
-            PlayerData systemPlayerData = battleProcess.systemPlayerData[i];
-            if (systemPlayerData.perspectivePlayer != player && systemPlayerData.monsterGameObjectArray[0] == null)
-            {
-                return false;
-            }
         }
 
         return true;

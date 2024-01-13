@@ -1,6 +1,5 @@
 using System.Collections;
 using System.Collections.Generic;
-using UnityEngine;
 
 /// <summary>
 /// ³å·æ
@@ -12,7 +11,6 @@ public class Charge : SkillInBattle
     public IEnumerator Effect1(ParameterNode parameterNode)
     {
         Dictionary<string, object> parameter = parameterNode.parameter;
-        Player player = (Player)parameter["Player"];
 
         BattleProcess battleProcess = BattleProcess.GetInstance();
         GameAction gameAction = GameAction.GetInstance();
@@ -44,21 +42,8 @@ public class Charge : SkillInBattle
             parameterNode2.parameter = parameter2;
 
             yield return battleProcess.StartCoroutine(monsterInBattle.DoAction(monsterInBattle.AddSkill, parameterNode2));
-            yield return null;
+            //yield return null;
         }
-
-        //Dictionary<string, object> parameter4 = new();
-        //parameter4.Add("LaunchedSkill", this);
-        //parameter4.Add("EffectName", "Effect1");
-        //parameter4.Add("SkillName", "melee");
-        //parameter4.Add("SkillValue", -GetSkillValue());
-        //parameter4.Add("Source", "Skill.Charge.Effect1");
-
-        //ParameterNode parameterNode4 = parameterNode.AddNodeInMethod();
-        //parameterNode4.parameter = parameter4;
-
-        //yield return battleProcess.StartCoroutine(monsterInBattle.DoAction(monsterInBattle.AddSkill, parameterNode4));
-        //yield return null;
 
         List<string> needRemoveSource = new();
         foreach (KeyValuePair<string, int> keyValuePair in sourceAndValue)

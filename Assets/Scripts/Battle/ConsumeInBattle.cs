@@ -26,11 +26,6 @@ public class ConsumeInBattle : GameObjectInBattle
     /// </summary>
     public string eliteSkill;
 
-    /// <summary>
-    /// 所有技能和状态
-    /// </summary>
-    public Dictionary<string, SkillInBattle> eliteSkillDictionary = new();
-
     public void SetCost(int cost)
     {
         this.cost = cost;
@@ -85,9 +80,33 @@ public class ConsumeInBattle : GameObjectInBattle
             //AddSkill(keyValuePair.Key, keyValuePair.Value, "Monster");
         }
 
-        if (eliteSkill != null && eliteSkill != "")
+        if (!string.IsNullOrEmpty(eliteSkill))
         {
             Debug.Log(eliteSkill);
+
+            BattleProcess battleProcess = BattleProcess.GetInstance();
+
+            HashSet<string> set = new HashSet<string>();
+            for (int i = 0; i < battleProcess.systemPlayerData.Length; i++)
+            {
+                PlayerData playerData = battleProcess.systemPlayerData[i];
+
+                if (playerData.consumeGameObject == gameObject)
+                {
+                    for (int j = 0; j < playerData.monsterGameObjectArray.Length; j++)
+                    {
+                        if (playerData.monsterGameObjectArray[j] != null)
+                        {
+                            MonsterInBattle monsterInBattle = playerData.monsterGameObjectArray[j].GetComponent<MonsterInBattle>();
+
+                            Debug.Log(monsterInBattle.kind + "----" + kind);
+
+                            set.Add(monsterInBattle.kind);
+                        }
+                    }
+                }
+            }
+
             Dictionary<string, string> kindConfig = JsonConvert.DeserializeObject<Dictionary<string, string>>(kind);
             Dictionary<string, Dictionary<string, object>> eliteSkillConfig = JsonConvert.DeserializeObject<Dictionary<string, Dictionary<string, object>>>(eliteSkill);
             foreach (var keyValuePair in eliteSkillConfig)
@@ -97,24 +116,19 @@ public class ConsumeInBattle : GameObjectInBattle
 
                 string kind = keyValuePair.Key == "leftSkill" ? kindConfig["leftKind"] : kindConfig["rightKind"];
 
-                var allSkillConfig = Database.cardMonster.Query("AllSkillConfig", "and SkillEnglishName='" + skillName + "'")[0];
-                var skillClassName = allSkillConfig["SkillClassName"];
-                Type type = Type.GetType(skillClassName);
-
-                if (type != null)
+                if (set.Contains(kind))
                 {
-                    SkillInBattle skill = (SkillInBattle)gameObject.AddComponent(type);
-
-                    skill.AddValue("Consume", skillValue);
-
-                    eliteSkillDictionary.Add(kind, skill);
+                    Dictionary<string, object> parameter = new();
+                    parameter.Add("SkillName", skillName);
+                    parameter.Add("SkillValue", skillValue);
+                    parameter.Add("Source", "Consume");
+                    yield return StartCoroutine(DoAction(AddSkill, parameter));
                 }
             }
 
-            foreach (var keyValuePair in eliteSkillDictionary)
+            foreach (var keyValuePair in skillList)
             {
-                Debug.Log(keyValuePair.Key);
-                Debug.Log(keyValuePair.Value.GetType().Name);
+                Debug.Log(keyValuePair.GetType().Name);
             }
         }
     }
@@ -128,6 +142,8 @@ public class ConsumeInBattle : GameObjectInBattle
         string skillName = (string)parameter["SkillName"];
         int skillValue = (int)parameter["SkillValue"];
         string source = (string)parameter["Source"];
+
+        BattleProcess battleProcess = BattleProcess.GetInstance();
 
         Debug.Log($"{cardName}添加技能{skillName}数值{skillValue}来源{source}");
 
@@ -146,6 +162,9 @@ public class ConsumeInBattle : GameObjectInBattle
                 if (skillValue <= 0 && skillType == "value")
                 {
                     skillList.Remove(skillInCard);
+
+                    //排序
+                    skillList.Sort((a, b) => battleProcess.skillPriority[b.GetType().Name].CompareTo(battleProcess.skillPriority[a.GetType().Name]));
                 }
                 yield break;
             }
@@ -159,59 +178,9 @@ public class ConsumeInBattle : GameObjectInBattle
 
             skill.AddValue(source, skillValue);
             skillList.Add(skill);
-        }
-    }
 
-    /// <summary>
-    /// 发动技能
-    /// </summary>
-    public new IEnumerator LaunchSkill(ParameterNode parameterNode)
-    {
-        Debug.Log("消耗品--发动技能");
-        if (eliteSkillDictionary.Count > 0)
-        {
-            BattleProcess battleProcess = BattleProcess.GetInstance();
-
-            for (int i = 0; i < battleProcess.systemPlayerData.Length; i++)
-            {
-                PlayerData playerData = battleProcess.systemPlayerData[i];
-
-                if (playerData.consumeGameObject == gameObject)
-                {
-                    foreach (KeyValuePair<string, SkillInBattle> keyValuePair in eliteSkillDictionary)
-                    {
-                        string kind = keyValuePair.Key;
-                        SkillInBattle skill = keyValuePair.Value;
-
-                        for (int j = 0; j < playerData.monsterGameObjectArray.Length; j++)
-                        {
-                            if (playerData.monsterGameObjectArray[j] != null)
-                            {
-                                MonsterInBattle monsterInBattle = playerData.monsterGameObjectArray[j].GetComponent<MonsterInBattle>();
-
-                                Debug.Log(monsterInBattle.kind + "----" + kind);
-                                if (monsterInBattle.kind == kind)
-                                {
-                                    yield return StartCoroutine(skill.ExecuteEligibleEffect(parameterNode));
-                                    yield return null;
-
-                                    break;
-                                }
-                            }
-                        }
-                    }
-
-                    break;
-                }
-            }
-        }
-
-        for (int i = 0; i < skillList.Count; i++)
-        {
-            Debug.Log("消耗品--发动技能2");
-            SkillInBattle skill = skillList[i];
-            yield return StartCoroutine(skill.ExecuteEligibleEffect(parameterNode));
-            yield return null;
+            //排序
+            skillList.Sort((a, b) => battleProcess.skillPriority[b.GetType().Name].CompareTo(battleProcess.skillPriority[a.GetType().Name]));
         }
     }
 }

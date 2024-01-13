@@ -32,7 +32,7 @@ public class DrainCrystal : SkillInBattle
                 }
             }
         }
-        yield return null;
+        //yield return null;
     }
 
     /// <summary>

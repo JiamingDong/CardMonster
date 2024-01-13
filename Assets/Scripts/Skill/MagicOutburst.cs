@@ -42,7 +42,7 @@ public class MagicOutburst : SkillInBattle
                             parameterNode1.parameter = parameter1;
 
                             yield return battleProcess.StartCoroutine(monsterInBattle.DoAction(monsterInBattle.AddSkill, parameterNode1));
-                            yield return null;
+                            //yield return null;
                         }
 
                         if (go.TryGetComponent<Magic>(out var magic))
@@ -70,26 +70,47 @@ public class MagicOutburst : SkillInBattle
                             parameterNode2.parameter = parameter2;
 
                             yield return battleProcess.StartCoroutine(monsterInBattle.DoAction(monsterInBattle.AddSkill, parameterNode2));
-                            yield return null;
+                            //yield return null;
                         }
                     }
                 }
             }
         }
 
-        Dictionary<string, object> parameter4 = new();
-        parameter4.Add("LaunchedSkill", this);
-        parameter4.Add("EffectName", "Effect1");
-        parameter4.Add("SkillName", "magic_outburst");
-        parameter4.Add("SkillValue", -GetSkillValue());
-        parameter4.Add("Source", "Skill.MagicOutburst.Effect1");
-
-        ParameterNode parameterNode4 = parameterNode.AddNodeInMethod();
-        parameterNode4.parameter = parameter4;
-
         MonsterInBattle monsterInBattle1 = gameObject.GetComponent<MonsterInBattle>();
-        yield return battleProcess.StartCoroutine(monsterInBattle1.DoAction(monsterInBattle1.AddSkill, parameterNode4));
-        yield return null;
+
+        List<string> needRemoveSource = new();
+        foreach (KeyValuePair<string, int> keyValuePair in sourceAndValue)
+        {
+            needRemoveSource.Add(keyValuePair.Key);
+        }
+
+        foreach (var item in needRemoveSource)
+        {
+            Dictionary<string, object> parameter4 = new();
+            parameter4.Add("LaunchedSkill", this);
+            parameter4.Add("EffectName", "Effect1");
+            parameter4.Add("SkillName", "magic_outburst");
+            parameter4.Add("Source", item);
+
+            ParameterNode parameterNode4 = new();
+            parameterNode4.parameter = parameter4;
+
+            yield return battleProcess.StartCoroutine(monsterInBattle1.DoAction(monsterInBattle1.DeleteSkillSource, parameterNode4));
+        }
+
+        //Dictionary<string, object> parameter4 = new();
+        //parameter4.Add("LaunchedSkill", this);
+        //parameter4.Add("EffectName", "Effect1");
+        //parameter4.Add("SkillName", "magic_outburst");
+        //parameter4.Add("SkillValue", -GetSkillValue());
+        //parameter4.Add("Source", "Skill.MagicOutburst.Effect1");
+
+        //ParameterNode parameterNode4 = parameterNode.AddNodeInMethod();
+        //parameterNode4.parameter = parameter4;
+
+        //yield return battleProcess.StartCoroutine(monsterInBattle1.DoAction(monsterInBattle1.AddSkill, parameterNode4));
+        //yield return null;
     }
 
     /// <summary>

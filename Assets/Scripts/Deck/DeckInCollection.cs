@@ -1,10 +1,6 @@
 using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.IO;
-using System.Linq;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -49,16 +45,16 @@ public class DeckInCollection : MonoBehaviour
         cardCoordinatesOriginInDeckY = cardAddClearanceDistanceInDeckY / 2;
 
         //8个卡组背景，并添加点击事件脚本
-        for (int i = 0; i < 8; i++)
+        for (int i = 0; i < deckCardNumber; i++)
         {
             CardDeckBackgroundPanel[i] = GameObject.Find("CardDeckBackgroundPanel" + (i + 1).ToString());
             CardDeckBackgroundPanel[i].GetComponent<CardDeckBackground>().CardDeckBackgroundIndex = i;
         }
 
         //初始化卡组
-        string defaultDeckID = Database.cardMonster.Query("PlayerData", "and PlayerID='1'")[0]["DefaultDeckID"];
+        string defaultDeckId = Database.cardMonster.Query("ConfigParameter", "and itemname='defalutDeckId'")[0]["itemvalue"];
 
-        SwitchDeck(defaultDeckID);
+        SwitchDeck(defaultDeckId);
     }
 
     public void SwitchDeck(string targetDeckId)
@@ -84,7 +80,7 @@ public class DeckInCollection : MonoBehaviour
         ChangeDeckName();
 
         //卡组图片
-        monsterOrItemInDeck = true;
+        //monsterOrItemInDeck = true;
         ChangeDeckCardShow();
 
         //英雄技能
@@ -100,7 +96,7 @@ public class DeckInCollection : MonoBehaviour
     public void ChangeDeckCardShow()
     {
         //清除原卡组
-        for (int i = 0; i < 8; i++)
+        for (int i = 0; i < deckCardNumber; i++)
         {
             if (CardDeckBackgroundPanel[i].transform.childCount > 0)
             {
@@ -119,8 +115,10 @@ public class DeckInCollection : MonoBehaviour
 
     public void ChangeACardInDeck(int i, string cardId)
     {
-        if (cardId == null) return;
-        if (cardId.Equals("")) return;
+        if (cardId == null || cardId.Equals(""))
+        {
+            return;
+        }
 
         Dictionary<string, string> aCardData = Database.cardMonster.Query("AllCardConfig", "and CardID='" + cardId + "'")[0];
 

@@ -9,7 +9,6 @@ using UnityEngine;
 public class Disease : SkillInBattle
 {
     [TriggerEffect(@"^After\.GameAction\.HurtMonster$",  "Compare1")]
-    [TriggerEffect(@"^After\.Armor\.Effect1$",  "Compare1")]
     public IEnumerator Effect1(ParameterNode parameterNode)
     {
         Dictionary<string, object> parameter = parameterNode.parameter;
@@ -30,7 +29,7 @@ public class Disease : SkillInBattle
         parameterNode1.parameter = parameter1;
 
         yield return battleProcess.StartCoroutine(monsterInBattle.DoAction(monsterInBattle.AddSkill, parameterNode1));
-        yield return null;
+        //yield return null;
     }
 
     /// <summary>

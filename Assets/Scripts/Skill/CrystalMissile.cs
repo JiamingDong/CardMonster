@@ -18,8 +18,6 @@ public class CrystalMissile : SkillInBattle
         BattleProcess battleProcess = BattleProcess.GetInstance();
         GameAction gameAction = GameAction.GetInstance();
 
-        System.Random random = new();
-
         for (int i = 0; i < battleProcess.systemPlayerData.Length; i++)
         {
             PlayerData systemPlayerData = battleProcess.systemPlayerData[i];
@@ -32,7 +30,8 @@ public class CrystalMissile : SkillInBattle
                 {
                     if (systemPlayerData.monsterGameObjectArray[j] != null)
                     {
-                        effectTarget = systemPlayerData.monsterGameObjectArray[random.Next(0, j + 1)];
+                        int r = RandomUtils.GetRandomNumber(0, j);
+                        effectTarget = systemPlayerData.monsterGameObjectArray[r];
                     }
                 }
 
@@ -50,7 +49,7 @@ public class CrystalMissile : SkillInBattle
             }
         }
 
-        yield return null;
+        //yield return null;
     }
 
     /// <summary>

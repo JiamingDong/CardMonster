@@ -35,7 +35,7 @@ public class AntimagicDerive : SkillInBattle
         parameterNode2.parameter = parameter2;
 
         yield return battleProcess.StartCoroutine(monsterInBattle.DoAction(monsterInBattle.DeleteSkillSource, parameterNode2));
-        yield return null;
+        //yield return null;
     }
 
     /// <summary>

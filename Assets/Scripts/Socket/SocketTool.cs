@@ -29,11 +29,15 @@ public class SocketTool
     /// <summary>
     /// 接收消息线程
     /// </summary>
-    public static Thread acceptMessageThread = new(ReceiveMessage);
+    public static Thread acceptMessageThread;
     /// <summary>
     /// 对方动作队列
     /// </summary>
     public static Queue<NetworkMessage> enemyActionQueue = new();
+    /// <summary>
+    /// 对方投降队列
+    /// </summary>
+    public static Queue<NetworkMessage> enemyExitMessageQueue = new();
 
     /// <summary>
     /// 发起连接
@@ -92,19 +96,28 @@ public class SocketTool
         if (link != null)
         {
             Debug.Log("listener需要释放");
-            if (link.Connected) link.Shutdown(SocketShutdown.Both);
+            if (link.Connected)
+            {
+                link.Shutdown(SocketShutdown.Both);
+            }
             link.Close();
             link = null;
         }
         if (server != null)
         {
             Debug.Log("handler需要释放");
-            if (server.Connected) server.Shutdown(SocketShutdown.Both);
+            if (server.Connected)
+            {
+                server.Shutdown(SocketShutdown.Both);
+            }
             server.Close();
             server.Dispose();
             server = null;
         }
         Debug.Log("关闭套接字成功！");
+
+        enemyActionQueue.Clear();
+        enemyExitMessageQueue.Clear();
     }
 
     /// <summary>
@@ -123,10 +136,10 @@ public class SocketTool
         MemoryStream ms = new();
         bf.Serialize(ms, message);
 
-        Debug.Log("ms.Length=" + (int)ms.Length);
+        //Debug.Log("发送长度=" + (int)ms.Length);
 
         server.Send(ms.GetBuffer(), (int)ms.Length, SocketFlags.None);
-        Debug.Log("SocketClient SendMessageFromListener 发送信息" + message.ToString());
+        //Debug.Log("SocketClient SendMessageFromListener 发送信息" + message.ToString());
 
         ms.Close();
     }
@@ -135,46 +148,125 @@ public class SocketTool
     /// 接收消息
     /// </summary>
     /// <returns></returns>
+    //public static void ReceiveMessage()
+    //{
+    //    //Debug.Log("SocketClient.AcceptMessage:开始接收消息");
+    //    if (server == null)
+    //    {
+    //        if (clientOrListening) server = link;
+    //        else server = link.Accept();
+    //    }
+
+    //    while (true)
+    //    {
+    //        byte[] buffer = new byte[1024 * 1024];
+    //        int currentLength = server.Receive(buffer);
+
+    //        Debug.Log("currentLength=" + currentLength);
+
+    //        while (server.Available > 0)
+    //        {
+    //            int available = server.Available;
+
+    //            Debug.Log("available=" + available);
+
+    //            byte[] bytes = new byte[1024 * 1024];
+    //            int receiveLength = server.Receive(bytes);
+
+    //            Array.Copy(bytes, 0, buffer, currentLength, receiveLength);
+
+    //            currentLength += receiveLength;
+    //        }
+
+    //        Debug.Log("currentLength=" + currentLength);
+
+    //        if (currentLength > 0)
+    //        {
+    //            MemoryStream memory = new();
+    //            memory.Write(buffer, 0, currentLength);
+    //            memory.Position = 0;
+
+    //            BinaryFormatter bf = new();
+    //            NetworkMessage message = bf.Deserialize(memory) as NetworkMessage;
+
+    //            Debug.Log("SocketClient.ReceiveMessage 接收消息=" + message.ToString());
+    //            enemyActionQueue.Enqueue(message);
+
+    //            memory.Close();
+    //        }
+    //    }
+    //}
+
     public static void ReceiveMessage()
     {
-        //Debug.Log("SocketClient.AcceptMessage:开始接收消息");
+        Debug.Log("SocketClient.ReceiveMessage:开始接收消息");
         if (server == null)
         {
-            if (clientOrListening) server = link;
-            else server = link.Accept();
+            if (clientOrListening)
+            {
+                server = link;
+            }
+            else
+            {
+                server = link.Accept();
+            }
         }
 
+        bool isEnd = true;
+        byte[] buffer = null;
+        int currentOffset = 0;
         while (true)
         {
-            byte[] buffer = new byte[1024 * 1024];
-            int currentLength = server.Receive(buffer);
+            Debug.Log("SocketClient.ReceiveMessage");
+            byte[] bytes = new byte[1024 * 1024];
+            int receiveLength = server.Receive(bytes);
 
-            while (server.Available > 0)
+            if (receiveLength == 0)
             {
-                int available = server.Available;
-
-                Debug.Log("available=" + available);
-
-                byte[] bytes = new byte[1460];
-                int receiveLength = server.Receive(bytes);
-
-                Array.Copy(bytes, 0, buffer, currentLength, receiveLength);
-
-                currentLength += receiveLength;
+                Thread.Sleep(1000);
+                continue;
             }
 
-            if (currentLength > 0)
+            if (isEnd)
             {
-                MemoryStream memory = new();
-                memory.Write(buffer, 0, currentLength);
-                memory.Position = 0;
+                currentOffset = 0;
+                buffer = bytes;
+            }
+            else
+            {
+                Array.Copy(bytes, 0, buffer, currentOffset, receiveLength);
+            }
 
+            MemoryStream memory = new();
+            memory.Write(buffer, 0, currentOffset + receiveLength);
+            memory.Position = 0;
+
+            currentOffset += receiveLength;
+
+            isEnd = false;
+            try
+            {
                 BinaryFormatter bf = new();
                 NetworkMessage message = bf.Deserialize(memory) as NetworkMessage;
-                Debug.Log("SocketClient.ReceiveMessage 接收消息=" + message.ToString());
-                enemyActionQueue.Enqueue(message);
+
+                Debug.Log(message.Type);
+                if (message.Type == NetworkMessageType.ExitBattle)
+                {
+                    enemyExitMessageQueue.Enqueue(message);
+                }
+                else
+                {
+                    Debug.Log(enemyExitMessageQueue.Count);
+                    enemyActionQueue.Enqueue(message);
+                }
+
+                isEnd = true;
 
                 memory.Close();
+            }
+            catch (Exception)
+            {
+                //Debug.Log("Deserialize异常");
             }
         }
     }
@@ -184,6 +276,16 @@ public class SocketTool
         if (enemyActionQueue.Count > 0)
         {
             return enemyActionQueue.Dequeue();
+        }
+        return null;
+    }
+
+
+    public static NetworkMessage GetEnemyExitMessage()
+    {
+        if (enemyExitMessageQueue.Count > 0)
+        {
+            return enemyExitMessageQueue.Dequeue();
         }
         return null;
     }

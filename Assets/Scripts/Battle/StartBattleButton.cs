@@ -1,5 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 /// <summary>
@@ -19,7 +17,7 @@ public class StartBattleButton : MonoBehaviour
         if (battleProcess.allyPlayerData.perspectivePlayer != Player.Ally || battleProcess.allyPlayerData.canUseHandCard == false)
             return;
 
-        Debug.Log("StartBattleButton£º½áÊø³öÅÆ½×¶Î");
+        //Debug.Log("StartBattleButton£º½áÊø³öÅÆ½×¶Î");
 
         battleProcess.allyPlayerData.canUseHandCard = false;
         battleProcess.allyPlayerData.canSacrifice = false;

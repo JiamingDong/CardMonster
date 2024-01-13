@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Net;
+using System.Net.Sockets;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
@@ -10,16 +11,24 @@ using UnityEngine.UI;
 /// </summary>
 public class SendChallenge : MonoBehaviour
 {
-    bool isChallenging = false;
+    public static bool isChallenging = false;
 
     public void OnClick()
     {
         Debug.Log("SendChallenge.OnClick：点击挑战按钮");
+
+        if (AcceptChallenge.isChallenging)
+        {
+            return;
+        }
+
         //关闭挑战
         if (isChallenging)
         {
             StopCoroutine(coroutine);
             SocketTool.CloseListening();
+
+            SocketTool.acceptMessageThread?.Abort();
 
             GameObject launchChallengeButtonCanvas = GameObject.Find("SendChallengeButtonCanvas");
 
@@ -66,9 +75,46 @@ public class SendChallenge : MonoBehaviour
 
             if (SocketTool.link.Connected)
             {
-                // yield return null;
+                Debug.Log("SendChallenge.StartSocketClient：已连接");
+
+                SocketTool.acceptMessageThread = new(SocketTool.ReceiveMessage);
                 SocketTool.acceptMessageThread.Start();
-                SceneManager.LoadScene("BattleScene");
+
+                while (true)
+                {
+                    Debug.Log("SendChallenge.StartSocketClient：发送挑战");
+                    //Debug.Log("SocketTool.link.Connected=" + SocketTool.link.Connected);
+                    Debug.Log("SelectMode.SelectWrite=" + SocketTool.link.Poll(1000, SelectMode.SelectWrite));
+                    Debug.Log("SelectMode.SelectRead=" + SocketTool.link.Poll(1000, SelectMode.SelectRead));
+                    Debug.Log("SelectMode.SelectError=" + SocketTool.link.Poll(1000, SelectMode.SelectError));
+
+                    if (SocketTool.link.Poll(1000, SelectMode.SelectError))
+                    {
+                        break;
+                    }
+
+                    NetworkMessage networkMessage = new();
+                    networkMessage.Type = NetworkMessageType.SendChallenge;
+                    networkMessage.Parameter = new();
+
+                    SocketTool.SendMessage(networkMessage);
+
+                    NetworkMessage networkMessage2 = SocketTool.GetNetworkMessage();
+                    if (networkMessage2 != null && networkMessage2.Type == NetworkMessageType.AcceptChallenge)
+                    {
+                        Debug.Log("SendChallenge.StartSocketClient：挑战被接受");
+                        isChallenging = false;
+
+                        SceneManager.LoadScene("BattleScene");
+
+                        yield break;
+                    }
+
+                    yield return new WaitForSecondsRealtime(1);
+                }
+
+                SocketTool.acceptMessageThread.Abort();
+                SocketTool.CloseListening();
             }
             yield return null;
         }

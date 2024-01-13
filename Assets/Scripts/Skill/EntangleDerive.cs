@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Reflection;
+using System.Text.RegularExpressions;
 using UnityEngine;
 
 /// <summary>
@@ -17,7 +18,8 @@ public class EntangleDerive : SkillInBattle
     {
         Dictionary<string, object> result = parameterNode.Parent.result;
         result.Add("BeReplaced", true);
-        yield return null;
+        yield break;
+        //yield return null;
     }
 
     /// <summary>
@@ -26,10 +28,12 @@ public class EntangleDerive : SkillInBattle
     public bool Compare1(ParameterNode parameterNode)
     {
         Dictionary<string, object> result = parameterNode.result;
+
         if (result.ContainsKey("BeReplaced"))
         {
             return false;
         }
+
         if (parameterNode.creator is SkillInBattle skillInBattle)
         {
             string opportunity = parameterNode.opportunity;
@@ -37,6 +41,7 @@ public class EntangleDerive : SkillInBattle
             GameObject go = skillInBattle.gameObject;
             if (gameObject != go)
             {
+                Debug.Log("gameObject != go");
                 return false;
             }
 
@@ -46,12 +51,14 @@ public class EntangleDerive : SkillInBattle
             Type type = Type.GetType(className);
             if (type == null)
             {
+                Debug.Log("type == null");
                 return false;
             }
 
             object instance = Activator.CreateInstance(type);
             if (instance is not SkillInBattle)
             {
+                Debug.Log("instance is not SkillInBattle");
                 return false;
             }
 
@@ -59,9 +66,9 @@ public class EntangleDerive : SkillInBattle
             Attribute[] attributes = Attribute.GetCustomAttributes(methodInfo);
             foreach (Attribute attribute in attributes)
             {
-                if (attribute is TriggerEffectAttribute attribute1)
+                if (attribute is TriggerEffectAttribute triggerEffectAttribute)
                 {
-                    if (attribute1.GetOpportunity().Equals("InRoundBattle"))
+                    if (Regex.IsMatch("InRoundBattle", triggerEffectAttribute.GetOpportunity()))
                     {
                         return true;
                     }
@@ -101,14 +108,12 @@ public class EntangleDerive : SkillInBattle
         parameterNode1.parameter = parameter1;
 
         yield return battleProcess.StartCoroutine(monsterInBattle.DoAction(monsterInBattle.DeleteSkillSource, parameterNode1));
-        yield return null;
+        //yield return null;
     }
 
     /// <summary>
-    /// 判断是否是对方回合
+    /// 判断是否是我方回合
     /// </summary>
-    /// <param name="condition"></param>
-    /// <returns></returns>
     public bool Compare3(ParameterNode parameterNode)
     {
         BattleProcess battleProcess = BattleProcess.GetInstance();

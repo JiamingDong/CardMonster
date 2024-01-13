@@ -41,8 +41,6 @@ public class AntimagicBarrier : SkillInBattle
                             yield return battleProcess.StartCoroutine(monsterInBattle.DoAction(monsterInBattle.AddSkill, parameterNode1));
                         }
                     }
-
-                    yield break;
                 }
             }
         }

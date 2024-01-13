@@ -9,7 +9,6 @@ public class ToSelectHeroSkill : MonoBehaviour
 {
     public void OnClick()
     {
-
         GameObject selectHeroSkillPrefab = LoadAssetBundle.prefabAssetBundle.LoadAsset<GameObject>("SelectHeroSkillPrefab");
         GameObject CollectionAndDeckCanvas = GameObject.Find("CollectionAndDeckCanvas");
         GameObject SelectHeroSkillPrefabInstantiation = Instantiate(selectHeroSkillPrefab, CollectionAndDeckCanvas.transform);

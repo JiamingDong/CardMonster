@@ -14,21 +14,17 @@ public class ComboMagic : SkillInBattle
     {
         BattleProcess battleProcess = BattleProcess.GetInstance();
 
-        if (gameObject.TryGetComponent<Magic>(out var magic))
+        string fullName = "Magic.Effect1";
+        for (int i = 0; i < GetSkillValue(); i++)
         {
-            string fullName = "Magic.Effect1";
-            for (int i = 0; i < GetSkillValue(); i++)
+            if (gameObject.TryGetComponent<Magic>(out var magic))
             {
-                ParameterNode parameterNode1 = new();
+                ParameterNode parameterNode1 = parameterNode.AddNodeInMethod();
                 parameterNode1.SetParent(new(), ParameterNodeChildType.EffectChild);
                 parameterNode1.opportunity = "InRoundBattle";
                 parameterNode1.result.Add("isAdditionalExecute", true);
 
-                if (magic.CompareCondition(magic.Effect1, parameterNode1))
-                {
-                    yield return battleProcess.StartCoroutine(battleProcess.ExecuteEffect(magic, fullName, parameterNode1, magic.Effect1));
-                    yield return null;
-                }
+                yield return battleProcess.StartCoroutine(battleProcess.ExecuteEffect(magic, fullName, parameterNode1, magic.Effect1));
             }
         }
     }

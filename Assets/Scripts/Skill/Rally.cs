@@ -28,16 +28,19 @@ public class Rally : SkillInBattle
                         {
                             MonsterInBattle monsterInBattle = go.GetComponent<MonsterInBattle>();
 
-                            Dictionary<string, object> parameter1 = new();
-                            parameter1.Add("LaunchedSkill", this);
-                            parameter1.Add("EffectName", "Effect1");
-                            parameter1.Add("SkillName", "melee");
-                            parameter1.Add("SkillValue", GetSkillValue());
-                            parameter1.Add("Source", "Skill.Rally.Effect1");
+                            if (go.TryGetComponent<Melee>(out _))
+                            {
+                                Dictionary<string, object> parameter1 = new();
+                                parameter1.Add("LaunchedSkill", this);
+                                parameter1.Add("EffectName", "Effect1");
+                                parameter1.Add("SkillName", "melee");
+                                parameter1.Add("SkillValue", GetSkillValue());
+                                parameter1.Add("Source", "Skill.Rally.Effect1");
 
-                            ParameterNode parameterNode1 = parameterNode.AddNodeInMethod();
-                            parameterNode1.parameter = parameter1;
-                            yield return battleProcess.StartCoroutine(monsterInBattle.DoAction(monsterInBattle.AddSkill, parameterNode1));
+                                ParameterNode parameterNode1 = parameterNode.AddNodeInMethod();
+                                parameterNode1.parameter = parameter1;
+                                yield return battleProcess.StartCoroutine(monsterInBattle.DoAction(monsterInBattle.AddSkill, parameterNode1));
+                            }
 
                             Dictionary<string, object> parameter2 = new();
                             parameter2.Add("LaunchedSkill", this);

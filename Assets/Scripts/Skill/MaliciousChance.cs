@@ -58,7 +58,8 @@ public class MaliciousChance : SkillInBattle
 
     end:;
 
-        yield return null;
+        yield break;
+        //yield return null;
     }
 
     /// <summary>

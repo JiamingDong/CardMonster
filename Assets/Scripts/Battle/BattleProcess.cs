@@ -63,7 +63,8 @@ public class BattleProcess : MonoBehaviour
     //private int effectIndex;
     //private int executeEventIndex;
 
-    Dictionary<string, string> skillClassToChinese;
+    public Dictionary<string, string> skillClassToChinese;
+    public Dictionary<string, string> skillPriority;
 
     /// <summary>
     /// 获得本类实例
@@ -81,6 +82,8 @@ public class BattleProcess : MonoBehaviour
     /// </summary>
     private void Awake()
     {
+        Application.targetFrameRate = 120;
+
         //effectIndex = 0;
         //executeEventIndex = 0;
         //root = new();
@@ -176,15 +179,27 @@ public class BattleProcess : MonoBehaviour
 
         var allSkillConfig = Database.cardMonster.Query("AllSkillConfig", "");
         skillClassToChinese = new();
+        skillPriority = new();
         foreach (var item in allSkillConfig)
         {
             skillClassToChinese.Add(item["SkillClassName"], item["SkillChineseName"]);
+            skillPriority.Add(item["SkillClassName"], item["SkillID"]);
         }
     }
 
     void Start()
     {
         StartCoroutine(EnterGame());
+    }
+
+    private void Update()
+    {
+        //处理对方退出游戏
+        NetworkMessage networkMessage = SocketTool.GetEnemyExitMessage();
+        if(networkMessage != null)
+        {
+            GameVictory();
+        }
     }
 
     /// <summary>
@@ -217,14 +232,13 @@ public class BattleProcess : MonoBehaviour
         //发动规则技能
         RuleEvent ruleEvent = RuleEvent.GetInstance();
         yield return StartCoroutine(ruleEvent.ExecuteEligibleEffect(parameterNode));
-        //yield return null;
 
         //发动英雄技能，从系统主视角轮询
         for (int i = 0; i < systemPlayerData.Length; i++)
         {
             //获取英雄技能时机和技能的列表
-            GameObject heroSkill = systemPlayerData[i].heroSkillGameObject;
-            if (heroSkill.TryGetComponent<HeroSkillInBattle>(out var heroSkillInBattle))
+            GameObject heroSkillGameObject = systemPlayerData[i].heroSkillGameObject;
+            if (heroSkillGameObject.TryGetComponent<HeroSkillInBattle>(out var heroSkillInBattle))
             {
                 yield return StartCoroutine(heroSkillInBattle.LaunchSkill(parameterNode));
                 //yield return null;
@@ -242,9 +256,7 @@ public class BattleProcess : MonoBehaviour
                 if (monsterGameObject != null)
                 {
                     MonsterInBattle monsterInBattle = monsterGameObject.GetComponent<MonsterInBattle>();
-                    //Debug.Log($"{parameterNode.opportunity}----{monsterInBattle.cardName}");
                     yield return StartCoroutine(monsterInBattle.LaunchSkill(parameterNode));
-                    //yield return null;
                 }
             }
 
@@ -252,15 +264,12 @@ public class BattleProcess : MonoBehaviour
             GameObject consumeGameObject = systemPlayerData[i].consumeGameObject;
             if (consumeGameObject != null)
             {
-                //Debug.Log($"{parameterNode.opportunity}----询问消耗品");
                 ConsumeInBattle consumeInBattle = consumeGameObject.GetComponent<ConsumeInBattle>();
                 yield return StartCoroutine(consumeInBattle.LaunchSkill(parameterNode));
-                //yield return null;
             }
         }
 
         //发动规则2
-        //Debug.Log($"{parameterNode.opportunity}----发动规则2");
         RuleEvent2 ruleEvent2 = RuleEvent2.GetInstance();
         yield return StartCoroutine(ruleEvent2.ExecuteEligibleEffect(parameterNode));
     }
@@ -307,19 +316,26 @@ public class BattleProcess : MonoBehaviour
             bool isCard = false;
             for (int i = 0; i < systemPlayerData.Length; i++)
             {
+                string color = systemPlayerData[i].actualPlayer == Player.Ally ? "#00ff00" : "#ff0000";
+                string playerC = systemPlayerData[i].actualPlayer == Player.Ally ? "我方" : "敌方";
                 for (int j = 0; j < systemPlayerData[i].monsterGameObjectArray.Length; j++)
                 {
                     if (skillInBattle.gameObject == systemPlayerData[i].monsterGameObjectArray[j])
                     {
-                        Log($"<color=#00ff00>{skillInBattle.gameObject.GetComponent<MonsterInBattle>().cardName}</color>发动<color=#ffff00>{skillClassToChinese[skillInBattle.GetType().Name]}</color>");
+                        Log($"<color={color}>{skillInBattle.gameObject.GetComponent<MonsterInBattle>().cardName}</color>发动<color=#ffff00>{skillClassToChinese[skillInBattle.GetType().Name]}</color>");
                         isCard = true;
                     }
                 }
 
                 if (skillInBattle.gameObject == systemPlayerData[i].consumeGameObject)
                 {
-                    Log($"<color=#00ff00>{skillInBattle.gameObject.GetComponent<ConsumeInBattle>().cardName}</color>发动<color=#ffff00>{skillClassToChinese[skillInBattle.GetType().Name]}</color>");
+                    Log($"<color={color}>{skillInBattle.gameObject.GetComponent<ConsumeInBattle>().cardName}</color>发动<color=#ffff00>{skillClassToChinese[skillInBattle.GetType().Name]}</color>");
                     isCard = true;
+                }
+
+                if (skillInBattle.gameObject == systemPlayerData[i].heroSkillGameObject)
+                {
+                    Log($"<color={color}>{playerC}</color>发动英雄技能<color=#ffff00>{skillClassToChinese[skillInBattle.GetType().Name]}</color>");
                 }
             }
 
@@ -331,7 +347,7 @@ public class BattleProcess : MonoBehaviour
                 GameObject skillCanvas = launchSkillInBattle.transform.GetChild(0).gameObject;
                 skillCanvas.GetComponent<RectTransform>().localScale = new Vector3(0.6f, 0.6f, 1);
                 launchSkillInBattle.GetComponent<InitLaunchSkillPrefab>().Init(skillInBattle.GetType().Name, skillInBattle.GetSkillValue());
-                yield return new WaitForSecondsRealtime(1);
+                yield return new WaitForSecondsRealtime(0.5f);
 
             }
         }
@@ -361,5 +377,55 @@ public class BattleProcess : MonoBehaviour
             combatLogTexts[i].text = combatLogTexts[i - 1].text;
         }
         combatLogTexts[0].text = message;
+    }
+
+
+    /// <summary>
+    /// 游戏胜利
+    /// </summary>
+    public void GameVictory()
+    {
+        StopAllCoroutines();
+
+        SocketTool.acceptMessageThread.Abort();
+        SocketTool.CloseListening();
+
+        GameObject prefab = LoadAssetBundle.prefabAssetBundle.LoadAsset<GameObject>("GameVictoryPrefab");
+        GameObject battleSceneCanvas = GameObject.Find("BattleSceneCanvas");
+        GameObject instance = Instantiate(prefab, battleSceneCanvas.transform);
+        instance.GetComponent<Transform>().localPosition = new Vector3(0, 0, 0);
+
+        GameObject canvas = instance.transform.Find("Canvas").gameObject;
+        canvas.GetComponent<RectTransform>().sizeDelta = new Vector2(1920, 1080);
+        canvas.GetComponent<RectTransform>().pivot = new Vector2(0.5f, 0.5f);
+        canvas.GetComponent<RectTransform>().localScale = new Vector3(1, 1, 1);
+    }
+
+
+    /// <summary>
+    /// 游戏失败
+    /// </summary>
+    public void GameDefeat()
+    {
+        NetworkMessage networkMessage = new();
+        networkMessage.Type = NetworkMessageType.ExitBattle;
+        networkMessage.Parameter = new();
+
+        SocketTool.SendMessage(networkMessage);
+
+        StopAllCoroutines();
+
+        SocketTool.acceptMessageThread.Abort();
+        SocketTool.CloseListening();
+
+        GameObject prefab2 = LoadAssetBundle.prefabAssetBundle.LoadAsset<GameObject>("GameDefeatParfab");
+        GameObject battleSceneCanvas2 = GameObject.Find("BattleSceneCanvas");
+        GameObject instance2 = Instantiate(prefab2, battleSceneCanvas2.transform);
+        instance2.GetComponent<Transform>().localPosition = new Vector3(0, 0, 0);
+
+        GameObject canvas2 = instance2.transform.Find("Canvas").gameObject;
+        canvas2.GetComponent<RectTransform>().sizeDelta = new Vector2(1920, 1080);
+        canvas2.GetComponent<RectTransform>().pivot = new Vector2(0.5f, 0.5f);
+        canvas2.GetComponent<RectTransform>().localScale = new Vector3(1, 1, 1);
     }
 }

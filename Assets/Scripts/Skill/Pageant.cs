@@ -21,7 +21,7 @@ public class Pageant : SkillInBattle
 
         int r = RandomUtils.GetRandomNumber(1, 3);
 
-        Dictionary<string, string> cardData = new Dictionary<string, string>();
+        Dictionary<string, string> cardData = new();
         switch (r)
         {
             case 1:
@@ -85,7 +85,7 @@ public class Pageant : SkillInBattle
         parameterNode1.parameter = parameter;
 
         yield return battleProcess.StartCoroutine(gameAction.DoAction(gameAction.AddCardToDeck, parameterNode1));
-        yield return null;
+        //yield return null;
     }
 
     /// <summary>

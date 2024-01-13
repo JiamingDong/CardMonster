@@ -16,7 +16,8 @@ public class Stealth : SkillInBattle
 
         nontargetList.Add(gameObject);
 
-        yield return null;
+        yield break;
+        //yield return null;
     }
 
     /// <summary>

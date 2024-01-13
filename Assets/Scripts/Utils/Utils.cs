@@ -1,12 +1,9 @@
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using System;
 using UnityEngine.UI;
 using UnityEngine.Networking;
 using System.IO;
-using Newtonsoft.Json.Linq;
-using Newtonsoft.Json;
 
 public class Utils : MonoBehaviour
 {
@@ -42,7 +39,7 @@ public class Utils : MonoBehaviour
         }
         catch (Exception e)
         {
-            //Debug.Log(fileName);
+            Debug.Log(fileName);
             Debug.Log(e.ToString());
         }
         //Debug.Log("SAToRawImage:" + fileName + "-------------½áÊø");

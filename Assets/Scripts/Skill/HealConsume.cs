@@ -1,4 +1,3 @@
-using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -33,7 +32,7 @@ public class HealConsume : SkillInBattle
         parameterNode1.parameter = treatParameter;
 
         yield return battleProcess.StartCoroutine(gameAction.DoAction(gameAction.TreatMonster, parameterNode1));
-        yield return null;
+        //yield return null;
     }
 
     /// <summary>

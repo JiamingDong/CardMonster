@@ -8,15 +8,22 @@ using UnityEngine.UI;
 
 public class AcceptChallenge : MonoBehaviour
 {
-    bool isChallenging = false;
+    public static bool isChallenging = false;
 
     public void OnClick()
     {
         Debug.Log("AcceptChallenge.OnClick：点击接受挑战按钮");
+
+        if (SendChallenge.isChallenging)
+        {
+            return;
+        }
+
         //关闭挑战
         if (isChallenging)
         {
             StopCoroutine(coroutine);
+            SocketTool.link.Close();
             SocketTool.acceptMessageThread.Abort();
 
             GameObject receiveChallengeButtonCanvas = GameObject.Find("ReceiveChallengeButtonCanvas");
@@ -58,21 +65,25 @@ public class AcceptChallenge : MonoBehaviour
         int port = Convert.ToInt32(GameObject.Find("AllyPortInputField").GetComponent<InputField>().text);
         SocketTool.StartListening(IPAddress.Parse("0.0.0.0"), port);
 
+        SocketTool.acceptMessageThread = new(SocketTool.ReceiveMessage);
         SocketTool.acceptMessageThread.Start();
 
         while (true)
         {
             yield return null;
             NetworkMessage networkMessage = SocketTool.GetNetworkMessage();
-            //Debug.Log(networkMessage != null ? networkMessage.Type + "----" + (networkMessage.Type == NetworkMessageType.GameStart) : "null");
-            if (networkMessage != null && networkMessage.Type == NetworkMessageType.GameStart)
+            if (networkMessage != null && networkMessage.Type == NetworkMessageType.SendChallenge)
             {
-                Debug.Log("AcceptChallenge.StartSocketClient：跳转战斗界面");
+                isChallenging = false;
+
+                NetworkMessage networkMessage2 = new();
+                networkMessage2.Type = NetworkMessageType.AcceptChallenge;
+                networkMessage2.Parameter = new();
+
+                SocketTool.SendMessage(networkMessage2);
+
                 SceneManager.LoadScene("BattleScene");
-                Debug.Log("AcceptChallenge.StartSocketClient：跳转战斗界面2");
-                yield return null;
-                Debug.Log("AcceptChallenge.StartSocketClient：跳转战斗界面3");
-                yield return null;
+
                 yield break;
             }
         }

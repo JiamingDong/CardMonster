@@ -27,7 +27,7 @@ public class Crystal : SkillInBattle
         parameterNode1.parameter = parameter1;
 
         yield return battleProcess.StartCoroutine(gameAction.DoAction(gameAction.ChangeCrystalAmount, parameterNode1));
-        yield return null;
+        //yield return null;
     }
 
     /// <summary>
