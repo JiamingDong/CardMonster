@@ -8,6 +8,23 @@ using UnityEngine;
 /// </summary>
 public class SurpriseGift : SkillInBattle
 {
+    int launchMark = 0;
+
+    public override int AddValue(string source, int value)
+    {
+        launchMark = 1;
+
+        if (sourceAndValue.ContainsKey(source))
+        {
+            sourceAndValue[source] += value;
+        }
+        else
+        {
+            sourceAndValue.Add(source, value);
+        }
+        return GetSkillValue();
+    }
+
     [TriggerEffect(@"^After\.GameAction\.UseACard$", "Compare1")]
     public IEnumerator Effect1(ParameterNode parameterNode)
     {
@@ -52,6 +69,8 @@ public class SurpriseGift : SkillInBattle
                 }
             }
         }
+
+        launchMark = 0;
     }
 
     /// <summary>
@@ -64,6 +83,12 @@ public class SurpriseGift : SkillInBattle
         Player player = (Player)parameter["Player"];
 
         BattleProcess battleProcess = BattleProcess.GetInstance();
+
+
+        if (launchMark < 1)
+        {
+            return false;
+        }
 
         //消耗品物体
         if (result.ContainsKey("ConsumeBeGenerated"))

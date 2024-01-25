@@ -73,16 +73,10 @@ public class MonsterInBattle : GameObjectInBattle
 
     void Start()
     {
-        //Debug.Log("MonsterInBattle.Start()");
-        //if (NonBasicSkillBackgroundImage == null)
-        //{
-        //    return;
-        //}
         NonBasicSkillBackgroundImage.enabled = true;
         NonBasicSkillBackgroundImage.sprite = LoadAssetBundle.cardAssetBundle.LoadAsset<Sprite>("NonBasicSkillBackgroundInBattle");
 
         MonsterCardImage.enabled = true;
-        //StartCoroutine(Utils.SAToRawImage(MonsterCardImage, "/Image/Card/" + skinId + ".jpg"));
 
         EquipmentBackgroundLImage.enabled = false;
         EquipmentBackgroundLImage.texture = null;
@@ -111,7 +105,6 @@ public class MonsterInBattle : GameObjectInBattle
     /// </summary>
     public IEnumerator Generate(Dictionary<string, string> cardData)
     {
-        //Debug.Log("MonsterInBattle.GenerateMonster()");
         id = cardData["CardID"];
         cardName = cardData["CardName"];
         type = cardData["CardType"];
@@ -121,8 +114,6 @@ public class MonsterInBattle : GameObjectInBattle
         skinId = cardData["CardSkinID"];
         int cost = Convert.ToInt32(cardData["CardCost"]);
         this.cardData = cardData;
-
-        //equipment = new();
 
         SetCurrentHp(maxHp);
         SetCost(cost);
@@ -150,15 +141,10 @@ public class MonsterInBattle : GameObjectInBattle
     /// </summary>
     private void GenerateCardImage()
     {
-        //Debug.Log("GenerateCardImage---------------");
-        //Debug.Log(LifeText.text);
-        //LifeText.text = currentHp.ToString();
         CostText.text = cost.ToString();
 
         ColorImage.texture = LoadAssetBundle.cardAssetBundle.LoadAsset<Texture>("coloricon_" + kind);
 
-        //皮肤
-        //Debug.Log("GenerateCardImage():skinId=" + skinId);
         string monsterSkinResPath = Database.cardMonster.Query("AllSkinConfig", " and SkinID='" + skinId + "'")[0]["SkinResPath"];
         StartCoroutine(Utils.SAToRawImage(MonsterCardImage, "/CardImage/" + kind + "/" + monsterSkinResPath + ".png"));
 
@@ -171,7 +157,6 @@ public class MonsterInBattle : GameObjectInBattle
             EquipmentImage.enabled = false;
             EquipmentImage.texture = null;
         }
-        //Debug.Log("GenerateCardImage+++++++++++++++");
     }
 
     /// <summary>
@@ -270,7 +255,6 @@ public class MonsterInBattle : GameObjectInBattle
     /// </summary>
     public void LoadNonbasicSkillImageValue(string skillName, int skillValue, string type)
     {
-        //Debug.Log(skillName + " " + skillValue);
         var skillConfig = Database.cardMonster.Query("AllSkillConfig", "and SkillEnglishName='" + skillName + "'")[0];
         var skillImageName = skillConfig["SkillImageName"];
 
@@ -525,7 +509,6 @@ public class MonsterInBattle : GameObjectInBattle
 
         BattleProcess battleProcess = BattleProcess.GetInstance();
 
-        //Debug.Log($"{cardName}添加技能{skillName}数值{skillValue}来源{source}");
         if (launchedSkill is SkillInBattle skill1 && skill1.gameObject != gameObject)
         {
             yield return StartCoroutine(ArrowUtils.CreateArrow(skill1.gameObject.transform.position, gameObject.transform.position));
@@ -533,9 +516,7 @@ public class MonsterInBattle : GameObjectInBattle
 
         var skillConfig = Database.cardMonster.Query("AllSkillConfig", "and SkillEnglishName='" + skillName + "'")[0];
         var skillClassName = skillConfig["SkillClassName"];
-
-        var skillTypeConfig = Database.cardMonster.Query("SkillTypeConfig", "and SkillName='" + skillName + "'")[0];
-        var skillType = skillTypeConfig["SkillType"];
+        var skillType = skillConfig["TypeInBattle"];
 
         //先看看是否已有这个技能
         foreach (SkillInBattle skillInCard in skillList)
@@ -543,12 +524,9 @@ public class MonsterInBattle : GameObjectInBattle
             if (skillInCard.GetType().Name.Equals(skillClassName))
             {
                 skillValue = skillInCard.AddValue(source, skillValue);
-                //Debug.Log(skillClassName + "----" + skillValue);
+
                 if (skillValue < 0 || (skillValue < 1 && skillType == "value"))
                 {
-                    //skillList.Remove(skillInCard);
-                    //Destroy(skillInCard);
-
                     List<string> needRemoveSource = new();
                     foreach (KeyValuePair<string, int> keyValuePair in skillInCard.sourceAndValue)
                     {
@@ -581,6 +559,7 @@ public class MonsterInBattle : GameObjectInBattle
             SkillInBattle skill = (SkillInBattle)gameObject.AddComponent(type);
 
             skillValue = skill.AddValue(source, skillValue);
+
             skillList.Add(skill);
 
             //排序
@@ -612,9 +591,7 @@ public class MonsterInBattle : GameObjectInBattle
 
         var skillConfig = Database.cardMonster.Query("AllSkillConfig", "and SkillEnglishName='" + skillName + "'")[0];
         var skillClassName = skillConfig["SkillClassName"];
-
-        var skillTypeConfig = Database.cardMonster.Query("SkillTypeConfig", "and SkillName='" + skillName + "'")[0];
-        var skillType = skillTypeConfig["SkillType"];
+        var skillType = skillConfig["TypeInBattle"];
 
         //先看看是否已有这个技能
         foreach (SkillInBattle skillInBattle in skillList)

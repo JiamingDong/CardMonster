@@ -8,6 +8,23 @@ using UnityEngine;
 /// </summary>
 public class Draft : SkillInBattle
 {
+    int launchMark = 0;
+
+    public override int AddValue(string source, int value)
+    {
+        launchMark = value;
+
+        if (sourceAndValue.ContainsKey(source))
+        {
+            sourceAndValue[source] += value;
+        }
+        else
+        {
+            sourceAndValue.Add(source, value);
+        }
+        return GetSkillValue();
+    }
+
     [TriggerEffect(@"^After\.GameAction\.UseACard$", "Compare1")]
     public IEnumerator Effect1(ParameterNode parameterNode)
     {
@@ -35,7 +52,7 @@ public class Draft : SkillInBattle
             if (isAlly)
             {
                 Dictionary<string, object> parameter = new();
-                parameter.Add("CrystalAmount", GetSkillValue());
+                parameter.Add("CrystalAmount", launchMark);
                 parameter.Add("Player", systemPlayerData.perspectivePlayer);
 
                 ParameterNode parameterNode1 = parameterNode.AddNodeInMethod();
@@ -43,29 +60,7 @@ public class Draft : SkillInBattle
 
                 yield return battleProcess.StartCoroutine(gameAction.DoAction(gameAction.ChangeCrystalAmount, parameterNode1));
 
-
-                if (gameObject.TryGetComponent<MonsterInBattle>(out var monsterInBattle))
-                {
-                    List<string> needRemoveSource = new();
-                    foreach (KeyValuePair<string, int> keyValuePair in sourceAndValue)
-                    {
-                        needRemoveSource.Add(keyValuePair.Key);
-                    }
-
-                    foreach (var item in needRemoveSource)
-                    {
-                        Dictionary<string, object> parameter2 = new();
-                        parameter2.Add("LaunchedSkill", this);
-                        parameter2.Add("EffectName", "Effect1");
-                        parameter2.Add("SkillName", "draft");
-                        parameter2.Add("Source", item);
-
-                        ParameterNode parameterNode2 = new();
-                        parameterNode2.parameter = parameter2;
-
-                        yield return battleProcess.StartCoroutine(monsterInBattle.DoAction(monsterInBattle.DeleteSkillSource, parameterNode2));
-                    }
-                }
+                launchMark = 0;
 
                 yield break;
             }
@@ -78,6 +73,11 @@ public class Draft : SkillInBattle
     public bool Compare1(ParameterNode parameterNode)
     {
         Dictionary<string, object> result = parameterNode.Parent.EffectChild.nodeInMethodList[1].EffectChild.result;
+
+        if (launchMark < 1)
+        {
+            return false;
+        }
 
         //消耗品物体
         if (result.ContainsKey("ConsumeBeGenerated"))

@@ -46,8 +46,6 @@ public class HealConsume : SkillInBattle
         Player player = (Player)parameter["Player"];
         //手牌目标玩家
         Player targetPlayer = (Player)parameter["TargetPlayer"];
-        //目标怪兽
-        GameObject consumeTarget = (GameObject)parameter["ConsumeTarget"];
 
         //消耗品物体
         if (result.ContainsKey("ConsumeBeGenerated"))
@@ -68,6 +66,7 @@ public class HealConsume : SkillInBattle
             return false;
         }
 
+        GameObject consumeTarget = (GameObject)result["ConsumeTarget"];
         if (consumeTarget == null)
         {
             return false;

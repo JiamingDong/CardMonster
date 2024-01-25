@@ -99,4 +99,9 @@ public class PlayerData
     /// 标记，例如献祭点SacrificeNumber
     /// </summary>
     public Dictionary<string, object> marker;
+
+    /// <summary>
+    /// 原始卡组
+    /// </summary>
+    public Dictionary<string, List<string>> initialDeck;
 }

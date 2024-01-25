@@ -65,6 +65,8 @@ public class RuleEvent : OpportunityEffect
         allyDeckCardSend.Add("Monster", allyMonster);
         allyDeckCardSend.Add("Item", allyItem);
 
+        battleProcess.allyPlayerData.initialDeck = allyDeckCardSend;
+
         NetworkMessage enemyDeckMessage;
         List<string> enemyMonster;
         List<string> enemyItem;
@@ -99,6 +101,9 @@ public class RuleEvent : OpportunityEffect
             Debug.Log(enemyDeckMessage.Parameter["DeckCard"].GetType().Name);
 
             Dictionary<string, List<string>> enemyDeckDictionary = (Dictionary<string, List<string>>)enemyDeckMessage.Parameter["DeckCard"];
+
+            battleProcess.enemyPlayerData.initialDeck = enemyDeckDictionary;
+
             enemyMonster = enemyDeckDictionary["Monster"];
             enemyItem = enemyDeckDictionary["Item"];
 
@@ -253,6 +258,9 @@ public class RuleEvent : OpportunityEffect
             yield return null;
 
             Dictionary<string, List<string>> enemyDeckDictionary = (Dictionary<string, List<string>>)enemyDeckMessage.Parameter["DeckCard"];
+
+            battleProcess.enemyPlayerData.initialDeck = enemyDeckDictionary;
+
             enemyMonster = enemyDeckDictionary["Monster"];
             enemyItem = enemyDeckDictionary["Item"];
 
@@ -362,35 +370,12 @@ public class RuleEvent : OpportunityEffect
             enemyHeroSkill.AddComponent<HeroSkillInBattle>().AddSkill(enemyHeroSkillId);
         }
 
-
-
-        //string a2 = "";
-        //foreach (var item in battleProcess.systemPlayerData[0].monsterDeck)
-        //{
-        //    a2 += item["CardName"] + ";";
-        //}
-        //Debug.Log(a2);
-        //string a3 = "";
-        //foreach (var item in battleProcess.systemPlayerData[0].itemDeck)
-        //{
-        //    a3 += item["CardName"] + ";";
-        //}
-        //Debug.Log(a3);
-        //string a4 = "";
-        //foreach (var item in battleProcess.systemPlayerData[1].monsterDeck)
-        //{
-        //    a4 += item["CardName"] + ";";
-        //}
-        //Debug.Log(a4);
-        //string a5 = "";
-        //foreach (var item in battleProcess.systemPlayerData[1].itemDeck)
-        //{
-        //    a5 += item["CardName"] + ";";
-        //}
-        //Debug.Log(a5);
+        //开始处理对方消息
+        battleProcess.StartCoroutine(HandleEnemyAction());
 
         Debug.Log("RuleEvent.initializeBothDeck:加载手牌，执行完毕");
-        yield return null;
+
+        //yield return null;
     }
 
     /// <summary>
@@ -406,8 +391,6 @@ public class RuleEvent : OpportunityEffect
         //切换系统视角
         if (battleProcess.nextTurn == Player.Ally)
         {
-            //Debug.Log("RuleEvent.EnterTurnReady:我方回合准备阶段开始");
-
             //回合指示动画
             GameObject prefab = LoadAssetBundle.prefabAssetBundle.LoadAsset<GameObject>("AllyRoundPrefab");
             GameObject battleSceneCanvas = GameObject.Find("BattleSceneCanvas");
@@ -423,13 +406,15 @@ public class RuleEvent : OpportunityEffect
             battleProcess.allyPlayerData.perspectivePlayer = Player.Ally;
             battleProcess.enemyPlayerData.perspectivePlayer = Player.Enemy;
 
+            battleProcess.allyPlayerData.roundNumber++;
             //指定下个回合
             battleProcess.nextTurn = Player.Enemy;
+
+            battleProcess.systemPlayerData[0] = battleProcess.allyPlayerData;
+            battleProcess.systemPlayerData[1] = battleProcess.enemyPlayerData;
         }
         else if (battleProcess.nextTurn == Player.Enemy)
         {
-            //Debug.Log("RuleEvent.EnterTurnReady：对方回合准备阶段开始");
-
             GameObject prefab = LoadAssetBundle.prefabAssetBundle.LoadAsset<GameObject>("EnemyRoundPrefab");
             GameObject battleSceneCanvas = GameObject.Find("BattleSceneCanvas");
             GameObject instance = Instantiate(prefab, battleSceneCanvas.transform);
@@ -443,10 +428,12 @@ public class RuleEvent : OpportunityEffect
             battleProcess.allyPlayerData.perspectivePlayer = Player.Enemy;
             battleProcess.enemyPlayerData.perspectivePlayer = Player.Ally;
 
+            battleProcess.enemyPlayerData.roundNumber++;
+
             battleProcess.nextTurn = Player.Ally;
 
-            //开始处理对方消息
-            battleProcess.StartCoroutine(HandleEnemyAction());
+            battleProcess.systemPlayerData[0] = battleProcess.enemyPlayerData;
+            battleProcess.systemPlayerData[1] = battleProcess.allyPlayerData;
         }
 
         //加3水晶
@@ -469,8 +456,15 @@ public class RuleEvent : OpportunityEffect
         BattleProcess battleProcess = BattleProcess.GetInstance();
         GameAction gameAction = GameAction.GetInstance();
 
-        while (battleProcess.enemyPlayerData.perspectivePlayer == Player.Ally)
+        while (true)
         {
+            yield return null;
+
+            if (!battleProcess.enemyPlayerData.canUseHandCard)
+            {
+                continue;
+            }
+
             NetworkMessage networkMessage = SocketTool.GetNetworkMessage();
             if (networkMessage != null)
             {
@@ -511,7 +505,6 @@ public class RuleEvent : OpportunityEffect
                         break;
                 }
             }
-            yield return null;
         }
     }
 

@@ -19,7 +19,7 @@ public class ComboChance : SkillInBattle
             if (gameObject.TryGetComponent<Chance>(out var chance))
             {
                 ParameterNode parameterNode1 = parameterNode.AddNodeInMethod();
-                parameterNode.SetParent(new(), ParameterNodeChildType.EffectChild);
+                parameterNode1.SetParent(new(), ParameterNodeChildType.EffectChild);
                 parameterNode1.opportunity = "InRoundBattle";
                 parameterNode1.result.Add("isAdditionalExecute", true);
 
@@ -38,6 +38,7 @@ public class ComboChance : SkillInBattle
 
         if (result.ContainsKey("isAdditionalExecute"))
         {
+            //Debug.Log("…¢…‰9999999999999999999");
             return false;
         }
 

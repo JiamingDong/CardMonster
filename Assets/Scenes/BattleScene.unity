@@ -3790,7 +3790,7 @@ PrefabInstance:
     - target: {fileID: 2596706738063718048, guid: b08c24ee7369e3a4985f3035b3f71c6d,
         type: 3}
       propertyPath: m_Name
-      value: EnemyHeroSkillCanvas
+      value: HeroSkillCanvas
       objectReference: {fileID: 0}
     - target: {fileID: 3178474777878724525, guid: b08c24ee7369e3a4985f3035b3f71c6d,
         type: 3}
@@ -4022,7 +4022,7 @@ PrefabInstance:
     - target: {fileID: 2596706738063718048, guid: b08c24ee7369e3a4985f3035b3f71c6d,
         type: 3}
       propertyPath: m_Name
-      value: AllyHeroSkillCanvas
+      value: HeroSkillCanvas
       objectReference: {fileID: 0}
     - target: {fileID: 3178474777878724525, guid: b08c24ee7369e3a4985f3035b3f71c6d,
         type: 3}
@@ -4610,7 +4610,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: 8b4e91ae63d18b149b53d4fa06dff2c5, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 0cd04248475aff543b0463f8cf2dda91, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1

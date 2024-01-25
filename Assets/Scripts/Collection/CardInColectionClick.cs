@@ -29,7 +29,7 @@ public class CardInColectionClick : MonoBehaviour
             //点击的卡是双色
             if (cardKind.ContainsKey("rightKind") && !cardKind["leftKind"].Equals(cardKind["rightKind"]))
             {
-                Debug.Log(1);
+                //Debug.Log(1);
                 string leftKind = cardKind["leftKind"];
                 string rightKind = cardKind["rightKind"];
 
@@ -38,14 +38,14 @@ public class CardInColectionClick : MonoBehaviour
                     //已在卡组则结束
                     if (cardId.Equals(deckInCollection.monsterCardInDeck[i]))
                     {
-                        Debug.Log(2);
+                        //Debug.Log(2);
                         goto end;
                     }
 
                     //这个位置没卡
                     if (deckInCollection.monsterCardInDeck[i].Equals(""))
                     {
-                        Debug.Log(3);
+                        //Debug.Log(3);
                         if (insertIndex == -1)
                         {
                             insertIndex = i;
@@ -66,6 +66,28 @@ public class CardInColectionClick : MonoBehaviour
                         {
                             goto end;
                         }
+                    }
+                }
+            }
+            //点击的卡是白色
+            else if (cardKind["leftKind"] == "all")
+            {
+                for (int i = 0; i < 8; i++)
+                {
+                    //已在卡组则结束
+                    if (cardId.Equals(deckInCollection.monsterCardInDeck[i]))
+                    {
+                        goto end;
+                    }
+
+                    //这个位置没卡
+                    if (deckInCollection.monsterCardInDeck[i].Equals(""))
+                    {
+                        if (insertIndex == -1)
+                        {
+                            insertIndex = i;
+                        }
+                        continue;
                     }
                 }
             }

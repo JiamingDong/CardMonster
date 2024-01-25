@@ -8,6 +8,23 @@ using UnityEngine;
 /// </summary>
 public class HealAllConsume : SkillInBattle
 {
+    int launchMark = 0;
+
+    public override int AddValue(string source, int value)
+    {
+        launchMark = value;
+
+        if (sourceAndValue.ContainsKey(source))
+        {
+            sourceAndValue[source] += value;
+        }
+        else
+        {
+            sourceAndValue.Add(source, value);
+        }
+        return GetSkillValue();
+    }
+
     [TriggerEffect(@"^After\.GameAction\.UseACard$", "Compare1")]
     public IEnumerator Effect1(ParameterNode parameterNode)
     {
@@ -35,17 +52,18 @@ public class HealAllConsume : SkillInBattle
                         //受到治疗的怪兽
                         treatParameter.Add("EffectTarget", systemPlayerData.monsterGameObjectArray[j]);
                         //治疗数值
-                        treatParameter.Add("TreatValue", GetSkillValue());
+                        treatParameter.Add("TreatValue", launchMark);
 
                         ParameterNode parameterNode1 = parameterNode.AddNodeInMethod();
                         parameterNode1.parameter = treatParameter;
 
                         yield return battleProcess.StartCoroutine(gameAction.DoAction(gameAction.TreatMonster, parameterNode1));
-                        //yield return null;
                     }
                 }
             }
         }
+
+        launchMark = 0;
     }
 
     /// <summary>
@@ -59,6 +77,11 @@ public class HealAllConsume : SkillInBattle
         Player player = (Player)parameter["Player"];
 
         BattleProcess battleProcess = BattleProcess.GetInstance();
+
+        if (launchMark < 1)
+        {
+            return false;
+        }
 
         //消耗品物体
         if (result.ContainsKey("ConsumeBeGenerated"))

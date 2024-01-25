@@ -19,10 +19,7 @@ public class InitLaunchSkillPrefab : MonoBehaviour
     {
         var skillConfig = Database.cardMonster.Query("AllSkillConfig", "and SkillClassName='" + skillTypeName + "'")[0];
         var skillImageName = skillConfig["SkillImageName"];
-        var skillEnglishName = skillConfig["SkillEnglishName"];
-
-        var skillTypeConfig = Database.cardMonster.Query("SkillTypeConfig", "and SkillName='" + skillEnglishName + "'")[0];
-        var skillType = skillTypeConfig["SkillType"];
+        var skillType = skillConfig["TypeInBattle"];
 
         skillImage.texture = LoadAssetBundle.cardAssetBundle.LoadAsset<Texture>(skillImageName);
         switch (skillType)

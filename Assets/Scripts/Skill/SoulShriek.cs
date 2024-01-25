@@ -1,4 +1,3 @@
-using Newtonsoft.Json;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -9,6 +8,23 @@ using UnityEngine;
 /// </summary>
 public class SoulShriek : SkillInBattle
 {
+    int launchMark = 0;
+
+    public override int AddValue(string source, int value)
+    {
+        launchMark = 1;
+
+        if (sourceAndValue.ContainsKey(source))
+        {
+            sourceAndValue[source] += value;
+        }
+        else
+        {
+            sourceAndValue.Add(source, value);
+        }
+        return GetSkillValue();
+    }
+
     [TriggerEffect(@"^After\.GameAction\.UseACard$", "Compare1")]
     public IEnumerator Effect1(ParameterNode parameterNode)
     {
@@ -74,7 +90,8 @@ public class SoulShriek : SkillInBattle
         parameterNode2.parameter = parameter;
 
         yield return battleProcess.StartCoroutine(gameAction.DoAction(gameAction.MonsterInBattleToDeck, parameterNode2));
-        //yield return null;
+
+        launchMark = 0;
     }
 
     /// <summary>
@@ -87,6 +104,11 @@ public class SoulShriek : SkillInBattle
         Player player = (Player)parameter["Player"];
 
         BattleProcess battleProcess = BattleProcess.GetInstance();
+
+        if (launchMark < 1)
+        {
+            return false;
+        }
 
         //¹ÖÊÞ
         if (result.ContainsKey("MonsterBeGenerated"))

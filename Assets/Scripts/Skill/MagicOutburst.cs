@@ -8,6 +8,23 @@ using UnityEngine;
 /// </summary>
 public class MagicOutburst : SkillInBattle
 {
+    int launchMark = 0;
+
+    public override int AddValue(string source, int value)
+    {
+        launchMark = value;
+
+        if (sourceAndValue.ContainsKey(source))
+        {
+            sourceAndValue[source] += value;
+        }
+        else
+        {
+            sourceAndValue.Add(source, value);
+        }
+        return GetSkillValue();
+    }
+
     [TriggerEffect(@"^After\.GameAction\.UseACard$", "Compare1")]
     public IEnumerator Effect1(ParameterNode parameterNode)
     {
@@ -31,18 +48,25 @@ public class MagicOutburst : SkillInBattle
 
                         if (go.TryGetComponent<SilenceDerive>(out var silenceDerive))
                         {
-                            Dictionary<string, object> parameter1 = new();
-                            parameter1.Add("LaunchedSkill", this);
-                            parameter1.Add("EffectName", "Effect1");
-                            parameter1.Add("SkillName", "silence_derive");
-                            parameter1.Add("SkillValue", -silenceDerive.GetSkillValue());
-                            parameter1.Add("Source", "Skill.MagicOutburst.Effect1");
+                            List<string> needRemoveSource = new();
+                            foreach (KeyValuePair<string, int> keyValuePair in sourceAndValue)
+                            {
+                                needRemoveSource.Add(keyValuePair.Key);
+                            }
 
-                            ParameterNode parameterNode1 = parameterNode.AddNodeInMethod();
-                            parameterNode1.parameter = parameter1;
+                            foreach (var item in needRemoveSource)
+                            {
+                                Dictionary<string, object> parameter4 = new();
+                                parameter4.Add("LaunchedSkill", this);
+                                parameter4.Add("EffectName", "Effect1");
+                                parameter4.Add("SkillName", "silence_derive");
+                                parameter4.Add("Source", item);
 
-                            yield return battleProcess.StartCoroutine(monsterInBattle.DoAction(monsterInBattle.AddSkill, parameterNode1));
-                            //yield return null;
+                                ParameterNode parameterNode4 = new();
+                                parameterNode4.parameter = parameter4;
+
+                                yield return battleProcess.StartCoroutine(monsterInBattle.DoAction(monsterInBattle.DeleteSkillSource, parameterNode4));
+                            }
                         }
 
                         if (go.TryGetComponent<Magic>(out var magic))
@@ -51,7 +75,7 @@ public class MagicOutburst : SkillInBattle
                             parameter1.Add("LaunchedSkill", this);
                             parameter1.Add("EffectName", "Effect1");
                             parameter1.Add("SkillName", "magic");
-                            parameter1.Add("SkillValue", GetSkillValue());
+                            parameter1.Add("SkillValue", launchMark);
                             parameter1.Add("Source", "Skill.MagicOutburst.Effect1");
 
                             ParameterNode parameterNode1 = parameterNode.AddNodeInMethod();
@@ -70,47 +94,13 @@ public class MagicOutburst : SkillInBattle
                             parameterNode2.parameter = parameter2;
 
                             yield return battleProcess.StartCoroutine(monsterInBattle.DoAction(monsterInBattle.AddSkill, parameterNode2));
-                            //yield return null;
                         }
                     }
                 }
             }
         }
 
-        MonsterInBattle monsterInBattle1 = gameObject.GetComponent<MonsterInBattle>();
-
-        List<string> needRemoveSource = new();
-        foreach (KeyValuePair<string, int> keyValuePair in sourceAndValue)
-        {
-            needRemoveSource.Add(keyValuePair.Key);
-        }
-
-        foreach (var item in needRemoveSource)
-        {
-            Dictionary<string, object> parameter4 = new();
-            parameter4.Add("LaunchedSkill", this);
-            parameter4.Add("EffectName", "Effect1");
-            parameter4.Add("SkillName", "magic_outburst");
-            parameter4.Add("Source", item);
-
-            ParameterNode parameterNode4 = new();
-            parameterNode4.parameter = parameter4;
-
-            yield return battleProcess.StartCoroutine(monsterInBattle1.DoAction(monsterInBattle1.DeleteSkillSource, parameterNode4));
-        }
-
-        //Dictionary<string, object> parameter4 = new();
-        //parameter4.Add("LaunchedSkill", this);
-        //parameter4.Add("EffectName", "Effect1");
-        //parameter4.Add("SkillName", "magic_outburst");
-        //parameter4.Add("SkillValue", -GetSkillValue());
-        //parameter4.Add("Source", "Skill.MagicOutburst.Effect1");
-
-        //ParameterNode parameterNode4 = parameterNode.AddNodeInMethod();
-        //parameterNode4.parameter = parameter4;
-
-        //yield return battleProcess.StartCoroutine(monsterInBattle1.DoAction(monsterInBattle1.AddSkill, parameterNode4));
-        //yield return null;
+        launchMark = 0;
     }
 
     /// <summary>
@@ -123,6 +113,12 @@ public class MagicOutburst : SkillInBattle
         Player player = (Player)parameter["Player"];
 
         BattleProcess battleProcess = BattleProcess.GetInstance();
+
+        Debug.Log("launchMark2=" + launchMark);
+        if (launchMark < 1)
+        {
+            return false;
+        }
 
         //消耗品物体
         if (result.ContainsKey("ConsumeBeGenerated"))

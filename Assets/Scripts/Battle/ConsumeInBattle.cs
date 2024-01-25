@@ -149,9 +149,7 @@ public class ConsumeInBattle : GameObjectInBattle
 
         var skillConfig = Database.cardMonster.Query("AllSkillConfig", "and SkillEnglishName='" + skillName + "'")[0];
         var skillClassName = skillConfig["SkillClassName"];
-
-        var skillTypeConfig = Database.cardMonster.Query("SkillTypeConfig", "and SkillName='" + skillName + "'")[0];
-        var skillType = skillTypeConfig["SkillType"];
+        var skillType = skillConfig["TypeInBattle"];
 
         //先看看是否已有这个技能
         foreach (SkillInBattle skillInCard in skillList)

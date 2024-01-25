@@ -79,8 +79,10 @@ public class DragHandCard : MonoBehaviour, IDragHandler, IPointerUpHandler, IPoi
         transform.parent.SetSiblingIndex(transformParentSiblingIndex);
 
         //处于不能使用手牌的状态，则返回
-        if (battleProcess.allyPlayerData.perspectivePlayer != Player.Ally || battleProcess.allyPlayerData.canUseHandCard == false)
+        if (!battleProcess.allyPlayerData.canUseHandCard)
+        {
             return;
+        }
 
         battleProcess.allyPlayerData.canUseHandCard = false;
 

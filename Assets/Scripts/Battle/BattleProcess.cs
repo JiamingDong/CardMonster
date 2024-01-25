@@ -1,11 +1,10 @@
+using Newtonsoft.Json;
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Reflection;
+using System.Text.RegularExpressions;
 using UnityEngine;
-using UnityEngine.EventSystems;
 using UnityEngine.UI;
-using static UnityEngine.Networking.UnityWebRequest;
 
 /// <summary>
 /// 游戏战斗进程
@@ -60,8 +59,7 @@ public class BattleProcess : MonoBehaviour
     /// </summary>
     private static BattleProcess instance;
 
-    //private int effectIndex;
-    //private int executeEventIndex;
+    public EffectOpportunityRecord effectOpportunityRecord;
 
     public Dictionary<string, string> skillClassToChinese;
     public Dictionary<string, string> skillPriority;
@@ -73,7 +71,7 @@ public class BattleProcess : MonoBehaviour
     public static BattleProcess GetInstance()
     {
         if (instance == null)
-            instance = GameObject.Find("BattleProcessSystem").GetComponent<BattleProcess>();
+            instance = GameObject.Find("BattleProcessSystem")?.GetComponent<BattleProcess>();
         return instance;
     }
 
@@ -84,12 +82,7 @@ public class BattleProcess : MonoBehaviour
     {
         Application.targetFrameRate = 120;
 
-        //effectIndex = 0;
-        //executeEventIndex = 0;
-        //root = new();
-
-        //开启接收对方消息的线程
-        //SocketTool.acceptMessageThread.Start();
+        effectOpportunityRecord = new();
 
         //结算区域
         settlementAreaPanel = GameObject.Find("SettlementAreaPanel");
@@ -196,7 +189,7 @@ public class BattleProcess : MonoBehaviour
     {
         //处理对方退出游戏
         NetworkMessage networkMessage = SocketTool.GetEnemyExitMessage();
-        if(networkMessage != null)
+        if (networkMessage != null)
         {
             GameVictory();
         }
@@ -229,6 +222,23 @@ public class BattleProcess : MonoBehaviour
     /// <returns></returns>
     public IEnumerator ExecuteEvent(ParameterNode parameterNode)
     {
+        string opportunity = parameterNode.opportunity;
+
+        bool isMatch = false;
+        foreach (var item in effectOpportunityRecord.record)
+        {
+            if (Regex.IsMatch(opportunity, item.Key))
+            {
+                isMatch = true;
+                break;
+            }
+        }
+
+        if (!isMatch)
+        {
+            yield break;
+        }
+
         //发动规则技能
         RuleEvent ruleEvent = RuleEvent.GetInstance();
         yield return StartCoroutine(ruleEvent.ExecuteEligibleEffect(parameterNode));
@@ -241,7 +251,6 @@ public class BattleProcess : MonoBehaviour
             if (heroSkillGameObject.TryGetComponent<HeroSkillInBattle>(out var heroSkillInBattle))
             {
                 yield return StartCoroutine(heroSkillInBattle.LaunchSkill(parameterNode));
-                //yield return null;
             }
         }
 
@@ -297,7 +306,7 @@ public class BattleProcess : MonoBehaviour
 
         if (parameterNode1.result.ContainsKey("BeReplaced"))
         {
-            Debug.Log("----代替----" + fullName);
+            //Debug.Log("----代替----" + fullName);
             yield break;
         }
 
@@ -313,6 +322,25 @@ public class BattleProcess : MonoBehaviour
         //怪兽发动技能时，上方的图标
         if (nodeCreator is SkillInBattle skillInBattle)
         {
+            //Debug.Log(fullName);
+            string skillName = fullName.Split('.')[0];
+            string effectName = fullName.Split('.')[1];
+
+            var skillConfig = Database.cardMonster.Query("AllSkillConfig", "and SkillClassName='" + skillName + "'")[0];
+            var unrepresentedEffects = skillConfig["UnrepresentedEffects"];
+
+            if (!string.IsNullOrEmpty(unrepresentedEffects))
+            {
+                var unrepresentedEffectsList = JsonConvert.DeserializeObject<List<string>>(unrepresentedEffects);
+                foreach (var item in unrepresentedEffectsList)
+                {
+                    if (item == effectName)
+                    {
+                        goto a;
+                    }
+                }
+            }
+
             bool isCard = false;
             for (int i = 0; i < systemPlayerData.Length; i++)
             {
@@ -351,6 +379,7 @@ public class BattleProcess : MonoBehaviour
 
             }
         }
+    a:;
 
         ParameterNode parameterNode3 = new();
         parameterNode3.creator = nodeCreator;

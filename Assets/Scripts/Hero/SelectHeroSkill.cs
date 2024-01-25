@@ -21,7 +21,7 @@ public class SelectHeroSkill : MonoBehaviour
 
             GameObject prefab = LoadAssetBundle.prefabAssetBundle.LoadAsset<GameObject>("HeroSKillDetailPrefab");
             GameObject instance = Instantiate(prefab, heroSkillBackgroundPanel.transform);
-            instance.GetComponent<Transform>().localPosition = new Vector3(0, i * 250, 0);
+            instance.GetComponent<Transform>().localPosition = new Vector3(0, (i - 1) * 250, 0);
 
             GameObject canvas = instance.transform.Find("Canvas").gameObject;
             canvas.GetComponent<RectTransform>().sizeDelta = new Vector2(1920, 1080);

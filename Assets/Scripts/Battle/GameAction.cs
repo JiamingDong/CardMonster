@@ -2,9 +2,8 @@ using Newtonsoft.Json;
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using TMPro;
+using System.Reflection;
 using UnityEngine;
-using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 /// <summary>
@@ -221,8 +220,6 @@ public class GameAction : MonoBehaviour
             parameterNode4.parameter = parameter4;
 
             yield return StartCoroutine(DoAction(EquipmentEnterBattle, parameterNode4));
-
-            //parameter.Add("MonsterBeEquipped", parameter4["MonsterBeEquipped"]);
         }
 
         //œ˚∫ƒ∆∑
@@ -241,8 +238,6 @@ public class GameAction : MonoBehaviour
             yield return StartCoroutine(DoAction(ConsumeEnterBattle, parameterNode5));
         }
 
-        //yield return null;
-
         //œ˙ªŸ∂‘”¶ ÷≈∆
         Dictionary<string, object> parameter6 = new();
         parameter6.Add("HandPanelNumber", handPanelNumber);
@@ -252,7 +247,6 @@ public class GameAction : MonoBehaviour
         parameterNode6.parameter = parameter6;
 
         yield return StartCoroutine(DoAction(DestroyAHandCard, parameterNode6));
-        //yield return null;
     }
 
     /// <summary>
@@ -444,15 +438,29 @@ public class GameAction : MonoBehaviour
 
                         if (playerData.monsterDeck.Count > 0)
                         {
+                            int r = RandomUtils.GetRandomNumber(0, playerData.monsterDeck.Count - 1);
+
+                            //º”‘ÿ ÷≈∆
                             Dictionary<string, object> supplyAHandCardParameter = new();
                             supplyAHandCardParameter.Add("HandPanelNumber", handPanelNumber);
                             supplyAHandCardParameter.Add("Player", player);
+                            supplyAHandCardParameter.Add("Index", r);
 
                             ParameterNode parameterNode1 = parameterNode.AddNodeInMethod();
                             parameterNode1.parameter = supplyAHandCardParameter;
 
                             yield return StartCoroutine(DoAction(SupplyAHandCard, parameterNode1));
-                            yield return null;
+
+                            //“∆≥˝≈∆ø‚≈∆
+                            Dictionary<string, object> parameter2 = new();
+                            parameter2.Add("Player", player);
+                            parameter2.Add("Type", "monster");
+                            parameter2.Add("Index", r);
+
+                            ParameterNode parameterNode2 = parameterNode.AddNodeInMethod();
+                            parameterNode2.parameter = parameter2;
+
+                            yield return battleProcess.StartCoroutine(DoAction(CardLeaveLibrary, parameterNode2));
                         }
                         break;
                     case 1:
@@ -467,15 +475,29 @@ public class GameAction : MonoBehaviour
 
                         if (playerData.monsterDeck.Count > 0)
                         {
+                            int r = RandomUtils.GetRandomNumber(0, playerData.monsterDeck.Count - 1);
+
+                            //º”‘ÿ ÷≈∆
                             Dictionary<string, object> supplyAHandCardParameter = new();
                             supplyAHandCardParameter.Add("HandPanelNumber", handPanelNumber);
                             supplyAHandCardParameter.Add("Player", player);
+                            supplyAHandCardParameter.Add("Index", r);
+
+                            ParameterNode parameterNode1 = parameterNode.AddNodeInMethod();
+                            parameterNode1.parameter = supplyAHandCardParameter;
+
+                            yield return StartCoroutine(DoAction(SupplyAHandCard, parameterNode1));
+
+                            //“∆≥˝≈∆ø‚≈∆
+                            Dictionary<string, object> parameter2 = new();
+                            parameter2.Add("Player", player);
+                            parameter2.Add("Type", "monster");
+                            parameter2.Add("Index", r);
 
                             ParameterNode parameterNode2 = parameterNode.AddNodeInMethod();
-                            parameterNode2.parameter = supplyAHandCardParameter;
+                            parameterNode2.parameter = parameter2;
 
-                            yield return StartCoroutine(DoAction(SupplyAHandCard, parameterNode2));
-                            yield return null;
+                            yield return battleProcess.StartCoroutine(DoAction(CardLeaveLibrary, parameterNode2));
                         }
                         break;
                     case 2:
@@ -490,15 +512,29 @@ public class GameAction : MonoBehaviour
 
                         if (playerData.itemDeck.Count > 0)
                         {
+                            int r = RandomUtils.GetRandomNumber(0, playerData.itemDeck.Count - 1);
+
+                            //º”‘ÿ ÷≈∆
                             Dictionary<string, object> supplyAHandCardParameter = new();
                             supplyAHandCardParameter.Add("HandPanelNumber", handPanelNumber);
                             supplyAHandCardParameter.Add("Player", player);
+                            supplyAHandCardParameter.Add("Index", r);
 
-                            ParameterNode parameterNode3 = parameterNode.AddNodeInMethod();
-                            parameterNode3.parameter = supplyAHandCardParameter;
+                            ParameterNode parameterNode1 = parameterNode.AddNodeInMethod();
+                            parameterNode1.parameter = supplyAHandCardParameter;
 
-                            yield return StartCoroutine(DoAction(SupplyAHandCard, parameterNode3));
-                            yield return null;
+                            yield return StartCoroutine(DoAction(SupplyAHandCard, parameterNode1));
+
+                            //“∆≥˝≈∆ø‚≈∆
+                            Dictionary<string, object> parameter2 = new();
+                            parameter2.Add("Player", player);
+                            parameter2.Add("Type", "item");
+                            parameter2.Add("Index", r);
+
+                            ParameterNode parameterNode2 = parameterNode.AddNodeInMethod();
+                            parameterNode2.parameter = parameter2;
+
+                            yield return battleProcess.StartCoroutine(DoAction(CardLeaveLibrary, parameterNode2));
                         }
                         break;
                     case 3:
@@ -513,15 +549,29 @@ public class GameAction : MonoBehaviour
 
                         if (playerData.itemDeck.Count > 0)
                         {
+                            int r = RandomUtils.GetRandomNumber(0, playerData.itemDeck.Count - 1);
+
+                            //º”‘ÿ ÷≈∆
                             Dictionary<string, object> supplyAHandCardParameter = new();
                             supplyAHandCardParameter.Add("HandPanelNumber", handPanelNumber);
                             supplyAHandCardParameter.Add("Player", player);
+                            supplyAHandCardParameter.Add("Index", r);
 
-                            ParameterNode parameterNode4 = parameterNode.AddNodeInMethod();
-                            parameterNode4.parameter = supplyAHandCardParameter;
+                            ParameterNode parameterNode1 = parameterNode.AddNodeInMethod();
+                            parameterNode1.parameter = supplyAHandCardParameter;
 
-                            yield return StartCoroutine(DoAction(SupplyAHandCard, parameterNode4));
-                            yield return null;
+                            yield return StartCoroutine(DoAction(SupplyAHandCard, parameterNode1));
+
+                            //“∆≥˝≈∆ø‚≈∆
+                            Dictionary<string, object> parameter2 = new();
+                            parameter2.Add("Player", player);
+                            parameter2.Add("Type", "item");
+                            parameter2.Add("Index", r);
+
+                            ParameterNode parameterNode2 = parameterNode.AddNodeInMethod();
+                            parameterNode2.parameter = parameter2;
+
+                            yield return battleProcess.StartCoroutine(DoAction(CardLeaveLibrary, parameterNode2));
                         }
                         break;
                 }
@@ -560,22 +610,20 @@ public class GameAction : MonoBehaviour
         yield return null;
     }
 
-
     /// <summary>
-    /// œ˚√≈∆ø‚÷–“ª’≈≈∆
+    /// ÀÊª˙œ˚√≈∆ø‚÷–“ª’≈≈∆
     /// </summary>
     /// <param name="parameter"></param>
     /// <returns></returns>
     public IEnumerator DestroyADeckCard(ParameterNode parameterNode)
     {
         Dictionary<string, object> parameter = parameterNode.parameter;
-        //int cardIndex = (int)parameter["CardIndex"];
         string type = (string)parameter["Type"];
         Player player = (Player)parameter["Player"];
 
         BattleProcess battleProcess = BattleProcess.GetInstance();
 
-        foreach (PlayerData playerData in BattleProcess.GetInstance().systemPlayerData)
+        foreach (PlayerData playerData in battleProcess.systemPlayerData)
         {
             if (playerData.perspectivePlayer == player)
             {
@@ -586,19 +634,23 @@ public class GameAction : MonoBehaviour
                     Dictionary<string, string> cardData = playerData.monsterDeck[r];
                     string cardName = cardData["CardName"];
 
-                    playerData.monsterDeck.RemoveAt(r);
-
-                    playerData.surplusMonsterAmountText.text = (playerData.monsterDeck.Count + (playerData.handMonster[0] == null ? 0 : 1) + (playerData.handMonster[1] == null ? 0 : 1)).ToString();
-
                     switch (playerData.actualPlayer)
                     {
                         case Player.Ally:
                             battleProcess.Log($"<color=#00ff00>Œ“∑Ω</color>≈∆ø‚π÷ ﬁ<color=#ffff00>{cardName}</color>±ªœ˚√");
                             break;
                         case Player.Enemy:
-                            battleProcess.Log($"<color=#00ff00>µ–∑Ω</color>≈∆ø‚π÷ ﬁ<color=#ffff00>{cardName}</color>±ªœ˚√");
+                            battleProcess.Log($"<color=#ff0000>µ–∑Ω</color>≈∆ø‚π÷ ﬁ<color=#ffff00>{cardName}</color>±ªœ˚√");
                             break;
                     }
+
+                    Dictionary<string, object> parameter1 = new(parameter);
+                    parameter1.Add("Index", r);
+
+                    ParameterNode parameterNode1 = parameterNode.AddNodeInMethod();
+                    parameterNode1.parameter = parameter1;
+
+                    yield return battleProcess.StartCoroutine(DoAction(CardLeaveLibrary, parameterNode1));
                 }
                 else
                 {
@@ -606,10 +658,6 @@ public class GameAction : MonoBehaviour
 
                     Dictionary<string, string> cardData = playerData.itemDeck[r];
                     string cardName = cardData["CardName"];
-
-                    playerData.itemDeck.RemoveAt(r);
-
-                    playerData.surplusItemAmountText.text = (playerData.itemDeck.Count + (playerData.handItem[0] == null ? 0 : 1) + (playerData.handItem[1] == null ? 0 : 1)).ToString();
 
                     switch (playerData.actualPlayer)
                     {
@@ -620,6 +668,14 @@ public class GameAction : MonoBehaviour
                             battleProcess.Log($"<color=#00ff00>µ–∑Ω</color>≈∆ø‚µ¿æﬂ<color=#ffff00>{cardName}</color>±ªœ˚√");
                             break;
                     }
+
+                    Dictionary<string, object> parameter1 = new(parameter);
+                    parameter1.Add("Index", r);
+
+                    ParameterNode parameterNode1 = parameterNode.AddNodeInMethod();
+                    parameterNode1.parameter = parameter1;
+
+                    yield return battleProcess.StartCoroutine(DoAction(CardLeaveLibrary, parameterNode1));
                 }
 
                 break;
@@ -627,6 +683,45 @@ public class GameAction : MonoBehaviour
         }
 
         yield return null;
+    }
+
+    /// <summary>
+    /// ø®≈∆¿Îø™≈∆ø‚
+    /// </summary>
+    /// <param name="parameter"></param>
+    /// <returns></returns>
+    public IEnumerator CardLeaveLibrary(ParameterNode parameterNode)
+    {
+        Dictionary<string, object> parameter = parameterNode.parameter;
+        string type = (string)parameter["Type"];
+        Player player = (Player)parameter["Player"];
+        int index = (int)parameter["Index"];
+
+        BattleProcess battleProcess = BattleProcess.GetInstance();
+
+        foreach (PlayerData playerData in battleProcess.systemPlayerData)
+        {
+            if (playerData.perspectivePlayer == player)
+            {
+                if (type == "monster")
+                {
+                    playerData.monsterDeck.RemoveAt(index);
+
+                    playerData.surplusMonsterAmountText.text = (playerData.monsterDeck.Count + (playerData.handMonster[0] == null ? 0 : 1) + (playerData.handMonster[1] == null ? 0 : 1)).ToString();
+                }
+                else
+                {
+
+                    playerData.itemDeck.RemoveAt(index);
+
+                    playerData.surplusItemAmountText.text = (playerData.itemDeck.Count + (playerData.handItem[0] == null ? 0 : 1) + (playerData.handItem[1] == null ? 0 : 1)).ToString();
+                }
+
+                break;
+            }
+        }
+
+        yield break;
     }
 
     /// <summary>
@@ -766,14 +861,29 @@ public class GameAction : MonoBehaviour
                     {
                         if (playerData.handMonster[j] == null)
                         {
+                            int r2 = RandomUtils.GetRandomNumber(0, playerData.monsterDeck.Count - 1);
+
                             Dictionary<string, object> parameter1 = new();
                             parameter1.Add("HandPanelNumber", j);
                             parameter1.Add("Player", player);
+                            parameter1.Add("Index", r2);
 
                             ParameterNode parameterNode1 = parameterNode.AddNodeInMethod();
                             parameterNode1.parameter = parameter1;
 
                             yield return StartCoroutine(DoAction(SupplyAHandCard, parameterNode1));
+
+                            //“∆≥˝≈∆ø‚≈∆
+                            Dictionary<string, object> parameter2 = new();
+                            parameter2.Add("Player", player);
+                            parameter2.Add("Type", "monster");
+                            parameter2.Add("Index", r2);
+
+                            ParameterNode parameterNode2 = parameterNode.AddNodeInMethod();
+                            parameterNode2.parameter = parameter2;
+
+                            yield return battleProcess.StartCoroutine(DoAction(CardLeaveLibrary, parameterNode2));
+
                             yield break;
                         }
                     }
@@ -789,14 +899,29 @@ public class GameAction : MonoBehaviour
                     {
                         if (playerData.handItem[j] == null)
                         {
+                            int r2 = RandomUtils.GetRandomNumber(0, playerData.itemDeck.Count - 1);
+
                             Dictionary<string, object> parameter1 = new();
                             parameter1.Add("HandPanelNumber", j + 2);
                             parameter1.Add("Player", player);
+                            parameter1.Add("Index", r2);
 
                             ParameterNode parameterNode1 = parameterNode.AddNodeInMethod();
                             parameterNode1.parameter = parameter1;
 
                             yield return StartCoroutine(DoAction(SupplyAHandCard, parameterNode1));
+
+                            //“∆≥˝≈∆ø‚≈∆
+                            Dictionary<string, object> parameter2 = new();
+                            parameter2.Add("Player", player);
+                            parameter2.Add("Type", "item");
+                            parameter2.Add("Index", r2);
+
+                            ParameterNode parameterNode2 = parameterNode.AddNodeInMethod();
+                            parameterNode2.parameter = parameter2;
+
+                            yield return battleProcess.StartCoroutine(DoAction(CardLeaveLibrary, parameterNode2));
+
                             yield break;
                         }
                     }
@@ -815,6 +940,7 @@ public class GameAction : MonoBehaviour
         Dictionary<string, object> parameter = parameterNode.parameter;
         int handPanelNumber = (int)parameter["HandPanelNumber"];
         Player player = (Player)parameter["Player"];
+        int index = (int)parameter["Index"];
 
         BattleProcess battleProcess = BattleProcess.GetInstance();
 
@@ -827,55 +953,35 @@ public class GameAction : MonoBehaviour
                 switch (handPanelNumber)
                 {
                     case 0:
-                        if (playerData.monsterDeck.Count > 0)
-                        {
-                            //Debug.Log(playerData.monsterDeck[0]["CardName"]);
-                            playerData.handMonster[0] = new(playerData.monsterDeck[0]);
-                            playerData.monsterDeck.RemoveAt(0);
-                            //Debug.Log(playerData.handMonster[0]["CardName"]);
+                        playerData.handMonster[0] = new(playerData.monsterDeck[index]);
 
-                            if (playerData.handMonsterPanel != null)
-                            {
-                                LoadACardToHand(playerData.handMonster[0], playerData.handMonsterPanel[0]);
-                            }
+                        if (playerData.handMonsterPanel != null)
+                        {
+                            LoadACardToHand(playerData.handMonster[0], playerData.handMonsterPanel[0]);
                         }
                         break;
                     case 1:
-                        if (playerData.monsterDeck.Count > 0)
-                        {
-                            //Debug.Log(playerData.monsterDeck[0]["CardName"]);
-                            playerData.handMonster[1] = new(playerData.monsterDeck[0]);
-                            playerData.monsterDeck.RemoveAt(0);
-                            //Debug.Log(playerData.handMonster[1]["CardName"]);
+                        playerData.handMonster[1] = new(playerData.monsterDeck[index]);
 
-                            if (playerData.handMonsterPanel != null)
-                            {
-                                LoadACardToHand(playerData.handMonster[1], playerData.handMonsterPanel[1]);
-                            }
+                        if (playerData.handMonsterPanel != null)
+                        {
+                            LoadACardToHand(playerData.handMonster[1], playerData.handMonsterPanel[1]);
                         }
                         break;
                     case 2:
-                        if (playerData.itemDeck.Count > 0)
-                        {
-                            playerData.handItem[0] = new(playerData.itemDeck[0]);
-                            playerData.itemDeck.RemoveAt(0);
+                        playerData.handItem[0] = new(playerData.itemDeck[index]);
 
-                            if (playerData.handItemPanel != null)
-                            {
-                                LoadACardToHand(playerData.handItem[0], playerData.handItemPanel[0]);
-                            }
+                        if (playerData.handItemPanel != null)
+                        {
+                            LoadACardToHand(playerData.handItem[0], playerData.handItemPanel[0]);
                         }
                         break;
                     case 3:
-                        if (playerData.itemDeck.Count > 0)
-                        {
-                            playerData.handItem[1] = new(playerData.itemDeck[0]);
-                            playerData.itemDeck.RemoveAt(0);
+                        playerData.handItem[1] = new(playerData.itemDeck[index]);
 
-                            if (playerData.handItemPanel != null)
-                            {
-                                LoadACardToHand(playerData.handItem[1], playerData.handItemPanel[1]);
-                            }
+                        if (playerData.handItemPanel != null)
+                        {
+                            LoadACardToHand(playerData.handItem[1], playerData.handItemPanel[1]);
                         }
                         break;
                 }
@@ -1312,8 +1418,6 @@ public class GameAction : MonoBehaviour
                     cardCanvas.GetComponent<RectTransform>().localScale = new Vector3(1, 1, 1);
 
                     playerData.monsterGameObjectArray[j] = cardInBattle;
-
-                    //parameter.Add("MonsterAfterTransformed", cardInBattle);
 
                     yield break;
                 }

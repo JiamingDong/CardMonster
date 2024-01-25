@@ -8,6 +8,23 @@ using UnityEngine;
 /// </summary>
 public class DiseaseAll : SkillInBattle
 {
+    int launchMark = 0;
+
+    public override int AddValue(string source, int value)
+    {
+        launchMark = value;
+
+        if (sourceAndValue.ContainsKey(source))
+        {
+            sourceAndValue[source] += value;
+        }
+        else
+        {
+            sourceAndValue.Add(source, value);
+        }
+        return GetSkillValue();
+    }
+
     [TriggerEffect(@"^After\.GameAction\.UseACard$", "Compare1")]
     public IEnumerator Effect1(ParameterNode parameterNode)
     {
@@ -32,7 +49,7 @@ public class DiseaseAll : SkillInBattle
                         parameter1.Add("LaunchedSkill", this);
                         parameter1.Add("EffectName", "Effect1");
                         parameter1.Add("SkillName", "disease_derive");
-                        parameter1.Add("SkillValue", GetSkillValue());
+                        parameter1.Add("SkillValue", launchMark);
                         parameter1.Add("Source", "Skill.DiseaseAll.Effect1");
 
                         ParameterNode parameterNode1 = parameterNode.AddNodeInMethod();
@@ -43,6 +60,8 @@ public class DiseaseAll : SkillInBattle
                 }
             }
         }
+
+        launchMark = 0;
     }
 
     /// <summary>
@@ -55,6 +74,11 @@ public class DiseaseAll : SkillInBattle
         Player player = (Player)parameter["Player"];
 
         BattleProcess battleProcess = BattleProcess.GetInstance();
+
+        if (launchMark < 1)
+        {
+            return false;
+        }
 
         //消耗品物体
         if (result.ContainsKey("ConsumeBeGenerated"))

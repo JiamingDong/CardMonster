@@ -217,7 +217,6 @@ public class SocketTool
         int currentOffset = 0;
         while (true)
         {
-            Debug.Log("SocketClient.ReceiveMessage");
             byte[] bytes = new byte[1024 * 1024];
             int receiveLength = server.Receive(bytes);
 
@@ -256,7 +255,7 @@ public class SocketTool
                 }
                 else
                 {
-                    Debug.Log(enemyExitMessageQueue.Count);
+                    //Debug.Log(enemyExitMessageQueue.Count);
                     enemyActionQueue.Enqueue(message);
                 }
 

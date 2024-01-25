@@ -8,6 +8,23 @@ using UnityEngine;
 /// </summary>
 public class Punishment : SkillInBattle
 {
+    int launchMark = 0;
+
+    public override int AddValue(string source, int value)
+    {
+        launchMark = value;
+
+        if (sourceAndValue.ContainsKey(source))
+        {
+            sourceAndValue[source] += value;
+        }
+        else
+        {
+            sourceAndValue.Add(source, value);
+        }
+        return GetSkillValue();
+    }
+
     [TriggerEffect(@"^After\.GameAction\.UseACard$", "Compare1")]
     public IEnumerator Effect1(ParameterNode parameterNode)
     {
@@ -62,29 +79,31 @@ public class Punishment : SkillInBattle
             }
         }
 
-        if (gameObjects.Count > 3)
-        {
-            for (int i = 0; i < 3; i++)
-            {
-                int r = RandomUtils.GetRandomNumber(i, gameObjects.Count - 1);
-                (gameObjects[i], gameObjects[r]) = (gameObjects[r], gameObjects[i]);
-            }
-        }
+        //if (gameObjects.Count > 3)
+        //{
+        //    for (int i = 0; i < 3; i++)
+        //    {
+        //        int r = RandomUtils.GetRandomNumber(i, gameObjects.Count - 1);
+        //        (gameObjects[i], gameObjects[r]) = (gameObjects[r], gameObjects[i]);
+        //    }
+        //}
 
-        for (int i = 0; i < gameObjects.Count && i < 3; i++)
-        {
-            Dictionary<string, object> parameter1 = new();
-            parameter1.Add("LaunchedSkill", this);
-            parameter1.Add("EffectName", "Effect1");
-            parameter1.Add("EffectTarget", gameObjects[i]);
-            parameter1.Add("EffectValue", -GetSkillValue());
+        //for (int i = 0; i < gameObjects.Count && i < 3; i++)
+        //{
+        //    Dictionary<string, object> parameter1 = new();
+        //    parameter1.Add("LaunchedSkill", this);
+        //    parameter1.Add("EffectName", "Effect1");
+        //    parameter1.Add("EffectTarget", gameObjects[i]);
+        //    parameter1.Add("EffectValue", -launchMark);
 
-            ParameterNode parameterNode1 = parameterNode.AddNodeInMethod();
-            parameterNode1.parameter = parameter1;
+        //    ParameterNode parameterNode1 = parameterNode.AddNodeInMethod();
+        //    parameterNode1.parameter = parameter1;
 
-            yield return battleProcess.StartCoroutine(gameAction.DoAction(gameAction.ChangeMonsterCost, parameterNode1));
-            //yield return null;
-        }
+        //    yield return battleProcess.StartCoroutine(gameAction.DoAction(gameAction.ChangeMonsterCost, parameterNode1));
+        //    //yield return null;
+        //}
+
+        launchMark = 0;
     }
 
     /// <summary>
@@ -95,6 +114,11 @@ public class Punishment : SkillInBattle
         Dictionary<string, object> result = parameterNode.Parent.EffectChild.nodeInMethodList[1].EffectChild.result;
 
         BattleProcess battleProcess = BattleProcess.GetInstance();
+
+        if (launchMark < 1)
+        {
+            return false;
+        }
 
         //消耗品物体
         if (result.ContainsKey("ConsumeBeGenerated"))

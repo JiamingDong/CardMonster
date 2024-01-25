@@ -89,6 +89,7 @@ public class PlayerAction : MonoBehaviour
         BattleProcess battleProcess = BattleProcess.GetInstance();
 
         ParameterNode parameterNode1 = new();
+        parameterNode1.SetParent(new(), ParameterNodeChildType.EffectChild);
         parameterNode1.opportunity = "TransfromOpportunity";
 
         yield return battleProcess.StartCoroutine(battleProcess.ExecuteEvent(parameterNode1));
@@ -96,6 +97,7 @@ public class PlayerAction : MonoBehaviour
 
         //战斗阶段开始前
         ParameterNode parameterNode2 = new();
+        parameterNode2.SetParent(new(), ParameterNodeChildType.EffectChild);
         parameterNode2.opportunity = "BeforeRoundBattle";
 
         yield return battleProcess.StartCoroutine(battleProcess.ExecuteEvent(parameterNode2));
@@ -105,6 +107,7 @@ public class PlayerAction : MonoBehaviour
 
         //战斗阶段
         ParameterNode parameterNode3 = new();
+        parameterNode3.SetParent(new(), ParameterNodeChildType.EffectChild);
         parameterNode3.opportunity = "InRoundBattle";
 
         yield return battleProcess.StartCoroutine(battleProcess.ExecuteEvent(parameterNode3));
@@ -112,6 +115,7 @@ public class PlayerAction : MonoBehaviour
 
         //战斗阶段后
         ParameterNode parameterNode4 = new();
+        parameterNode4.SetParent(new(), ParameterNodeChildType.EffectChild);
         parameterNode4.opportunity = "AfterRoundBattle";
 
         yield return battleProcess.StartCoroutine(battleProcess.ExecuteEvent(parameterNode4));
@@ -119,6 +123,7 @@ public class PlayerAction : MonoBehaviour
 
         //进入下个回合
         ParameterNode parameterNode5 = new();
+        parameterNode5.SetParent(new(), ParameterNodeChildType.EffectChild);
         parameterNode5.opportunity = "InRoundReady";
 
         yield return battleProcess.StartCoroutine(battleProcess.ExecuteEvent(parameterNode5));

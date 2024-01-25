@@ -5,6 +5,23 @@ using UnityEngine;
 
 public class Despise : SkillInBattle
 {
+    int launchMark = 0;
+
+    public override int AddValue(string source, int value)
+    {
+        launchMark = value;
+
+        if (sourceAndValue.ContainsKey(source))
+        {
+            sourceAndValue[source] += value;
+        }
+        else
+        {
+            sourceAndValue.Add(source, value);
+        }
+        return GetSkillValue();
+    }
+
     [TriggerEffect(@"^After\.GameAction\.UseACard$", "Compare1")]
     public IEnumerator Effect1(ParameterNode parameterNode)
     {
@@ -79,7 +96,7 @@ public class Despise : SkillInBattle
                 for (int j = 2; j >= 0; j--)
                 {
                     GameObject go = systemPlayerData.monsterGameObjectArray[j];
-                    if (go != null && go.GetComponent<MonsterInBattle>().GetCost() <= GetSkillValue())
+                    if (go != null && go.GetComponent<MonsterInBattle>().GetCost() <= launchMark)
                     {
                         Dictionary<string, object> destroyParameter = new();
                         destroyParameter.Add("LaunchedSkill", this);
@@ -105,14 +122,9 @@ public class Despise : SkillInBattle
                         Dictionary<string, string> equipment = monsterInBattle.equipment;
                         if (equipment != null)
                         {
-                            foreach (var item in equipment)
-                            {
-                                Debug.Log(item.Key + "----" + item.Value);
-                            }
-
                             string cardCost = equipment["CardCost"];
 
-                            if (Convert.ToInt32(cardCost) <= GetSkillValue())
+                            if (Convert.ToInt32(cardCost) <= launchMark)
                             {
                                 Dictionary<string, object> parameter1 = new();
                                 parameter1.Add("LaunchedSkill", this);
@@ -130,28 +142,7 @@ public class Despise : SkillInBattle
             }
         }
 
-        MonsterInBattle monsterInBattle1 = gameObject.GetComponent<MonsterInBattle>();
-
-        List<string> needRemoveSource = new();
-        foreach (KeyValuePair<string, int> keyValuePair in sourceAndValue)
-        {
-            needRemoveSource.Add(keyValuePair.Key);
-        }
-
-        foreach (var item in needRemoveSource)
-        {
-            Dictionary<string, object> parameter4 = new();
-            parameter4.Add("LaunchedSkill", this);
-            parameter4.Add("EffectName", "Effect1");
-            parameter4.Add("SkillName", "despise");
-            parameter4.Add("Source", item);
-
-            ParameterNode parameterNode4 = new();
-            parameterNode4.parameter = parameter4;
-
-            yield return battleProcess.StartCoroutine(monsterInBattle1.DoAction(monsterInBattle1.DeleteSkillSource, parameterNode4));
-        }
-        //yield return null;
+        launchMark = 0;
     }
 
     /// <summary>
@@ -160,7 +151,11 @@ public class Despise : SkillInBattle
     public bool Compare1(ParameterNode parameterNode)
     {
         Dictionary<string, object> result = parameterNode.Parent.EffectChild.nodeInMethodList[1].EffectChild.result;
-        Dictionary<string, object> parameter = parameterNode.parameter;
+
+        if (launchMark < 1)
+        {
+            return false;
+        }
 
         //消耗品物体
         if (result.ContainsKey("ConsumeBeGenerated"))
@@ -168,7 +163,6 @@ public class Despise : SkillInBattle
             GameObject consumeBeGenerated = (GameObject)result["ConsumeBeGenerated"];
             if (consumeBeGenerated != gameObject)
             {
-                //Debug.Log("群体侵袭1");
                 return false;
             }
         }
@@ -178,7 +172,6 @@ public class Despise : SkillInBattle
             GameObject monsterBeGenerated = (GameObject)result["MonsterBeGenerated"];
             if (monsterBeGenerated != gameObject)
             {
-                //Debug.Log("群体侵染判断2");
                 return false;
             }
         }
@@ -188,13 +181,11 @@ public class Despise : SkillInBattle
             GameObject monsterBeEquipped = (GameObject)result["MonsterBeEquipped"];
             if (monsterBeEquipped != gameObject)
             {
-                //Debug.Log("群体侵染判断3");
                 return false;
             }
         }
         else
         {
-            //Debug.Log("群体侵袭2");
             return false;
         }
 

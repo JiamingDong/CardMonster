@@ -1,15 +1,15 @@
 ManifestFileVersion: 0
-CRC: 1462111258
+CRC: 1192390121
 Hashes:
   AssetFileHash:
     serializedVersion: 2
-    Hash: 8adfbe0e1b958d606419cd6cc1ece21c
+    Hash: 49f9139f5c45c7a3f485b43bfa3460fa
   TypeTreeHash:
     serializedVersion: 2
     Hash: 2d8df09e698f722ada1caa03d3413830
   IncrementalBuildHash:
     serializedVersion: 2
-    Hash: 8adfbe0e1b958d606419cd6cc1ece21c
+    Hash: 49f9139f5c45c7a3f485b43bfa3460fa
 HashAppended: 0
 ClassTypes:
 - Class: 28
@@ -82,6 +82,7 @@ Assets:
 - Assets/Image/Card/Skill/resonate.png
 - Assets/Image/Card/Skill/chance.png
 - Assets/Image/Card/Skill/item_icon.png
+- Assets/Image/Card/Skill/rabbit_tricky.png
 - Assets/Image/Card/Skill/magic_bullet.png
 - Assets/Image/Card/Skill/buff_bombing_all.png
 - Assets/Image/Card/Skill/magic_counter.png
@@ -247,11 +248,13 @@ Assets:
 - Assets/Image/Card/CardFrame/coloricon_balance.png
 - Assets/Image/Card/Skill/combo_chance.png
 - Assets/Image/Card/Skill/transform_blackman.png
+- Assets/Image/Card/Skill/fivedragon_force.png
 - Assets/Image/Card/Skill/aggro.png
 - Assets/Image/Card/Skill/buff_heal.png
 - Assets/Image/Card/Skill/charge.png
 - Assets/Image/Card/Skill/transform_redwolf.png
 - Assets/Image/Card/Skill/dragon_green.png
+- Assets/Image/Card/Skill/final_doll.png
 - Assets/Image/Card/Skill/clone.png
 - Assets/Image/Card/Skill/transform_orc.png
 - Assets/Image/Card/Skill/combo_magic.png
@@ -311,6 +314,7 @@ Assets:
 - Assets/Image/Card/Skill/destroy.png
 - Assets/Image/Card/Skill/mirror.png
 - Assets/Image/Card/CardFrame/ColorBackgroundRfortune.png
+- Assets/Image/Card/Skill/rainbow_blast.png
 - Assets/Image/Card/Skill/magic_shoot_all.png
 - Assets/Image/Card/Skill/antiair.png
 - Assets/Image/Card/Skill/resurrection.png

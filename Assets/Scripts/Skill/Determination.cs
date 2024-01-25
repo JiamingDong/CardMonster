@@ -10,7 +10,24 @@ using UnityEngine;
 /// </summary>
 public class Determination : SkillInBattle
 {
-    [TriggerEffect(@"^After\.GameAction\.UseACard$",  "Compare1")]
+    int launchMark = 0;
+
+    public override int AddValue(string source, int value)
+    {
+        launchMark = 1;
+
+        if (sourceAndValue.ContainsKey(source))
+        {
+            sourceAndValue[source] += value;
+        }
+        else
+        {
+            sourceAndValue.Add(source, value);
+        }
+        return GetSkillValue();
+    }
+
+    [TriggerEffect(@"^After\.GameAction\.UseACard$", "Compare1")]
     public IEnumerator Effect1(ParameterNode parameterNode)
     {
         BattleProcess battleProcess = BattleProcess.GetInstance();
@@ -74,7 +91,8 @@ public class Determination : SkillInBattle
         parameterNode4.parameter = parameter4;
 
         yield return battleProcess.StartCoroutine(monsterInBattle.DoAction(monsterInBattle.DeleteSkillSource, parameterNode4));
-        //yield return null;
+
+        launchMark = 0;
     }
 
     /// <summary>
@@ -83,6 +101,11 @@ public class Determination : SkillInBattle
     public bool Compare1(ParameterNode parameterNode)
     {
         Dictionary<string, object> result = parameterNode.Parent.EffectChild.nodeInMethodList[1].EffectChild.result;
+
+        if (launchMark < 1)
+        {
+            return false;
+        }
 
         GameObject go = null;
         if (result.ContainsKey("MonsterBeGenerated"))
@@ -113,13 +136,12 @@ public class Determination : SkillInBattle
         return false;
     }
 
-    [TriggerEffect(@"^Replace\.MonsterInBattle\.AddSkill$",  "Compare2")]
+    [TriggerEffect(@"^Replace\.MonsterInBattle\.AddSkill$", "Compare2")]
     public IEnumerator Effect2(ParameterNode parameterNode)
     {
         Dictionary<string, object> result = parameterNode.Parent.result;
         result.Add("BeReplaced", true);
         yield break;
-        //yield return null;
     }
 
     /// <summary>

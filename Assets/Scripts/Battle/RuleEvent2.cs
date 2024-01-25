@@ -45,8 +45,8 @@ public class RuleEvent2 : OpportunityEffect
             sacrificeButtonRawImage.texture = Resources.Load<Texture2D>("Image/SacrificeEnableButton");
 
             //可以使用手牌
-            battleProcess.allyPlayerData.canUseHandCard = true;
             battleProcess.allyPlayerData.canSacrifice = true;
+            battleProcess.allyPlayerData.canUseHandCard = true;
 
             Debug.Log("RuleEvent.EnterTurnReady:我方回合准备阶段结束");
         }
@@ -62,13 +62,13 @@ public class RuleEvent2 : OpportunityEffect
             sacrificeButtonRawImage.texture = Resources.Load<Texture2D>("Image/SacrificeDisableButton");
 
             //可以使用手牌
-            battleProcess.enemyPlayerData.canUseHandCard = true;
             battleProcess.enemyPlayerData.canSacrifice = true;
+            battleProcess.enemyPlayerData.canUseHandCard = true;
 
             Debug.Log("RuleEvent.EnterTurnReady：对方回合准备阶段开始");
         }
 
-        yield return null;
+        yield break;
     }
 
     /// <summary>
@@ -78,30 +78,28 @@ public class RuleEvent2 : OpportunityEffect
     /// <returns></returns>
     [TriggerEffect("^CheckCardTarget$")]
     [TriggerEffect("^CheckSacrifice$")]
+    [TriggerEffect("^LaunchHeroSkill$")]
     public IEnumerator AllowUsingCard(ParameterNode parameterNode)
     {
-        //Debug.Log("允许使用手牌AllowUsingCard");
-        Dictionary<string, object> parameter = parameterNode.parameter;
-
         BattleProcess battleProcess = BattleProcess.GetInstance();
-        Player player = (Player)parameter["Player"];
 
         for (int i = 0; i < battleProcess.systemPlayerData.Length; i++)
         {
-            if (battleProcess.systemPlayerData[i].perspectivePlayer == player)
+            PlayerData playerData = battleProcess.systemPlayerData[i];
+            if (playerData.perspectivePlayer == Player.Ally)
             {
                 //允许使用手牌
-                battleProcess.systemPlayerData[i].canUseHandCard = true;
+                playerData.canUseHandCard = true;
 
                 //清除消耗品
                 //Debug.Log("消耗品离开战场");
-                Destroy(battleProcess.systemPlayerData[i].consumeGameObject);
-                battleProcess.systemPlayerData[i].consumeGameObject = null;
+                Destroy(playerData.consumeGameObject);
+                playerData.consumeGameObject = null;
                 break;
             }
         }
 
-        yield return null;
+        yield break;
     }
 
     /// <summary>

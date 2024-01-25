@@ -14,8 +14,10 @@ public class SacrificeButton : MonoBehaviour
         BattleProcess battleProcess = BattleProcess.GetInstance();
 
         //处于不能使用手牌的状态，则返回
-        if (battleProcess.allyPlayerData.perspectivePlayer != Player.Ally || battleProcess.allyPlayerData.canUseHandCard == false)
+        if (!battleProcess.allyPlayerData.canUseHandCard || !battleProcess.allyPlayerData.canSacrifice)
+        {
             return;
+        }
 
         battleProcess.allyPlayerData.canUseHandCard = false;
 

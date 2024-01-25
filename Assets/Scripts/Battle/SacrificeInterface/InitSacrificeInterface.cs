@@ -14,10 +14,6 @@ public class InitSacrificeInterface : MonoBehaviour
         BattleProcess battleProcess = BattleProcess.GetInstance();
 
         PlayerData playerData = battleProcess.allyPlayerData;
-        if (!playerData.canSacrifice)
-        {
-            return;
-        }
 
         Dictionary<string, string>[] handMonster = playerData.handMonster;
         for (int i = 0; i < handMonster.Length; i++)

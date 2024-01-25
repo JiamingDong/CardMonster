@@ -1,15 +1,15 @@
 ManifestFileVersion: 0
-CRC: 2457353008
+CRC: 1266041122
 Hashes:
   AssetFileHash:
     serializedVersion: 2
-    Hash: 3fed53e779c8f77567601975acf9a6f0
+    Hash: 36b917bf6fdc2295f32fea75697e0bda
   TypeTreeHash:
     serializedVersion: 2
     Hash: 2d8df09e698f722ada1caa03d3413830
   IncrementalBuildHash:
     serializedVersion: 2
-    Hash: 3fed53e779c8f77567601975acf9a6f0
+    Hash: 36b917bf6fdc2295f32fea75697e0bda
 HashAppended: 0
 ClassTypes:
 - Class: 28
@@ -21,6 +21,8 @@ Assets:
 - Assets/Image/Background/CollectionAndDeckBackground.png
 - Assets/Image/Background/BattleBackground.png
 - Assets/Image/Background/Test.png
+- Assets/Image/Background/BattleBackground2.png
 - Assets/Image/Background/LoginBackground.png
 - Assets/Image/Background/MainBackground.png
+- Assets/Image/Background/CollectionAndDeckBackground2.png
 Dependencies: []

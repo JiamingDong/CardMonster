@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using UnityEngine;
 
 /// <summary>
 /// 所有在场上的卡牌技能、英雄技能的父类
@@ -14,7 +15,7 @@ public abstract class SkillInBattle : OpportunityEffect
     /// 获取技能数值，如果sourceAndValue为空返回-1，否则，小于0的会返回0
     /// </summary>
     /// <returns>技能数值</returns>
-    public int GetSkillValue()
+    public virtual int GetSkillValue()
     {
         if (sourceAndValue.Count == 0)
         {
@@ -34,8 +35,9 @@ public abstract class SkillInBattle : OpportunityEffect
     /// </summary>
     /// <param name="source">来源</param>
     /// <param name="value">数值</param>
-    public int AddValue(string source, int value)
+    public virtual int AddValue(string source, int value)
     {
+        //Debug.Log(GetType().Name + "----" + source + "----" + value);
         if (sourceAndValue.ContainsKey(source))
         {
             sourceAndValue[source] += value;

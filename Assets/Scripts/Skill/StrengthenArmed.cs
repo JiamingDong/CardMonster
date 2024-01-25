@@ -24,8 +24,10 @@ public class StrengthenArmed : SkillInBattle
         for (int i = 0; i < skillInBattles.Count; i++)
         {
             SkillInBattle skillInBattle = skillInBattles[i];
+            //Debug.Log(skillInBattle.GetType().Name);
             if (SkillUtils.IsBasicAttackEffect(skillInBattle) || skillInBattle is Armor)
             {
+                //Debug.Log("基本攻击类型");
                 Dictionary<string, int> sourceAndValue = skillInBattle.sourceAndValue;
                 if (sourceAndValue.ContainsKey("Equipment"))
                 {
@@ -39,13 +41,12 @@ public class StrengthenArmed : SkillInBattle
                     parameter1.Add("EffectName", "Effect1");
                     parameter1.Add("SkillName", skillEnglishName);
                     parameter1.Add("SkillValue", skillValue);
-                    parameter1.Add("Source", "Skill.StrengthenArmed.Effect1");
+                    parameter1.Add("Source", "Equipment");
 
                     ParameterNode parameterNode1 = parameterNode.AddNodeInMethod();
                     parameterNode1.parameter = parameter1;
 
                     yield return battleProcess.StartCoroutine(monsterInBattle.DoAction(monsterInBattle.AddSkill, parameterNode1));
-                    //yield return null;
                 }
             }
         }
@@ -59,9 +60,9 @@ public class StrengthenArmed : SkillInBattle
         Dictionary<string, object> result = parameterNode.Parent.EffectChild.nodeInMethodList[1].EffectChild.result;
         Dictionary<string, object> parameter = parameterNode.parameter;
         //使用手牌的玩家
-        Player player = (Player)parameter["Player"];
+        //Player player = (Player)parameter["Player"];
 
-        BattleProcess battleProcess = BattleProcess.GetInstance();
+        //BattleProcess battleProcess = BattleProcess.GetInstance();
 
         //装备
         if (result.ContainsKey("MonsterBeEquipped"))
@@ -69,22 +70,25 @@ public class StrengthenArmed : SkillInBattle
             GameObject monsterBeEquipped = (GameObject)result["MonsterBeEquipped"];
             if (monsterBeEquipped != gameObject)
             {
+                //Debug.Log(1);
                 return false;
             }
         }
         else
         {
+            //Debug.Log(2);
             return false;
         }
 
-        for (int i = 0; i < battleProcess.systemPlayerData.Length; i++)
-        {
-            PlayerData systemPlayerData = battleProcess.systemPlayerData[i];
-            if (systemPlayerData.perspectivePlayer != player && systemPlayerData.monsterGameObjectArray[0] == null)
-            {
-                return false;
-            }
-        }
+        //for (int i = 0; i < battleProcess.systemPlayerData.Length; i++)
+        //{
+        //    PlayerData systemPlayerData = battleProcess.systemPlayerData[i];
+        //    if (systemPlayerData.perspectivePlayer != player && systemPlayerData.monsterGameObjectArray[0] == null)
+        //    {
+        //        Debug.Log(3);
+        //        return false;
+        //    }
+        //}
 
         MonsterInBattle monsterInBattle = gameObject.GetComponent<MonsterInBattle>();
 
@@ -93,6 +97,7 @@ public class StrengthenArmed : SkillInBattle
         for (int i = 0; i < skillInBattles.Count; i++)
         {
             SkillInBattle skillInBattle = skillInBattles[i];
+            //Debug.Log(skillInBattle.GetType().Name);
             if (SkillUtils.IsBasicAttackEffect(skillInBattle) || skillInBattle is Armor)
             {
                 Dictionary<string, int> sourceAndValue = skillInBattle.sourceAndValue;
@@ -103,6 +108,7 @@ public class StrengthenArmed : SkillInBattle
             }
         }
 
+        //Debug.Log(4);
         return false;
     }
 }

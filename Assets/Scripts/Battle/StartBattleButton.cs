@@ -14,8 +14,10 @@ public class StartBattleButton : MonoBehaviour
 
         PlayerAction playerAction = PlayerAction.GetInstance();
 
-        if (battleProcess.allyPlayerData.perspectivePlayer != Player.Ally || battleProcess.allyPlayerData.canUseHandCard == false)
+        if (!battleProcess.allyPlayerData.canUseHandCard)
+        {
             return;
+        }
 
         //Debug.Log("StartBattleButton£º½áÊø³öÅÆ½×¶Î");
 

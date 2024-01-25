@@ -7,6 +7,23 @@ using UnityEngine;
 /// </summary>
 public class Swap : SkillInBattle
 {
+    int launchMark = 0;
+
+    public override int AddValue(string source, int value)
+    {
+        launchMark = 1;
+
+        if (sourceAndValue.ContainsKey(source))
+        {
+            sourceAndValue[source] += value;
+        }
+        else
+        {
+            sourceAndValue.Add(source, value);
+        }
+        return GetSkillValue();
+    }
+
     [TriggerEffect(@"^After\.GameAction\.UseACard$", "Compare1")]
     public IEnumerator Effect1(ParameterNode parameterNode)
     {
@@ -49,27 +66,7 @@ public class Swap : SkillInBattle
 
         yield return battleProcess.StartCoroutine(gameAction.DoAction(gameAction.SwapMonsterPosition, parameterNode1));
 
-        MonsterInBattle monsterInBattle1 = gameObject.GetComponent<MonsterInBattle>();
-
-        List<string> needRemoveSource = new();
-        foreach (KeyValuePair<string, int> keyValuePair in sourceAndValue)
-        {
-            needRemoveSource.Add(keyValuePair.Key);
-        }
-
-        foreach (var item in needRemoveSource)
-        {
-            Dictionary<string, object> parameter4 = new();
-            parameter4.Add("LaunchedSkill", this);
-            parameter4.Add("EffectName", "Effect1");
-            parameter4.Add("SkillName", "swap");
-            parameter4.Add("Source", item);
-
-            ParameterNode parameterNode4 = new();
-            parameterNode4.parameter = parameter4;
-
-            yield return battleProcess.StartCoroutine(monsterInBattle1.DoAction(monsterInBattle1.DeleteSkillSource, parameterNode4));
-        }
+        launchMark = 0;
     }
 
     /// <summary>
@@ -82,6 +79,11 @@ public class Swap : SkillInBattle
         Player player = (Player)parameter["Player"];
 
         BattleProcess battleProcess = BattleProcess.GetInstance();
+
+        if (launchMark < 1)
+        {
+            return false;
+        }
 
         //消耗品物体
         if (result.ContainsKey("ConsumeBeGenerated"))

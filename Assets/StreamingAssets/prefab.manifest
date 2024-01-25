@@ -1,15 +1,15 @@
 ManifestFileVersion: 0
-CRC: 993944924
+CRC: 1355114299
 Hashes:
   AssetFileHash:
     serializedVersion: 2
-    Hash: beb5a1bf8223514a0f64042328c50630
+    Hash: 5b1223056e65d739a30876573131db03
   TypeTreeHash:
     serializedVersion: 2
-    Hash: f3f698f2e5e626073c40aa50c1ec8897
+    Hash: 75a00c0da9de62212ffa0948774409ab
   IncrementalBuildHash:
     serializedVersion: 2
-    Hash: beb5a1bf8223514a0f64042328c50630
+    Hash: 5b1223056e65d739a30876573131db03
 HashAppended: 0
 ClassTypes:
 - Class: 1
@@ -41,10 +41,6 @@ ClassTypes:
 - Class: 114
   Script: {fileID: 11500000, guid: 02baa09b26f36a4468ea7034cccb01b6, type: 3}
 - Class: 114
-  Script: {fileID: 11500000, guid: 07cfe371bd9cc5e43bcffde6ebc7b89b, type: 3}
-- Class: 114
-  Script: {fileID: 11500000, guid: b402409cd21bdc34b90f6827d5d511fc, type: 3}
-- Class: 114
   Script: {fileID: 11500000, guid: 3c87178be58a3d743aeb8eb2866dfed2, type: 3}
 - Class: 114
   Script: {fileID: 11500000, guid: 5f7201a12d95ffc409449d95f23cf332, type: 3}
@@ -71,6 +67,8 @@ ClassTypes:
 - Class: 114
   Script: {fileID: 11500000, guid: 666d2b895ad9c4542b581e32b66884d5, type: 3}
 - Class: 114
+  Script: {fileID: 11500000, guid: 617c7d28aae718b4cb1557187792b914, type: 3}
+- Class: 114
   Script: {fileID: 11500000, guid: 643787e34e2232a4096d9d6a819d68eb, type: 3}
 - Class: 114
   Script: {fileID: 11500000, guid: f124a99b2d46ae14e9b44c49df4dc9c0, type: 3}
@@ -90,6 +88,8 @@ ClassTypes:
   Script: {fileID: 11500000, guid: 3ccdcc55d399c6749a9b68d1e450b1e6, type: 3}
 - Class: 114
   Script: {fileID: 11500000, guid: bdd90afd4a196fd419666392338123d2, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: 07cfe371bd9cc5e43bcffde6ebc7b89b, type: 3}
 - Class: 114
   Script: {fileID: 11500000, guid: 70cf67ecf8726d7498ecdccd9c4a6362, type: 3}
 - Class: 115
@@ -132,6 +132,7 @@ Assets:
 - Assets/Prefabs/Collection/SwitchDeckPrefab.prefab
 - Assets/Prefabs/LaunchSkillPrefab.prefab
 - Assets/Prefabs/NonBasicSkillInBattlePrefab.prefab
+- Assets/Prefabs/Battle/HeroSkill/ChangeDestinyPrefab.prefab
 - Assets/Prefabs/CardForShowPrefab.prefab
 - Assets/Prefabs/HeroSkillPrefab.prefab
 - Assets/Prefabs/Battle/GameVictoryPrefab.prefab

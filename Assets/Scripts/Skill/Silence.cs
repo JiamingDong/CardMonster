@@ -8,6 +8,23 @@ using UnityEngine;
 /// </summary>
 public class Silence : SkillInBattle
 {
+    int launchMark = 0;
+
+    public override int AddValue(string source, int value)
+    {
+        launchMark = value;
+
+        if (sourceAndValue.ContainsKey(source))
+        {
+            sourceAndValue[source] += value;
+        }
+        else
+        {
+            sourceAndValue.Add(source, value);
+        }
+        return GetSkillValue();
+    }
+
     [TriggerEffect(@"^After\.GameAction\.UseACard$", "Compare1")]
     public IEnumerator Effect1(ParameterNode parameterNode)
     {
@@ -32,40 +49,19 @@ public class Silence : SkillInBattle
                         parameter1.Add("LaunchedSkill", this);
                         parameter1.Add("EffectName", "Effect1");
                         parameter1.Add("SkillName", "silence_derive");
-                        parameter1.Add("SkillValue", GetSkillValue());
+                        parameter1.Add("SkillValue", launchMark);
                         parameter1.Add("Source", "Skill.Silence.Effect1");
 
                         ParameterNode parameterNode1 = parameterNode.AddNodeInMethod();
                         parameterNode1.parameter = parameter1;
 
                         yield return battleProcess.StartCoroutine(monsterInBattle.DoAction(monsterInBattle.AddSkill, parameterNode1));
-                        //yield return null;
                     }
                 }
             }
         }
 
-        List<string> needRemoveSource = new();
-        foreach (KeyValuePair<string, int> keyValuePair in sourceAndValue)
-        {
-            needRemoveSource.Add(keyValuePair.Key);
-        }
-
-        foreach (var item in needRemoveSource)
-        {
-            Dictionary<string, object> parameter2 = new();
-            parameter2.Add("LaunchedSkill", this);
-            parameter2.Add("EffectName", "Effect1");
-            parameter2.Add("SkillName", "silence");
-            parameter2.Add("Source", item);
-
-            ParameterNode parameterNode2 = new();
-            parameterNode2.parameter = parameter2;
-
-            MonsterInBattle monsterInBattle1 = gameObject.GetComponent<MonsterInBattle>();
-
-            yield return battleProcess.StartCoroutine(monsterInBattle1.DoAction(monsterInBattle1.DeleteSkillSource, parameterNode2));
-        }
+        launchMark = 0;
     }
 
     /// <summary>
@@ -79,6 +75,11 @@ public class Silence : SkillInBattle
         Player player = (Player)parameter["Player"];
 
         BattleProcess battleProcess = BattleProcess.GetInstance();
+
+        if (launchMark < 1)
+        {
+            return false;
+        }
 
         //消耗品物体
         if (result.ContainsKey("ConsumeBeGenerated"))

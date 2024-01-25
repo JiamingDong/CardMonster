@@ -17,16 +17,42 @@ public abstract class OpportunityEffect : MonoBehaviour
 
     void Start()
     {
-        //Debug.Log("初始化----" + GetType().Name);
+        BattleProcess battleProcess = BattleProcess.GetInstance();
+
         MethodInfo[] methodInfos = GetType().GetMethods();
         foreach (MethodInfo methodInfo in methodInfos)
         {
             Attribute[] attributes = Attribute.GetCustomAttributes(methodInfo);
             foreach (Attribute attribute in attributes)
             {
-                if (attribute is TriggerEffectAttribute)
+                if (attribute is TriggerEffectAttribute triggerEffectAttribute)
                 {
+                    battleProcess.effectOpportunityRecord.Add(triggerEffectAttribute.GetOpportunity());
+
                     effectList.Add((Func<ParameterNode, IEnumerator>)Delegate.CreateDelegate(typeof(Func<ParameterNode, IEnumerator>), this, methodInfo));
+                    break;
+                }
+            }
+        }
+    }
+
+    /// <summary>
+    /// 移除effectOpportunityRecord中的记录
+    /// </summary>
+    void OnDestroy()
+    {
+        BattleProcess battleProcess = BattleProcess.GetInstance();
+
+        MethodInfo[] methodInfos = GetType().GetMethods();
+        foreach (MethodInfo methodInfo in methodInfos)
+        {
+            Attribute[] attributes = Attribute.GetCustomAttributes(methodInfo);
+            foreach (Attribute attribute in attributes)
+            {
+                if (attribute is TriggerEffectAttribute triggerEffectAttribute)
+                {
+                    battleProcess?.effectOpportunityRecord.Remove(triggerEffectAttribute.GetOpportunity());
+
                     break;
                 }
             }

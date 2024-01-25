@@ -22,11 +22,6 @@ public class SkillUtils
     /// <returns></returns>
     public static bool IsBasicAttackEffect(SkillInBattle skillInBattle)
     {
-        string name = skillInBattle.GetType().Name;
-        if (name.Equals("Chance") || name.Equals("Magic") || name.Equals("Ranged") || name.Equals("Melee"))
-        {
-            return true;
-        }
-        return false;
+        return skillInBattle is Chance || skillInBattle is Magic || skillInBattle is Ranged || skillInBattle is Melee;
     }
 }

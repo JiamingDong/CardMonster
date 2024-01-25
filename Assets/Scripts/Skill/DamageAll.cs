@@ -9,7 +9,24 @@ using UnityEngine;
 /// 
 public class DamageAll : SkillInBattle
 {
-    [TriggerEffect(@"^After\.GameAction\.UseACard$",  "Compare1")]
+    int launchMark = 0;
+
+    public override int AddValue(string source, int value)
+    {
+        launchMark = value;
+
+        if (sourceAndValue.ContainsKey(source))
+        {
+            sourceAndValue[source] += value;
+        }
+        else
+        {
+            sourceAndValue.Add(source, value);
+        }
+        return GetSkillValue();
+    }
+
+    [TriggerEffect(@"^After\.GameAction\.UseACard$", "Compare1")]
     public IEnumerator Effect1(ParameterNode parameterNode)
     {
         Dictionary<string, object> parameter = parameterNode.parameter;
@@ -36,7 +53,7 @@ public class DamageAll : SkillInBattle
                         //受到伤害的怪兽
                         damageParameter.Add("EffectTarget", systemPlayerData.monsterGameObjectArray[j]);
                         //伤害数值
-                        damageParameter.Add("DamageValue", GetSkillValue());
+                        damageParameter.Add("DamageValue", launchMark);
                         //伤害类型
                         damageParameter.Add("DamageType", DamageType.Real);
 
@@ -49,6 +66,8 @@ public class DamageAll : SkillInBattle
                 }
             }
         }
+
+        launchMark = 0;
     }
 
     /// <summary>
@@ -62,6 +81,11 @@ public class DamageAll : SkillInBattle
         Player player = (Player)parameter["Player"];
 
         BattleProcess battleProcess = BattleProcess.GetInstance();
+
+        if (launchMark < 1)
+        {
+            return false;
+        }
 
         //消耗品物体
         if (result.ContainsKey("ConsumeBeGenerated"))
