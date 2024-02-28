@@ -55,26 +55,22 @@ public class Damage : SkillInBattle
             GameObject consumeBeGenerated = (GameObject)result["ConsumeBeGenerated"];
             if (consumeBeGenerated != gameObject)
             {
-                //Debug.Log("ÇÖÏ®1");
                 return false;
             }
         }
         else
         {
-            //Debug.Log("ÇÖÏ®2");
             return false;
         }
 
         if (player == targetPlayer)
         {
-            //Debug.Log("ÇÖÏ®3");
             return false;
         }
 
         GameObject consumeTarget = (GameObject)result["ConsumeTarget"];
         if (consumeTarget == null)
         {
-            //Debug.Log("ÇÖÏ®4");
             return false;
         }
 

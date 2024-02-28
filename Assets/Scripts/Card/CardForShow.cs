@@ -1,9 +1,6 @@
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
-using UnityEngine.EventSystems;
-using UnityEditor;
 using System;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -58,6 +55,11 @@ public class CardForShow : MonoBehaviour
     public RawImage lifeImage;
     public Text hPText;
 
+    /// <summary>
+    /// 原始卡牌数据
+    /// </summary>
+    public Dictionary<string, string> cardData;
+
     void Start()
     {
 
@@ -92,6 +94,9 @@ public class CardForShow : MonoBehaviour
     /// <param name="cardData">必须和从数据库取出的形式一样</param>
     public void SetAllAttribute(Dictionary<string, string> cardData)
     {
+        this.cardData = cardData;
+        gameObject.AddComponent<OpenCardDetailInterface>().cardData = cardData;
+
         id = cardData["CardID"];
         cardName = cardData["CardName"];
         type = cardData["CardType"];

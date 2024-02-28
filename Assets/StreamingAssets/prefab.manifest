@@ -1,15 +1,15 @@
 ManifestFileVersion: 0
-CRC: 1355114299
+CRC: 3448431010
 Hashes:
   AssetFileHash:
     serializedVersion: 2
-    Hash: 5b1223056e65d739a30876573131db03
+    Hash: f6baec88262244f50eb55ffa241012fc
   TypeTreeHash:
     serializedVersion: 2
-    Hash: 75a00c0da9de62212ffa0948774409ab
+    Hash: cec24ae684e39109f98633083f2390ce
   IncrementalBuildHash:
     serializedVersion: 2
-    Hash: 5b1223056e65d739a30876573131db03
+    Hash: f6baec88262244f50eb55ffa241012fc
 HashAppended: 0
 ClassTypes:
 - Class: 1
@@ -35,49 +35,59 @@ ClassTypes:
 - Class: 114
   Script: {fileID: 11500000, guid: cfabb0440166ab443bba8876756fdfa9, type: 3}
 - Class: 114
-  Script: {fileID: 11500000, guid: 9321f2c84810ec74cac024ce93aa0526, type: 3}
-- Class: 114
-  Script: {fileID: 11500000, guid: 0d6ffbe983bd03740a9c655267267936, type: 3}
-- Class: 114
   Script: {fileID: 11500000, guid: 02baa09b26f36a4468ea7034cccb01b6, type: 3}
-- Class: 114
-  Script: {fileID: 11500000, guid: 3c87178be58a3d743aeb8eb2866dfed2, type: 3}
-- Class: 114
-  Script: {fileID: 11500000, guid: 5f7201a12d95ffc409449d95f23cf332, type: 3}
 - Class: 114
   Script: {fileID: 11500000, guid: 1344c3c82d62a2a41a3576d8abb8e3ea, type: 3}
 - Class: 114
-  Script: {fileID: 11500000, guid: 07832697e877d6b46ac95e91d64507fd, type: 3}
-- Class: 114
   Script: {fileID: 11500000, guid: 7fa129d7d60e4eb48b5f400b45b5bdae, type: 3}
-- Class: 114
-  Script: {fileID: 11500000, guid: 11f0d33fe506c044f9836a996518683b, type: 3}
-- Class: 114
-  Script: {fileID: 11500000, guid: 50390d35308a54e47ae4e9be5d22f81e, type: 3}
 - Class: 114
   Script: {fileID: 11500000, guid: dc42784cf147c0c48a680349fa168899, type: 3}
 - Class: 114
   Script: {fileID: 11500000, guid: 09cf7be73c712374284abe6a63ad634f, type: 3}
 - Class: 114
-  Script: {fileID: 11500000, guid: e663135b90f48cf4c8c5e93a550e161e, type: 3}
-- Class: 114
   Script: {fileID: 11500000, guid: 4e29b1a8efbd4b44bb3f3716e73f07ff, type: 3}
 - Class: 114
-  Script: {fileID: 11500000, guid: e19747de3f5aca642ab2be37e372fb86, type: 3}
-- Class: 114
   Script: {fileID: 11500000, guid: 666d2b895ad9c4542b581e32b66884d5, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: f124a99b2d46ae14e9b44c49df4dc9c0, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: 72bba5c261484e049a11626d469326c6, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: 31a19414c41e5ae4aae2af33fee712f6, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: 3312d7739989d2b4e91e6319e9a96d76, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: bdd90afd4a196fd419666392338123d2, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: 9321f2c84810ec74cac024ce93aa0526, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: 0d6ffbe983bd03740a9c655267267936, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: 07cfe371bd9cc5e43bcffde6ebc7b89b, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: 3c87178be58a3d743aeb8eb2866dfed2, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: 5f7201a12d95ffc409449d95f23cf332, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: 07832697e877d6b46ac95e91d64507fd, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: 11f0d33fe506c044f9836a996518683b, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: 50390d35308a54e47ae4e9be5d22f81e, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: e663135b90f48cf4c8c5e93a550e161e, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: e19747de3f5aca642ab2be37e372fb86, type: 3}
 - Class: 114
   Script: {fileID: 11500000, guid: 617c7d28aae718b4cb1557187792b914, type: 3}
 - Class: 114
   Script: {fileID: 11500000, guid: 643787e34e2232a4096d9d6a819d68eb, type: 3}
 - Class: 114
-  Script: {fileID: 11500000, guid: f124a99b2d46ae14e9b44c49df4dc9c0, type: 3}
-- Class: 114
   Script: {fileID: 11500000, guid: 29e6693f5b0e0ab4bb41f1349f86b56b, type: 3}
 - Class: 114
-  Script: {fileID: 11500000, guid: 1aa08ab6e0800fa44ae55d278d1423e3, type: 3}
+  Script: {fileID: 11500000, guid: c12eb26d174be064896a45eac723dc83, type: 3}
 - Class: 114
-  Script: {fileID: 11500000, guid: 3312d7739989d2b4e91e6319e9a96d76, type: 3}
+  Script: {fileID: 11500000, guid: 1aa08ab6e0800fa44ae55d278d1423e3, type: 3}
 - Class: 114
   Script: {fileID: 11500000, guid: bbfd1340dc09664408d800528325067c, type: 3}
 - Class: 114
@@ -86,10 +96,6 @@ ClassTypes:
   Script: {fileID: 11500000, guid: 15da128f78466f24db40e9e0aebe8aaa, type: 3}
 - Class: 114
   Script: {fileID: 11500000, guid: 3ccdcc55d399c6749a9b68d1e450b1e6, type: 3}
-- Class: 114
-  Script: {fileID: 11500000, guid: bdd90afd4a196fd419666392338123d2, type: 3}
-- Class: 114
-  Script: {fileID: 11500000, guid: 07cfe371bd9cc5e43bcffde6ebc7b89b, type: 3}
 - Class: 114
   Script: {fileID: 11500000, guid: 70cf67ecf8726d7498ecdccd9c4a6362, type: 3}
 - Class: 115
@@ -129,6 +135,7 @@ SerializeReferenceClassIdentifiers:
   ClassName: UnityEngine.UI.SpriteState
 Assets:
 - Assets/Prefabs/CardInDeckPrefab.prefab
+- Assets/Prefabs/CardDetailInterface/CardDetailInterfacePrefab.prefab
 - Assets/Prefabs/Collection/SwitchDeckPrefab.prefab
 - Assets/Prefabs/LaunchSkillPrefab.prefab
 - Assets/Prefabs/NonBasicSkillInBattlePrefab.prefab
@@ -143,6 +150,7 @@ Assets:
 - Assets/Prefabs/Battle/AllyRoundPrefab.prefab
 - Assets/Prefabs/Battle/SelectEliteKindPrefab.prefab
 - Assets/Prefabs/Battle/GameDefeatParfab.prefab
+- Assets/Prefabs/CardDetailInterface/SkillInCardDetailPrefab.prefab
 - Assets/Prefabs/Battle/HealthValueChangePrefab.prefab
 - Assets/Prefabs/Collection/HeroSKillDetailPrefab.prefab
 - Assets/Prefabs/HeroBigImagePrefab.prefab

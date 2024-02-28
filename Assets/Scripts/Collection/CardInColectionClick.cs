@@ -10,7 +10,6 @@ using UnityEngine.UI;
 public class CardInColectionClick : MonoBehaviour
 {
     public string cardId;
-    //public bool monsterOrItemInDeck;//怪兽还是道具，true怪兽，false道具
 
     /// <summary>
     /// 上阵卡牌
@@ -38,14 +37,12 @@ public class CardInColectionClick : MonoBehaviour
                     //已在卡组则结束
                     if (cardId.Equals(deckInCollection.monsterCardInDeck[i]))
                     {
-                        //Debug.Log(2);
                         goto end;
                     }
 
                     //这个位置没卡
                     if (deckInCollection.monsterCardInDeck[i].Equals(""))
                     {
-                        //Debug.Log(3);
                         if (insertIndex == -1)
                         {
                             insertIndex = i;
@@ -61,8 +58,7 @@ public class CardInColectionClick : MonoBehaviour
                     //如果这个位置的卡的其中一个颜色不在点击的卡的颜色里面就结束
                     foreach (KeyValuePair<string, string> keyValuePair in cardKind2)
                     {
-                        //Debug.Log(keyValuePair + "----" + leftKind + "----" + rightKind);
-                        if (!keyValuePair.Value.Equals(leftKind) && !keyValuePair.Value.Equals(rightKind))
+                        if (keyValuePair.Value != "all" && !keyValuePair.Value.Equals(leftKind) && !keyValuePair.Value.Equals(rightKind))
                         {
                             goto end;
                         }
@@ -129,7 +125,6 @@ public class CardInColectionClick : MonoBehaviour
                 }
             }
 
-            //Debug.Log(insertIndex);
             if (insertIndex != -1)
             {
                 deckInCollection.monsterCardInDeck[insertIndex] = cardId;

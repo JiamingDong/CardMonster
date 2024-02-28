@@ -248,7 +248,7 @@ public class SocketTool
                 BinaryFormatter bf = new();
                 NetworkMessage message = bf.Deserialize(memory) as NetworkMessage;
 
-                Debug.Log(message.Type);
+                //Debug.Log(message.Type);
                 if (message.Type == NetworkMessageType.ExitBattle)
                 {
                     enemyExitMessageQueue.Enqueue(message);

@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using UnityEngine;
 
 /// <summary>
 /// 所有在场上的卡牌技能、英雄技能的父类
@@ -37,7 +36,6 @@ public abstract class SkillInBattle : OpportunityEffect
     /// <param name="value">数值</param>
     public virtual int AddValue(string source, int value)
     {
-        //Debug.Log(GetType().Name + "----" + source + "----" + value);
         if (sourceAndValue.ContainsKey(source))
         {
             sourceAndValue[source] += value;
@@ -55,9 +53,6 @@ public abstract class SkillInBattle : OpportunityEffect
     /// <param name="source">来源</param>
     public void RemoveValue(string source)
     {
-        if (sourceAndValue.ContainsKey(source))
-        {
-            sourceAndValue.Remove(source);
-        }
+        sourceAndValue.Remove(source);
     }
 }

@@ -7,7 +7,83 @@ using System.Collections.Generic;
 /// </summary>
 public class HealShieldDerive : SkillInBattle
 {
-    [TriggerEffect("^AfterRoundBattle$", "Compare1")]
+    int skillValue = 0;
+    string shieldKind = "";
+
+    public override int AddValue(string source, int value)
+    {
+        if (sourceAndValue.Count == 0)
+        {
+            sourceAndValue.Add(source, value);
+        }
+        return GetSkillValue();
+    }
+
+    /// <summary>
+    /// 第一次获得此技能时，获得护盾
+    /// </summary>
+    [TriggerEffect(@"^After\.MonsterInBattle\.AddSkill$", "Compare1")]
+    public IEnumerator Effect1(ParameterNode parameterNode)
+    {
+        BattleProcess battleProcess = BattleProcess.GetInstance();
+
+        MonsterInBattle monsterInBattle = gameObject.GetComponent<MonsterInBattle>();
+
+        int r = RandomUtils.GetRandomNumber(1, 3);
+        switch (r)
+        {
+            case 1:
+                shieldKind = "shield";
+                break;
+            case 2:
+                shieldKind = "magic_shield";
+                break;
+            case 3:
+                shieldKind = "power_shield";
+                break;
+        }
+
+        Dictionary<string, object> parameter1 = new();
+        parameter1.Add("LaunchedSkill", this);
+        parameter1.Add("EffectName", "Effect1");
+        parameter1.Add("SkillValue", GetSkillValue());
+        parameter1.Add("Source", "Skill.HealShieldDerive.Effect1");
+        parameter1.Add("SkillName", shieldKind);
+
+        ParameterNode parameterNode1 = parameterNode.AddNodeInMethod();
+        parameterNode1.parameter = parameter1;
+
+        yield return battleProcess.StartCoroutine(monsterInBattle.DoAction(monsterInBattle.AddSkill, parameterNode1));
+
+        skillValue = GetSkillValue();
+    }
+
+    /// <summary>
+    /// 判断是否是此卡、技能是不是此技能、是否已经获取过这个技能
+    /// </summary>
+    public bool Compare1(ParameterNode parameterNode)
+    {
+        MonsterInBattle monsterInBattle = (MonsterInBattle)parameterNode.creator;
+        Dictionary<string, object> parameter = parameterNode.parameter;
+        string skillName = (string)parameter["SkillName"];
+
+        if (monsterInBattle.gameObject != gameObject || skillName != "heal_shield_derive")
+        {
+            return false;
+        }
+
+        if (skillValue > 0)
+        {
+            return false;
+        }
+
+        return true;
+    }
+
+    /// <summary>
+    /// 删除此技能前，删除来自此技能的护盾
+    /// </summary>
+    [TriggerEffect(@"^Before\.MonsterInBattle\.DeleteSkillSource$", "Compare2")]
     public IEnumerator Effect2(ParameterNode parameterNode)
     {
         BattleProcess battleProcess = BattleProcess.GetInstance();
@@ -16,40 +92,42 @@ public class HealShieldDerive : SkillInBattle
 
         Dictionary<string, object> parameter1 = new();
         parameter1.Add("LaunchedSkill", this);
-        parameter1.Add("EffectName", "Effect1");
-        parameter1.Add("SkillName", "shield");
-        parameter1.Add("Source", "Skill.HealShield.Effect1");
+        parameter1.Add("EffectName", "Effect2");
+        parameter1.Add("SkillName", shieldKind);
+        parameter1.Add("Source", "Skill.HealShieldDerive.Effect1");
 
         ParameterNode parameterNode1 = parameterNode.AddNodeInMethod();
         parameterNode1.parameter = parameter1;
 
         yield return battleProcess.StartCoroutine(monsterInBattle.DoAction(monsterInBattle.DeleteSkillSource, parameterNode1));
+    }
 
-        Dictionary<string, object> parameter2 = new();
-        parameter2.Add("LaunchedSkill", this);
-        parameter2.Add("EffectName", "Effect1");
-        parameter2.Add("SkillName", "magic_shield");
-        parameter2.Add("Source", "Skill.HealShield.Effect1");
+    /// <summary>
+    /// 判断是否是此卡、技能是不是此技能
+    /// </summary>
+    public bool Compare2(ParameterNode parameterNode)
+    {
+        MonsterInBattle monsterInBattle = (MonsterInBattle)parameterNode.creator;
+        Dictionary<string, object> parameter = parameterNode.parameter;
+        string skillName = (string)parameter["SkillName"];
+        string source = (string)parameter["Source"];
 
-        ParameterNode parameterNode2 = parameterNode.AddNodeInMethod();
-        parameterNode2.parameter = parameter2;
+        Dictionary<string, int> keyValuePairs = new(sourceAndValue);
+        keyValuePairs.Remove(source);
 
-        yield return battleProcess.StartCoroutine(monsterInBattle.DoAction(monsterInBattle.DeleteSkillSource, parameterNode2));
+        return monsterInBattle.gameObject == gameObject && skillName == "heal_shield_derive" && keyValuePairs.Count == 0;
+    }
 
-        Dictionary<string, object> parameter3 = new();
-        parameter3.Add("LaunchedSkill", this);
-        parameter3.Add("EffectName", "Effect1");
-        parameter3.Add("SkillName", "power_shield");
-        parameter3.Add("Source", "Skill.HealShield.Effect1");
+    [TriggerEffect("^AfterRoundBattle$", "Compare3")]
+    public IEnumerator Effect3(ParameterNode parameterNode)
+    {
+        BattleProcess battleProcess = BattleProcess.GetInstance();
 
-        ParameterNode parameterNode3 = parameterNode.AddNodeInMethod();
-        parameterNode3.parameter = parameter3;
-
-        yield return battleProcess.StartCoroutine(monsterInBattle.DoAction(monsterInBattle.DeleteSkillSource, parameterNode3));
+        MonsterInBattle monsterInBattle = gameObject.GetComponent<MonsterInBattle>();
 
         Dictionary<string, object> parameter4 = new();
         parameter4.Add("LaunchedSkill", this);
-        parameter4.Add("EffectName", "Effect1");
+        parameter4.Add("EffectName", "Effect3");
         parameter4.Add("SkillName", "heal_shield_derive");
         parameter4.Add("Source", "Skill.HealShield.Effect1");
 
@@ -57,13 +135,12 @@ public class HealShieldDerive : SkillInBattle
         parameterNode4.parameter = parameter4;
 
         yield return battleProcess.StartCoroutine(monsterInBattle.DoAction(monsterInBattle.DeleteSkillSource, parameterNode4));
-        //yield return null;
     }
 
     /// <summary>
     /// 判断是否是对方回合
     /// </summary>
-    public bool Compare1(ParameterNode parameterNode)
+    public bool Compare3(ParameterNode parameterNode)
     {
         BattleProcess battleProcess = BattleProcess.GetInstance();
 

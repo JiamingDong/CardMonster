@@ -1,5 +1,9 @@
+using System.Collections.Generic;
+
 public class SkillUtils
 {
+    public static HashSet<string> basicAttackEffectSet = new() { "magic", "melee", "ranged", "chance" };
+
     /// <summary>
     /// 获得技能类型
     /// </summary>

@@ -50,7 +50,7 @@ public class RainbowBlast : SkillInBattle
                     {
                         Dictionary<string, string> cardConfig = Database.cardMonster.Query("AllCardConfig", "and CardID='" + monsterDeck[k] + "'")[0];
                         string kind = cardConfig["CardKind"];
-                        Debug.Log(kind);
+                        //Debug.Log(kind);
                         Dictionary<string, string> keyValuePairs = JsonConvert.DeserializeObject<Dictionary<string, string>>(kind);
                         foreach (var item in keyValuePairs)
                         {
@@ -62,12 +62,6 @@ public class RainbowBlast : SkillInBattle
                     }
                 }
             }
-        }
-
-        Debug.Log("²Êºç³å»÷");
-        foreach (var item in set)
-        {
-            Debug.Log(item);
         }
 
         for (int i = 0; i < battleProcess.systemPlayerData.Length; i++)
@@ -162,15 +156,6 @@ public class RainbowBlast : SkillInBattle
         else
         {
             return false;
-        }
-
-        for (int i = 0; i < battleProcess.systemPlayerData.Length; i++)
-        {
-            PlayerData systemPlayerData = battleProcess.systemPlayerData[i];
-            if (systemPlayerData.perspectivePlayer != player && systemPlayerData.monsterGameObjectArray[0] == null)
-            {
-                return false;
-            }
         }
 
         return true;

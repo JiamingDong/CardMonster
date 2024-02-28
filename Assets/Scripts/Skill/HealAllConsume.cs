@@ -72,11 +72,6 @@ public class HealAllConsume : SkillInBattle
     public bool Compare1(ParameterNode parameterNode)
     {
         Dictionary<string, object> result = parameterNode.Parent.EffectChild.nodeInMethodList[1].EffectChild.result;
-        Dictionary<string, object> parameter = parameterNode.parameter;
-        //使用手牌的玩家
-        Player player = (Player)parameter["Player"];
-
-        BattleProcess battleProcess = BattleProcess.GetInstance();
 
         if (launchMark < 1)
         {
@@ -115,15 +110,6 @@ public class HealAllConsume : SkillInBattle
         else
         {
             return false;
-        }
-
-        for (int i = 0; i < battleProcess.systemPlayerData.Length; i++)
-        {
-            PlayerData systemPlayerData = battleProcess.systemPlayerData[i];
-            if (systemPlayerData.perspectivePlayer == player && systemPlayerData.monsterGameObjectArray[0] == null)
-            {
-                return false;
-            }
         }
 
         return true;

@@ -23,9 +23,9 @@ public class RabbitTricky : SkillInBattle
         cardData.Add("CardRace", null);
         cardData.Add("CardHP", "7");
         cardData.Add("CardFlags", null);
-        cardData.Add("CardSkinID", "150072");
+        cardData.Add("CardSkinID", "151061");
         cardData.Add("CardCost", "2");
-        cardData.Add("CardSkill", "{\"magic\":2,\"melee\":1,\"final_doll\":5}");
+        cardData.Add("CardSkill", "{\"magic\":2,\"melee\":1,\"final_doll\":4}");
         cardData.Add("CardEliteSkill", null);
 
         Dictionary<string, object> parameter = new();

@@ -563,119 +563,6 @@ public class RuleEvent : OpportunityEffect
     }
 
     /// <summary>
-    /// 触发手牌中的“额外水晶”
-    /// </summary>
-    /// <param name="parameterNode"></param>
-    /// <returns></returns>
-    [TriggerEffect(@"^Before\.GameAction\.Sacrifice$", "Compare2")]
-    public IEnumerator Crystal(ParameterNode parameterNode)
-    {
-        Dictionary<string, object> parameter = parameterNode.parameter;
-        int objectBeSacrificedNumber = (int)parameter["ObjectBeSacrificedNumber"];
-        Player player = (Player)parameter["Player"];
-
-        BattleProcess battleProcess = BattleProcess.GetInstance();
-        GameAction gameAction = GameAction.GetInstance();
-
-        foreach (PlayerData playerData in battleProcess.systemPlayerData)
-        {
-            if (playerData.perspectivePlayer == player)
-            {
-                Dictionary<string, string> handCard = null;
-                switch (objectBeSacrificedNumber)
-                {
-                    case 0:
-                        handCard = playerData.handMonster[0];
-                        break;
-                    case 1:
-                        handCard = playerData.handMonster[1];
-                        break;
-                    case 2:
-                        handCard = playerData.handItem[0];
-                        break;
-                    case 3:
-                        handCard = playerData.handItem[1];
-                        break;
-                }
-
-                string cardP = handCard["CardSkill"];
-                Dictionary<string, object> pd = JsonConvert.DeserializeObject<Dictionary<string, object>>(cardP);
-
-                int crystalAmount = Convert.ToInt32(pd["crystal"]);
-
-                Dictionary<string, object> parameter1 = new();
-                parameter1.Add("CrystalAmount", crystalAmount);
-                parameter1.Add("Player", player);
-
-                ParameterNode parameterNode1 = parameterNode.AddNodeInMethod();
-                parameterNode1.parameter = parameter1;
-
-                yield return battleProcess.StartCoroutine(gameAction.DoAction(gameAction.ChangeCrystalAmount, parameterNode1));
-                break;
-            }
-        }
-
-        yield return null;
-    }
-
-    /// <summary>
-    /// 判断是否是手牌，且拥有“额外水晶”
-    /// </summary>
-    /// <param name="condition"></param>
-    /// <returns></returns>
-    public bool Compare2(ParameterNode parameterNode)
-    {
-        Dictionary<string, object> parameter = parameterNode.parameter;
-        int objectBeSacrificedNumber = (int)parameter["ObjectBeSacrificedNumber"];
-        Player player = (Player)parameter["Player"];
-
-        BattleProcess battleProcess = BattleProcess.GetInstance();
-
-        if (objectBeSacrificedNumber >= 0 && objectBeSacrificedNumber <= 3)
-        {
-            foreach (PlayerData playerData in battleProcess.systemPlayerData)
-            {
-                if (playerData.perspectivePlayer == player)
-                {
-                    Dictionary<string, string> handCard = null;
-                    switch (objectBeSacrificedNumber)
-                    {
-                        case 0:
-                            handCard = playerData.handMonster[0];
-                            break;
-                        case 1:
-                            handCard = playerData.handMonster[1];
-                            break;
-                        case 2:
-                            handCard = playerData.handItem[0];
-                            break;
-                        case 3:
-                            handCard = playerData.handItem[1];
-                            break;
-                    }
-
-                    if (handCard != null)
-                    {
-                        string cardP = handCard["CardSkill"];
-                        if (cardP != null && !cardP.Equals(""))
-                        {
-                            Dictionary<string, object> pd = JsonConvert.DeserializeObject<Dictionary<string, object>>(cardP);
-                            if (pd.ContainsKey("crystal") && Convert.ToInt32(pd["crystal"]) > 0)
-                            {
-                                return true;
-                            }
-                        }
-                    }
-
-                    break;
-                }
-            }
-        }
-
-        return false;
-    }
-
-    /// <summary>
     /// 使用一张卡牌
     /// </summary>
     /// <param name="parameterNode"></param>
@@ -866,7 +753,7 @@ public class RuleEvent : OpportunityEffect
     /// <summary>
     /// 护甲为0消灭装备
     /// </summary>
-    [TriggerEffect(@"^After\.MonsterInBattle\.AddSkill", "Compare5")]
+    [TriggerEffect(@"^After\.MonsterInBattle\.AddSkill$", "Compare5")]
     public IEnumerator DestoryEquipmentForNoArmor(ParameterNode parameterNode)
     {
         MonsterInBattle monsterInBattle = (MonsterInBattle)parameterNode.Parent.creator;
@@ -885,7 +772,6 @@ public class RuleEvent : OpportunityEffect
         parameterNode1.parameter = parameter1;
 
         yield return battleProcess.StartCoroutine(gameAction.DoAction(gameAction.DestroyEquipment, parameterNode1));
-        yield return null;
     }
 
     /// <summary>
@@ -897,7 +783,17 @@ public class RuleEvent : OpportunityEffect
         Dictionary<string, object> parameter = parameterNode.parameter;
         string skillName = (string)parameter["SkillName"];
 
-        return skillName == "armor" && !monsterInBattle.gameObject.TryGetComponent(out Armor _);
+        if (skillName != "armor")
+        {
+            return false;
+        }
+
+        if (monsterInBattle.gameObject.TryGetComponent(out Armor armor) && armor.GetSkillValue() > 0)
+        {
+            return false;
+        }
+
+        return true;
     }
 
     /// <summary>

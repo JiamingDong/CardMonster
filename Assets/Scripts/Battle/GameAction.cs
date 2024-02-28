@@ -189,7 +189,6 @@ public class GameAction : MonoBehaviour
         parameterNode2.parameter = parameter2;
 
         yield return StartCoroutine(DoAction(ChangeCrystalAmount, parameterNode2));
-        //yield return null;
 
         //怪兽
         if (cardData["CardType"].Equals("monster"))
@@ -281,7 +280,6 @@ public class GameAction : MonoBehaviour
                         parameterNode2.parameter = moveParameter;
 
                         yield return StartCoroutine(DoAction(MoveMonsterPosition, parameterNode2));
-                        //yield return null;
                     }
                 }
 
@@ -290,11 +288,12 @@ public class GameAction : MonoBehaviour
                 GameObject cardInBattle = Instantiate(cardInBattlePrefab, battlePanel.transform);
                 cardInBattle.GetComponent<Transform>().localPosition = new Vector3(0, 0, 0);
                 yield return cardInBattle;
+
+                playerData.monsterGameObjectArray[battlePanelNumber] = cardInBattle;
+
                 yield return StartCoroutine(cardInBattle.GetComponent<MonsterInBattle>().Generate(cardData));
                 GameObject cardCanvas = cardInBattle.transform.GetChild(0).gameObject;
                 cardCanvas.GetComponent<RectTransform>().localScale = new Vector3(1, 1, 1);
-
-                playerData.monsterGameObjectArray[battlePanelNumber] = cardInBattle;
 
                 result.Add("MonsterBeGenerated", cardInBattle);
                 yield break;
@@ -325,12 +324,11 @@ public class GameAction : MonoBehaviour
     /// </summary>
     public IEnumerator ConsumeEnterBattle(ParameterNode parameterNode)
     {
-        //Debug.Log("消耗品进入战场");
         Dictionary<string, object> parameter = parameterNode.parameter;
         Dictionary<string, object> result = parameterNode.result;
         Player player = (Player)parameter["Player"];
         int battlePanelNumber = (int)parameter["BattlePanelNumber"];
-        Dictionary<string, string> CardData = (Dictionary<string, string>)parameter["CardData"];
+        Dictionary<string, string> cardData = (Dictionary<string, string>)parameter["CardData"];
         Player targetPlayer = (Player)parameter["TargetPlayer"];
 
         BattleProcess battleProcess = BattleProcess.GetInstance();
@@ -349,8 +347,8 @@ public class GameAction : MonoBehaviour
                 consume.GetComponent<Transform>().localScale = new Vector3(0.8f, 0.8f, 1);
                 yield return consume;
 
-                consume.GetComponent<CardForShow>().SetAllAttribute(CardData);
-                StartCoroutine(consume.AddComponent<ConsumeInBattle>().Generate(CardData));
+                consume.GetComponent<CardForShow>().SetAllAttribute(cardData);
+                StartCoroutine(consume.AddComponent<ConsumeInBattle>().Generate(cardData));
                 GameObject cardCanvas = consume.transform.Find("Canvas").gameObject;
                 RectTransform rectTransform = cardCanvas.GetComponent<RectTransform>();
                 rectTransform.sizeDelta = new Vector2(220.5f, 308);
@@ -366,6 +364,28 @@ public class GameAction : MonoBehaviour
             {
                 GameObject targetMonster = playerData.monsterGameObjectArray[battlePanelNumber];
                 result.Add("ConsumeTarget", targetMonster);
+            }
+        }
+    }
+
+    /// <summary>
+    /// 消耗品离场
+    /// </summary>
+    public IEnumerator ConsumeLeave(ParameterNode parameterNode)
+    {
+        Dictionary<string, object> parameter = parameterNode.parameter;
+        Player player = (Player)parameter["Player"];
+
+        BattleProcess battleProcess = BattleProcess.GetInstance();
+
+        for (int i = 0; i < battleProcess.systemPlayerData.Length; i++)
+        {
+            PlayerData playerData = battleProcess.systemPlayerData[i];
+            if (playerData.perspectivePlayer == player)
+            {
+                Destroy(playerData.consumeGameObject);
+                playerData.consumeGameObject = null;
+                yield break;
             }
         }
     }
@@ -1248,12 +1268,13 @@ public class GameAction : MonoBehaviour
     /// <summary>
     /// 献祭
     /// ObjectBeSacrificedNumber 手牌位置的序号，01怪兽，23道具，456场上怪兽
+    /// 献祭手牌时，先获取水晶再销毁手牌，献祭场上怪兽时，先销毁怪兽再
     /// </summary>
-    /// <param name="parameter"></param>
-    /// <returns></returns>
     public IEnumerator Sacrifice(ParameterNode parameterNode)
     {
         Dictionary<string, object> parameter = parameterNode.parameter;
+        Dictionary<string, object> result = parameterNode.result;
+
         int objectBeSacrificedNumber = (int)parameter["ObjectBeSacrificedNumber"];
         Player player = (Player)parameter["Player"];
 
@@ -1278,6 +1299,49 @@ public class GameAction : MonoBehaviour
 
                 systemPlayerData.canSacrifice = false;
 
+                //记录被献祭卡牌上额外水晶的值
+                if (objectBeSacrificedNumber >= 0 && objectBeSacrificedNumber < 4)
+                {
+                    Dictionary<string, string> handCard = null;
+                    switch (objectBeSacrificedNumber)
+                    {
+                        case 0:
+                            handCard = systemPlayerData.handMonster[0];
+                            break;
+                        case 1:
+                            handCard = systemPlayerData.handMonster[1];
+                            break;
+                        case 2:
+                            handCard = systemPlayerData.handItem[0];
+                            break;
+                        case 3:
+                            handCard = systemPlayerData.handItem[1];
+                            break;
+                    }
+
+                    string cardP = handCard["CardSkill"];
+                    if (!string.IsNullOrEmpty(cardP))
+                    {
+                        Dictionary<string, object> pd = JsonConvert.DeserializeObject<Dictionary<string, object>>(cardP);
+
+                        if (pd.ContainsKey("crystal"))
+                        {
+                            int skillValue = Convert.ToInt32(pd["crystal"]);
+
+                            result["CrystalSkillValue"] = skillValue;
+                        }
+                    }
+                }
+                else
+                {
+                    int t = objectBeSacrificedNumber - 4;
+
+                    if (systemPlayerData.monsterGameObjectArray[t].TryGetComponent(out Crystal crystal))
+                    {
+                        result["CrystalSkillValue"] = crystal.GetSkillValue();
+                    }
+                }
+
                 //被献祭的是手牌怪兽
                 if (objectBeSacrificedNumber >= 0 && objectBeSacrificedNumber <= 1)
                 {
@@ -1294,18 +1358,18 @@ public class GameAction : MonoBehaviour
                     parameterNode1.parameter = destroyAHandCardParameter;
 
                     yield return StartCoroutine(DoAction(DestroyAHandCard, parameterNode1));
-                    yield return null;
 
                     //获得水晶
-                    Dictionary<string, object> parameter1 = new();
-                    parameter1.Add("CrystalAmount", 2);
-                    parameter1.Add("Player", player);
+                    Dictionary<string, object> parameter2 = new();
+                    parameter2.Add("LaunchedSkill", this);
+                    parameter2.Add("EffectName", "Sacrifice");
+                    parameter2.Add("CrystalAmount", 2);
+                    parameter2.Add("Player", player);
 
                     ParameterNode parameterNode2 = parameterNode.AddNodeInMethod();
-                    parameterNode2.parameter = parameter1;
+                    parameterNode2.parameter = parameter2;
 
                     yield return StartCoroutine(DoAction(ChangeCrystalAmount, parameterNode2));
-                    yield return null;
                 }
 
                 //被献祭的是手牌装备
@@ -1324,18 +1388,18 @@ public class GameAction : MonoBehaviour
                     parameterNode3.parameter = destroyAHandCardParameter;
 
                     yield return StartCoroutine(DoAction(DestroyAHandCard, parameterNode3));
-                    yield return null;
 
                     //获得水晶
-                    Dictionary<string, object> parameter1 = new();
-                    parameter1.Add("CrystalAmount", 1);
-                    parameter1.Add("Player", player);
+                    Dictionary<string, object> parameter4 = new();
+                    parameter4.Add("LaunchedSkill", this);
+                    parameter4.Add("EffectName", "Sacrifice");
+                    parameter4.Add("CrystalAmount", 1);
+                    parameter4.Add("Player", player);
 
                     ParameterNode parameterNode4 = parameterNode.AddNodeInMethod();
-                    parameterNode4.parameter = parameter1;
+                    parameterNode4.parameter = parameter4;
 
                     yield return StartCoroutine(DoAction(ChangeCrystalAmount, parameterNode4));
-                    yield return null;
                 }
 
                 //被献祭的是场上怪兽
@@ -1348,24 +1412,26 @@ public class GameAction : MonoBehaviour
                     MonsterInBattle monsterInBattle = go.GetComponent<MonsterInBattle>();
                     battleProcess.Log($"<color={color}>{playerC}</color>献祭场上怪兽<color=#ffff00>{monsterInBattle.cardName}</color>");
 
-                    Dictionary<string, object> parameter2 = new();
-                    parameter2.Add("EffectTarget", go);
+                    //怪兽离场
+                    Dictionary<string, object> parameter6 = new();
+                    parameter6.Add("EffectTarget", go);
 
                     ParameterNode parameterNode6 = parameterNode.AddNodeInMethod();
-                    parameterNode6.parameter = parameter2;
+                    parameterNode6.parameter = parameter6;
 
                     yield return StartCoroutine(DoAction(MonsterLeave, parameterNode6));
 
                     //获得水晶
-                    Dictionary<string, object> parameter1 = new();
-                    parameter1.Add("CrystalAmount", 1);
-                    parameter1.Add("Player", systemPlayerData.perspectivePlayer);
+                    Dictionary<string, object> parameter5 = new();
+                    parameter5.Add("LaunchedSkill", this);
+                    parameter5.Add("EffectName", "Sacrifice");
+                    parameter5.Add("CrystalAmount", 1);
+                    parameter5.Add("Player", systemPlayerData.perspectivePlayer);
 
                     ParameterNode parameterNode5 = parameterNode.AddNodeInMethod();
-                    parameterNode5.parameter = parameter1;
+                    parameterNode5.parameter = parameter5;
 
                     yield return StartCoroutine(DoAction(ChangeCrystalAmount, parameterNode5));
-                    yield return null;
                 }
 
                 systemPlayerData.canUseHandCard = true;
@@ -1468,5 +1534,59 @@ public class GameAction : MonoBehaviour
         }
 
         yield return null;
+    }
+
+    /// <summary>
+    /// 添加玩家技能
+    /// </summary>
+    public IEnumerator AddPlayerSkill(ParameterNode parameterNode)
+    {
+        Dictionary<string, object> parameter = parameterNode.parameter;
+        Player player = (Player)parameter["Player"];
+        string skillName = (string)parameter["SkillName"];
+        int skillValue = (int)parameter["SkillValue"];
+        string source = (string)parameter["Source"];
+        object launchedSkill = parameter["LaunchedSkill"];
+
+        BattleProcess battleProcess = BattleProcess.GetInstance();
+
+        var skillConfig = Database.cardMonster.Query("AllSkillConfig", "and SkillEnglishName='" + skillName + "'")[0];
+        var skillClassName = skillConfig["SkillClassName"];
+        var skillType = skillConfig["TypeInBattle"];
+
+        for (int i = 0; i < battleProcess.systemPlayerData.Length; i++)
+        {
+            PlayerData playerData = battleProcess.systemPlayerData[i];
+            if (playerData.perspectivePlayer == player)
+            {
+                List<SkillInBattle> skillList = playerData.skillList;
+
+                //先看看是否已有这个技能
+                foreach (SkillInBattle skillInCard in skillList)
+                {
+                    if (skillInCard.GetType().Name.Equals(skillClassName))
+                    {
+                        int currentSkillValue = skillInCard.AddValue(source, skillValue);
+
+                        yield break;
+                    }
+                }
+
+                Type type = Type.GetType(skillClassName);
+
+                if (type != null)
+                {
+                    SkillInBattle skill = (SkillInBattle)gameObject.AddComponent(type);
+
+                    skillValue = skill.AddValue(source, skillValue);
+
+                    skillList.Add(skill);
+
+                    //排序
+                    skillList.Sort((a, b) => { return Convert.ToInt32(battleProcess.skillPriority[a.GetType().Name]) > Convert.ToInt32(battleProcess.skillPriority[b.GetType().Name]) ? 1 : -1; });
+                }
+
+            }
+        }
     }
 }

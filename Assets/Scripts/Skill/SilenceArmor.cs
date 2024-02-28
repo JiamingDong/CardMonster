@@ -17,7 +17,6 @@ public class SilenceArmor : SkillInBattle
         parameter["DamageValue"] = damageValue / 2;
 
         yield break;
-        //yield return null;
     }
 
     /// <summary>
@@ -28,6 +27,6 @@ public class SilenceArmor : SkillInBattle
         Dictionary<string, object> parameter = parameterNode.parameter;
         GameObject monsterBeHurt = (GameObject)parameter["EffectTarget"];
         DamageType damageType = (DamageType)parameter["DamageType"];
-        return damageType == DamageType.Magic && monsterBeHurt == gameObject;
+        return damageType == DamageType.Magic && monsterBeHurt == gameObject && !gameObject.TryGetComponent(out DragonBlood _);
     }
 }

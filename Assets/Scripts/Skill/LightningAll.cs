@@ -75,10 +75,6 @@ public class LightningAll : SkillInBattle
     public bool Compare1(ParameterNode parameterNode)
     {
         Dictionary<string, object> result = parameterNode.Parent.EffectChild.nodeInMethodList[1].EffectChild.result;
-        Dictionary<string, object> parameter = parameterNode.parameter;
-        Player player = (Player)parameter["Player"];
-
-        BattleProcess battleProcess = BattleProcess.GetInstance();
 
         if (launchMark < 1)
         {
@@ -100,7 +96,6 @@ public class LightningAll : SkillInBattle
             GameObject monsterBeGenerated = (GameObject)result["MonsterBeGenerated"];
             if (monsterBeGenerated != gameObject)
             {
-                Debug.Log("ÈºÌåÇÖÈ¾ÅÐ¶Ï2");
                 return false;
             }
         }
@@ -110,22 +105,12 @@ public class LightningAll : SkillInBattle
             GameObject monsterBeEquipped = (GameObject)result["MonsterBeEquipped"];
             if (monsterBeEquipped != gameObject)
             {
-                Debug.Log("ÈºÌåÇÖÈ¾ÅÐ¶Ï3");
                 return false;
             }
         }
         else
         {
             return false;
-        }
-
-        for (int i = 0; i < battleProcess.systemPlayerData.Length; i++)
-        {
-            PlayerData systemPlayerData = battleProcess.systemPlayerData[i];
-            if (systemPlayerData.perspectivePlayer != player && systemPlayerData.monsterGameObjectArray[0] == null)
-            {
-                return false;
-            }
         }
 
         return true;

@@ -71,16 +71,11 @@ public class DamageAll : SkillInBattle
     }
 
     /// <summary>
-    /// 判断是否被使用的是此卡、对方有没有怪兽
+    /// 判断是否被使用的是此卡
     /// </summary>
     public bool Compare1(ParameterNode parameterNode)
     {
         Dictionary<string, object> result = parameterNode.Parent.EffectChild.nodeInMethodList[1].EffectChild.result;
-        Dictionary<string, object> parameter = parameterNode.parameter;
-        //使用手牌的玩家
-        Player player = (Player)parameter["Player"];
-
-        BattleProcess battleProcess = BattleProcess.GetInstance();
 
         if (launchMark < 1)
         {
@@ -93,7 +88,6 @@ public class DamageAll : SkillInBattle
             GameObject consumeBeGenerated = (GameObject)result["ConsumeBeGenerated"];
             if (consumeBeGenerated != gameObject)
             {
-                //Debug.Log("群体侵袭1");
                 return false;
             }
         }
@@ -103,7 +97,6 @@ public class DamageAll : SkillInBattle
             GameObject monsterBeGenerated = (GameObject)result["MonsterBeGenerated"];
             if (monsterBeGenerated != gameObject)
             {
-                //Debug.Log("群体侵染判断2");
                 return false;
             }
         }
@@ -113,24 +106,12 @@ public class DamageAll : SkillInBattle
             GameObject monsterBeEquipped = (GameObject)result["MonsterBeEquipped"];
             if (monsterBeEquipped != gameObject)
             {
-                //Debug.Log("群体侵染判断3");
                 return false;
             }
         }
         else
         {
-            //Debug.Log("群体侵袭2");
             return false;
-        }
-
-        for (int i = 0; i < battleProcess.systemPlayerData.Length; i++)
-        {
-            PlayerData systemPlayerData = battleProcess.systemPlayerData[i];
-            if (systemPlayerData.perspectivePlayer != player && systemPlayerData.monsterGameObjectArray[0] == null)
-            {
-                //Debug.Log("群体侵袭3");
-                return false;
-            }
         }
 
         return true;

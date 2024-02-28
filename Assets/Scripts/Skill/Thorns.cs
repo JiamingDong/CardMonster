@@ -46,7 +46,7 @@ public class Thorns : SkillInBattle
         SkillInBattle skillInBattle = (SkillInBattle)parameter["LaunchedSkill"];
         string effectName = (string)parameter["EffectName"];
 
-        if (monsterBeHurt == gameObject && skillInBattle is Melee && effectName.Equals("Effect1") && skillInBattle.gameObject != null)
+        if (monsterBeHurt == gameObject && skillInBattle is Melee && effectName.Equals("Effect1") && skillInBattle.gameObject != null && skillInBattle.gameObject.TryGetComponent(out MonsterInBattle _))
         {
             return true;
         }

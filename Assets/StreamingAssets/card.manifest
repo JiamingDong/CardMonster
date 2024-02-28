@@ -1,15 +1,15 @@
 ManifestFileVersion: 0
-CRC: 1192390121
+CRC: 2650591514
 Hashes:
   AssetFileHash:
     serializedVersion: 2
-    Hash: 49f9139f5c45c7a3f485b43bfa3460fa
+    Hash: 30ee0f3e4922f2a9e2a29989c9667df4
   TypeTreeHash:
     serializedVersion: 2
     Hash: 2d8df09e698f722ada1caa03d3413830
   IncrementalBuildHash:
     serializedVersion: 2
-    Hash: 49f9139f5c45c7a3f485b43bfa3460fa
+    Hash: 30ee0f3e4922f2a9e2a29989c9667df4
 HashAppended: 0
 ClassTypes:
 - Class: 28
@@ -51,6 +51,7 @@ Assets:
 - Assets/Image/Card/Skill/despise.png
 - Assets/Image/Card/Skill/last_magic.png
 - Assets/Image/Card/Skill/switch.png
+- Assets/Image/Card/Skill/auspicious.png
 - Assets/Image/Card/Skill/sticky_bomb.png
 - Assets/Image/Card/Skill/search_powerful_medicament.png
 - Assets/Image/Card/Skill/magic_halo.png
@@ -181,19 +182,20 @@ Assets:
 - Assets/Image/Card/Skill/transform_egg.png
 - Assets/Image/Card/CardFrame/FrameLfortune.png
 - Assets/Image/Card/CardFrame/NameBackgroundLnature.png
-- Assets/Image/Card/Skill/surprise_gift.png
+- Assets/Image/Card/Skill/auspicious 1.png
 - Assets/Image/Card/CardFrame/FrameRbalance.png
 - Assets/Image/Card/Skill/debuff_flying.png
 - Assets/Image/Card/Skill/forge.png
 - Assets/Image/Card/Skill/residual_poison.png
 - Assets/Image/Card/Skill/sacrifice_crystal.png
-- Assets/Image/Card/Skill/tread.png
+- Assets/Image/Card/Skill/surprise_gift.png
 - Assets/Image/Card/Skill/chaos_item.png
 - Assets/Image/Card/Skill/shield.png
 - Assets/Image/Card/Skill/boost_up.png
 - Assets/Image/Card/Skill/salvo.png
 - Assets/Image/Card/CardBackground/BackgroundLnature.png
 - Assets/Image/Card/Skill/batter_shield.png
+- Assets/Image/Card/Skill/tread.png
 - Assets/Image/Card/Skill/mandrake_sound.png
 - Assets/Image/Card/Skill/magic_book.png
 - Assets/Image/Card/Skill/transform_jekyll.png
@@ -249,6 +251,7 @@ Assets:
 - Assets/Image/Card/Skill/combo_chance.png
 - Assets/Image/Card/Skill/transform_blackman.png
 - Assets/Image/Card/Skill/fivedragon_force.png
+- Assets/Image/Card/Skill/know_everything.png
 - Assets/Image/Card/Skill/aggro.png
 - Assets/Image/Card/Skill/buff_heal.png
 - Assets/Image/Card/Skill/charge.png
@@ -273,11 +276,13 @@ Assets:
 - Assets/Image/Card/Skill/equality_dragon.png
 - Assets/Image/Card/Skill/reflect.png
 - Assets/Image/Card/Skill/forbid_sacrifice.png
+- Assets/Image/Card/Skill/know_everything 1.png
 - Assets/Image/Card/CardFrame/NonBasicSkillBackgroundP.png
 - Assets/Image/Card/CardFrame/Armor.png
 - Assets/Image/Card/Skill/buff_dense_fog.png
 - Assets/Image/Card/Skill/cannon.png
 - Assets/Image/Card/Skill/immunity.png
+- Assets/Image/Card/Skill/prolong_life.png
 - Assets/Image/Card/Skill/perish_together.png
 - Assets/Image/Card/Skill/heal_all.png
 - Assets/Image/Card/Skill/equality_balance.png
@@ -351,6 +356,7 @@ Assets:
 - Assets/Image/Card/Skill/crazy_magic.png
 - Assets/Image/Card/Skill/thrash.png
 - Assets/Image/Card/Skill/immovable.png
+- Assets/Image/Card/Skill/prolong_life_derive.png
 - Assets/Image/Card/Skill/tortured.png
 - Assets/Image/Card/CardFrame/ColorBackgroundLall.png
 - Assets/Image/Card/Skill/transform_hideyoshi.png
@@ -370,6 +376,7 @@ Assets:
 - Assets/Image/Card/Skill/unsummon.png
 - Assets/Image/Card/Skill/trample.png
 - Assets/Image/Card/Skill/devouring.png
+- Assets/Image/Card/Skill/dive_derive.png
 - Assets/Image/Card/Skill/shoot_command.png
 - Assets/Image/Card/CardBackground/CardBackground.png
 - Assets/Image/Card/CardFrame/ColorBackgroundRchaos.png

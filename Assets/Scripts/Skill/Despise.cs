@@ -146,7 +146,7 @@ public class Despise : SkillInBattle
     }
 
     /// <summary>
-    /// 判断是否被使用的是此卡、对方有没有怪兽
+    /// 判断是否被使用的是此卡
     /// </summary>
     public bool Compare1(ParameterNode parameterNode)
     {

@@ -22,16 +22,38 @@ public abstract class OpportunityEffect : MonoBehaviour
         MethodInfo[] methodInfos = GetType().GetMethods();
         foreach (MethodInfo methodInfo in methodInfos)
         {
+            bool isEffect = false;
+
             Attribute[] attributes = Attribute.GetCustomAttributes(methodInfo);
             foreach (Attribute attribute in attributes)
             {
                 if (attribute is TriggerEffectAttribute triggerEffectAttribute)
                 {
-                    battleProcess.effectOpportunityRecord.Add(triggerEffectAttribute.GetOpportunity());
+                    isEffect = true;
 
-                    effectList.Add((Func<ParameterNode, IEnumerator>)Delegate.CreateDelegate(typeof(Func<ParameterNode, IEnumerator>), this, methodInfo));
-                    break;
+                    if (this is RuleEvent)
+                    {
+                        battleProcess.effectOpportunityRecord1.Add(triggerEffectAttribute.GetOpportunity());
+                    }
+                    else if (this is RuleEvent2)
+                    {
+                        //Debug.Log(triggerEffectAttribute.GetOpportunity());
+                        battleProcess.effectOpportunityRecord2.Add(triggerEffectAttribute.GetOpportunity());
+                    }
+                    else if (this is SkillNotOnMonster)
+                    {
+                        battleProcess.effectOpportunityRecord4.Add(triggerEffectAttribute.GetOpportunity());
+                    }
+                    else
+                    {
+                        battleProcess.effectOpportunityRecord3.Add(triggerEffectAttribute.GetOpportunity());
+                    }
                 }
+            }
+
+            if (isEffect)
+            {
+                effectList.Add((Func<ParameterNode, IEnumerator>)Delegate.CreateDelegate(typeof(Func<ParameterNode, IEnumerator>), this, methodInfo));
             }
         }
     }
@@ -51,7 +73,22 @@ public abstract class OpportunityEffect : MonoBehaviour
             {
                 if (attribute is TriggerEffectAttribute triggerEffectAttribute)
                 {
-                    battleProcess?.effectOpportunityRecord.Remove(triggerEffectAttribute.GetOpportunity());
+                    if (this is RuleEvent)
+                    {
+                        battleProcess?.effectOpportunityRecord1.Remove(triggerEffectAttribute.GetOpportunity());
+                    }
+                    else if (this is RuleEvent2)
+                    {
+                        battleProcess?.effectOpportunityRecord2.Remove(triggerEffectAttribute.GetOpportunity());
+                    }
+                    else if (this is SkillNotOnMonster)
+                    {
+                        battleProcess?.effectOpportunityRecord4.Remove(triggerEffectAttribute.GetOpportunity());
+                    }
+                    else
+                    {
+                        battleProcess?.effectOpportunityRecord3.Remove(triggerEffectAttribute.GetOpportunity());
+                    }
 
                     break;
                 }
@@ -75,10 +112,11 @@ public abstract class OpportunityEffect : MonoBehaviour
             {
                 continue;
             }
-
             string typeName = GetType().Name;
             string effectName = effect.Method.Name;
             string fullName = typeName + "." + effectName;
+
+            //Debug.Log("·¢¶¯" + fullName);
 
             yield return battleProcess.StartCoroutine(battleProcess.ExecuteEffect(this, fullName, parameterNode, effect));
         }

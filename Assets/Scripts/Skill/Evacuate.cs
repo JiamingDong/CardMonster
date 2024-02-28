@@ -19,6 +19,7 @@ public class Evacuate : SkillInBattle
         MonsterInBattle monsterInBattle = gameObject.GetComponent<MonsterInBattle>();
 
         Dictionary<string, string> cardData = monsterInBattle.cardData;
+        cardData["CardFlags"] = null;
         cardData["CardCost"] = (Convert.ToInt32(cardData["CardCost"]) + GetSkillValue()).ToString();
         parameter.Add("CardData", cardData);
 

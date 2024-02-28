@@ -17,7 +17,6 @@ public class Armor : SkillInBattle
         result.Add("BeReplaced", true);
 
         yield break;
-        //yield return null;
     }
 
     /// <summary>
@@ -103,7 +102,6 @@ public class Armor : SkillInBattle
             parameterNode1.parameter = parameter2;
 
             yield return battleProcess.StartCoroutine(monsterInBattle.DoAction(monsterInBattle.AddSkill, parameterNode1));
-            //yield return null;
         }
 
         string fullName = "GameAction.HurtMonster";
@@ -158,5 +156,4 @@ public class Armor : SkillInBattle
         }
         return false;
     }
-
 }

@@ -104,4 +104,9 @@ public class PlayerData
     /// 原始卡组
     /// </summary>
     public Dictionary<string, List<string>> initialDeck;
+
+    /// <summary>
+    /// 玩家技能
+    /// </summary>
+    public List<SkillInBattle> skillList = new();
 }

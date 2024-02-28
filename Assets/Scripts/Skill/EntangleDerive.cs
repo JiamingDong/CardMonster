@@ -36,8 +36,6 @@ public class EntangleDerive : SkillInBattle
 
         if (parameterNode.creator is SkillInBattle skillInBattle)
         {
-            string opportunity = parameterNode.opportunity;
-
             GameObject go = skillInBattle.gameObject;
             if (gameObject != go)
             {
@@ -45,34 +43,10 @@ public class EntangleDerive : SkillInBattle
                 return false;
             }
 
-            string className = opportunity.Split('.')[1];
-            string methodName = opportunity.Split('.')[2];
-
-            Type type = Type.GetType(className);
-            if (type == null)
+            ParameterNode parameterNode1 = parameterNode.Parent;
+            if (parameterNode1.opportunity == "InRoundBattle")
             {
-                Debug.Log("type == null");
-                return false;
-            }
-
-            object instance = Activator.CreateInstance(type);
-            if (instance is not SkillInBattle)
-            {
-                Debug.Log("instance is not SkillInBattle");
-                return false;
-            }
-
-            MethodInfo methodInfo = type.GetMethod(methodName);
-            Attribute[] attributes = Attribute.GetCustomAttributes(methodInfo);
-            foreach (Attribute attribute in attributes)
-            {
-                if (attribute is TriggerEffectAttribute triggerEffectAttribute)
-                {
-                    if (Regex.IsMatch("InRoundBattle", triggerEffectAttribute.GetOpportunity()))
-                    {
-                        return true;
-                    }
-                }
+                return true;
             }
         }
 
@@ -102,7 +76,7 @@ public class EntangleDerive : SkillInBattle
         parameter1.Add("LaunchedSkill", this);
         parameter1.Add("EffectName", "Effect1");
         parameter1.Add("SkillName", "entangle_derive");
-        parameter1.Add("Source", "Skill.Entangle");
+        parameter1.Add("Source", "Skill.Entangle.Effect1");
 
         ParameterNode parameterNode1 = parameterNode.AddNodeInMethod();
         parameterNode1.parameter = parameter1;

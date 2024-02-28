@@ -7,6 +7,23 @@ using System.Collections.Generic;
 /// </summary>
 public class Charge : SkillInBattle
 {
+    int launchMark = 0;
+
+    public override int AddValue(string source, int value)
+    {
+        launchMark = value;
+
+        if (sourceAndValue.ContainsKey(source))
+        {
+            sourceAndValue[source] += value;
+        }
+        else
+        {
+            sourceAndValue.Add(source, value);
+        }
+        return GetSkillValue();
+    }
+
     [TriggerEffect("^BeforeRoundBattle$", "Compare1")]
     public IEnumerator Effect1(ParameterNode parameterNode)
     {
@@ -17,53 +34,19 @@ public class Charge : SkillInBattle
 
         MonsterInBattle monsterInBattle = gameObject.GetComponent<MonsterInBattle>();
 
-        if (gameObject.TryGetComponent<Melee>(out var melee))
-        {
-            Dictionary<string, object> parameter1 = new();
-            parameter1.Add("LaunchedSkill", this);
-            parameter1.Add("EffectName", "Effect1");
-            parameter1.Add("SkillName", "melee");
-            parameter1.Add("SkillValue", GetSkillValue());
-            parameter1.Add("Source", "Skill.Charge.Effect1");
+        Dictionary<string, object> parameter2 = new();
+        parameter2.Add("LaunchedSkill", this);
+        parameter2.Add("EffectName", "Effect1");
+        parameter2.Add("SkillName", "charge_derive");
+        parameter2.Add("SkillValue", launchMark);
+        parameter2.Add("Source", "Skill.Charge.Effect1");
 
-            ParameterNode parameterNode1 = parameterNode.AddNodeInMethod();
-            parameterNode1.parameter = parameter1;
+        ParameterNode parameterNode2 = parameterNode.AddNodeInMethod();
+        parameterNode2.parameter = parameter2;
 
-            yield return battleProcess.StartCoroutine(monsterInBattle.DoAction(monsterInBattle.AddSkill, parameterNode1));
+        yield return battleProcess.StartCoroutine(monsterInBattle.DoAction(monsterInBattle.AddSkill, parameterNode2));
 
-            Dictionary<string, object> parameter2 = new();
-            parameter2.Add("LaunchedSkill", this);
-            parameter2.Add("EffectName", "Effect1");
-            parameter2.Add("SkillName", "charge_derive");
-            parameter2.Add("SkillValue", 0);
-            parameter2.Add("Source", "Skill.Charge.Effect1");
-
-            ParameterNode parameterNode2 = parameterNode.AddNodeInMethod();
-            parameterNode2.parameter = parameter2;
-
-            yield return battleProcess.StartCoroutine(monsterInBattle.DoAction(monsterInBattle.AddSkill, parameterNode2));
-            //yield return null;
-        }
-
-        List<string> needRemoveSource = new();
-        foreach (KeyValuePair<string, int> keyValuePair in sourceAndValue)
-        {
-            needRemoveSource.Add(keyValuePair.Key);
-        }
-
-        foreach (var item in needRemoveSource)
-        {
-            Dictionary<string, object> parameter2 = new();
-            parameter2.Add("LaunchedSkill", this);
-            parameter2.Add("EffectName", "Effect1");
-            parameter2.Add("SkillName", "charge");
-            parameter2.Add("Source", item);
-
-            ParameterNode parameterNode2 = new();
-            parameterNode2.parameter = parameter2;
-
-            yield return battleProcess.StartCoroutine(monsterInBattle.DoAction(monsterInBattle.DeleteSkillSource, parameterNode2));
-        }
+        launchMark = 0;
     }
 
     /// <summary>
@@ -71,6 +54,11 @@ public class Charge : SkillInBattle
     /// </summary>
     public bool Compare1(ParameterNode parameterNode)
     {
+        if (launchMark < 1)
+        {
+            return false;
+        }
+
         BattleProcess battleProcess = BattleProcess.GetInstance();
 
         for (int i = 0; i < battleProcess.systemPlayerData.Length; i++)

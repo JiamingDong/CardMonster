@@ -65,15 +65,11 @@ public class DiseaseAll : SkillInBattle
     }
 
     /// <summary>
-    /// 判断是否被使用的是此卡、对方有没有怪兽
+    /// 判断是否被使用的是此卡
     /// </summary>
     public bool Compare1(ParameterNode parameterNode)
     {
         Dictionary<string, object> result = parameterNode.Parent.EffectChild.nodeInMethodList[1].EffectChild.result;
-        Dictionary<string, object> parameter = parameterNode.parameter;
-        Player player = (Player)parameter["Player"];
-
-        BattleProcess battleProcess = BattleProcess.GetInstance();
 
         if (launchMark < 1)
         {
@@ -110,15 +106,6 @@ public class DiseaseAll : SkillInBattle
         else
         {
             return false;
-        }
-
-        for (int i = 0; i < battleProcess.systemPlayerData.Length; i++)
-        {
-            PlayerData systemPlayerData = battleProcess.systemPlayerData[i];
-            if (systemPlayerData.perspectivePlayer != player && systemPlayerData.monsterGameObjectArray[0] == null)
-            {
-                return false;
-            }
         }
 
         return true;

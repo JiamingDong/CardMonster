@@ -134,6 +134,8 @@ public class MonsterInBattle : GameObjectInBattle
 
             yield return StartCoroutine(DoAction(AddSkill, parameterNode1));
         }
+
+        gameObject.AddComponent<OpenCardDetailInterfaceForMonster>();
     }
 
     /// <summary>
@@ -421,7 +423,6 @@ public class MonsterInBattle : GameObjectInBattle
         }
 
         string cardSkill = equipment["CardSkill"];
-        //Debug.Log(cardSkill);
         if (!string.IsNullOrEmpty(cardSkill))
         {
             Dictionary<string, int> cardP = JsonConvert.DeserializeObject<Dictionary<string, int>>(equipment["CardSkill"]);
@@ -445,6 +446,31 @@ public class MonsterInBattle : GameObjectInBattle
     public IEnumerator RemoveEquipment()
     {
         BattleProcess battleProcess = BattleProcess.GetInstance();
+
+        if (gameObject.TryGetComponent(out Armor armor))
+        {
+            var sourceAndValue = armor.sourceAndValue;
+
+            List<string> needRemoveSource = new();
+            foreach (KeyValuePair<string, int> keyValuePair in sourceAndValue)
+            {
+                needRemoveSource.Add(keyValuePair.Key);
+            }
+
+            foreach (var item in needRemoveSource)
+            {
+                Dictionary<string, object> parameter2 = new();
+                parameter2.Add("LaunchedSkill", this);
+                parameter2.Add("EffectName", "Effect1");
+                parameter2.Add("SkillName", "armor");
+                parameter2.Add("Source", item);
+
+                ParameterNode parameterNode2 = new();
+                parameterNode2.parameter = parameter2;
+
+                yield return battleProcess.StartCoroutine(DoAction(DeleteSkillSource, parameterNode2));
+            }
+        }
 
         for (int i = 0; i < skillList.Count; i++)
         {
@@ -518,39 +544,20 @@ public class MonsterInBattle : GameObjectInBattle
         var skillClassName = skillConfig["SkillClassName"];
         var skillType = skillConfig["TypeInBattle"];
 
-        //先看看是否已有这个技能
+        //已有这个技能
         foreach (SkillInBattle skillInCard in skillList)
         {
             if (skillInCard.GetType().Name.Equals(skillClassName))
             {
-                skillValue = skillInCard.AddValue(source, skillValue);
+                int currentSkillValue = skillInCard.AddValue(source, skillValue);
 
-                if (skillValue < 0 || (skillValue < 1 && skillType == "value"))
-                {
-                    List<string> needRemoveSource = new();
-                    foreach (KeyValuePair<string, int> keyValuePair in skillInCard.sourceAndValue)
-                    {
-                        needRemoveSource.Add(keyValuePair.Key);
-                    }
-
-                    foreach (var item in needRemoveSource)
-                    {
-                        Dictionary<string, object> parameter4 = new();
-                        parameter4.Add("LaunchedSkill", this);
-                        parameter4.Add("EffectName", "AddSkill");
-                        parameter4.Add("SkillName", skillName);
-                        parameter4.Add("Source", item);
-
-                        ParameterNode parameterNode4 = new();
-                        parameterNode4.parameter = parameter4;
-
-                        yield return battleProcess.StartCoroutine(DoAction(DeleteSkillSource, parameterNode4));
-                    }
-                }
-                LoadSkillImageValue(skillName, skillValue, skillType);
+                LoadSkillImageValue(skillName, currentSkillValue, skillType);
                 yield break;
             }
         }
+
+        //没有这个技能
+        parameterNode.result.Add("AddNewSkill", true);
 
         Type type = Type.GetType(skillClassName);
 
@@ -563,7 +570,7 @@ public class MonsterInBattle : GameObjectInBattle
             skillList.Add(skill);
 
             //排序
-            skillList.Sort((a, b) => battleProcess.skillPriority[b.GetType().Name].CompareTo(battleProcess.skillPriority[a.GetType().Name]));
+            skillList.Sort((a, b) => { return Convert.ToInt32(battleProcess.skillPriority[a.GetType().Name]) > Convert.ToInt32(battleProcess.skillPriority[b.GetType().Name]) ? 1 : -1; });
         }
 
         LoadSkillImageValue(skillName, skillValue, skillType);
@@ -604,19 +611,21 @@ public class MonsterInBattle : GameObjectInBattle
 
                 LoadSkillImageValue(skillName, skillValue, skillType);
 
-                if (skillValue < 0 || (skillValue < 1 && skillType == "value"))
+                yield return null;
+
+                if (skillValue < 0)
                 {
                     skillList.Remove(skillInBattle);
                     Destroy(skillInBattle);
 
                     //排序
-                    skillList.Sort((a, b) => battleProcess.skillPriority[b.GetType().Name].CompareTo(battleProcess.skillPriority[a.GetType().Name]));
+                    skillList.Sort((a, b) => { return Convert.ToInt32(battleProcess.skillPriority[a.GetType().Name]) > Convert.ToInt32(battleProcess.skillPriority[b.GetType().Name]) ? 1 : -1; });
                 }
 
                 yield break;
             }
         }
+
         yield break;
-        //yield return null;
     }
 }

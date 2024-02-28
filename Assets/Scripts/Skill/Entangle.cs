@@ -8,6 +8,14 @@ using UnityEngine;
 /// </summary>
 public class Entangle : SkillInBattle
 {
+    public Dictionary<string, int> probabilityParts = new()
+    {
+        {
+            "Skill.Entangle",50
+        }
+    };
+
+
     [TriggerEffect("^BeforeRoundBattle$", "Compare1")]
     public IEnumerator Effect1(ParameterNode parameterNode)
     {
@@ -63,13 +71,19 @@ public class Entangle : SkillInBattle
     /// <summary>
     /// 判断是否是己方回合，对方场上有怪兽
     /// </summary>
-    public bool Compare1(ParameterNode parameterNode)
+    public virtual bool Compare1(ParameterNode parameterNode)
     {
         BattleProcess battleProcess = BattleProcess.GetInstance();
 
-        int r = RandomUtils.GetRandomNumber(1, 2);
+        int value = 0;
+        foreach (KeyValuePair<string, int> keyValuePair in probabilityParts)
+        {
+            value += keyValuePair.Value;
+        }
 
-        if (r != 1)
+        int r = RandomUtils.GetRandomNumber(1, 100);
+
+        if (r > value)
         {
             return false;
         }

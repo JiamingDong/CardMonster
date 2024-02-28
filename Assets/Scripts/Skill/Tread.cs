@@ -66,8 +66,6 @@ public class Tread : SkillInBattle
                 yield return battleProcess.StartCoroutine(gameAction.DoAction(gameAction.HurtMonster, parameterNode1));
             }
         }
-
-        //yield return null;
     }
 
     /// <summary>
@@ -79,11 +77,6 @@ public class Tread : SkillInBattle
         SkillInBattle launchedSkill = (SkillInBattle)parameter["LaunchedSkill"];
         string effectName = (string)parameter["EffectName"];
 
-        foreach (var item in parameterNode.Parent.EffectChild.parameter)
-        {
-            Debug.Log(item.Key + "=" + item.Value);
-        }
-
         Dictionary<string, object> parameter2 = parameterNode.Parent.EffectChild.parameter;
         Dictionary<string, object> result2 = parameterNode.Parent.EffectChild.result;
 
@@ -93,7 +86,6 @@ public class Tread : SkillInBattle
 
         if (!result2.ContainsKey("ExcessiveDamage"))
         {
-            Debug.Log("ExcessiveDamage");
             return false;
         }
 

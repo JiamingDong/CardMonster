@@ -1,64 +1,64 @@
 using System.Collections;
 using System.Collections.Generic;
-using UnityEngine;
 
 /// <summary>
 /// 额外水晶
 /// 被献祭时，额外获得%d点水晶
-/// 手牌中的“额外水晶”通过RuleEvent.Crystal触发
 /// </summary>
 public class Crystal : SkillInBattle
 {
-    [TriggerEffect(@"^Before\.GameAction\.Sacrifice$",  "Compare1")]
-    public IEnumerator Effect1(ParameterNode parameterNode)
-    {
-        Dictionary<string, object> parameter = parameterNode.parameter;
-        int objectBeSacrificedNumber = (int)parameter["ObjectBeSacrificedNumber"];
-        Player player = (Player)parameter["Player"];
+    //[TriggerEffect(@"^Before\.GameAction\.ChangeCrystalAmount$", "Compare1")]
+    //public IEnumerator Effect1(ParameterNode parameterNode)
+    //{
+    //    Dictionary<string, object> parameter = parameterNode.parameter;
+    //    int crystalAmount = (int)parameter["CrystalAmount"];
 
-        BattleProcess battleProcess = BattleProcess.GetInstance();
-        GameAction gameAction = GameAction.GetInstance();
+    //    parameter["CrystalAmount"] = crystalAmount + GetSkillValue();
 
-        Dictionary<string, object> parameter1 = new();
-        parameter1.Add("CrystalAmount", GetSkillValue());
-        parameter1.Add("Player", player);
+    //    yield break;
+    //}
 
-        ParameterNode parameterNode1 = parameterNode.AddNodeInMethod();
-        parameterNode1.parameter = parameter1;
+    ///// <summary>
+    ///// 判断献祭获得水晶、被献祭的是本怪兽
+    ///// </summary>
+    //public bool Compare1(ParameterNode parameterNode)
+    //{
+    //    BattleProcess battleProcess = BattleProcess.GetInstance();
 
-        yield return battleProcess.StartCoroutine(gameAction.DoAction(gameAction.ChangeCrystalAmount, parameterNode1));
-        //yield return null;
-    }
+    //    Dictionary<string, object> parameter = parameterNode.parameter;
 
-    /// <summary>
-    /// 判断是否是本怪兽
-    /// </summary>
-    public bool Compare1(ParameterNode parameterNode)
-    {
-        Dictionary<string, object> parameter = parameterNode.parameter;
-        int objectBeSacrificedNumber = (int)parameter["ObjectBeSacrificedNumber"];
-        Player player = (Player)parameter["Player"];
+    //    if (parameter.ContainsKey("LaunchedSkill") && parameter.ContainsKey("EffectName"))
+    //    {
+    //        object launchedSkill = parameter["LaunchedSkill"];
+    //        string effectName = (string)parameter["EffectName"];
 
-        BattleProcess battleProcess = BattleProcess.GetInstance();
+    //        if (launchedSkill is GameAction && effectName == "Sacrifice")
+    //        {
+    //            Dictionary<string, object> parameter2 = parameterNode.Parent.superiorNode.parameter;
 
-        if (objectBeSacrificedNumber >= 4 && objectBeSacrificedNumber <= 6)
-        {
-            int t = objectBeSacrificedNumber - 4;
+    //            int objectBeSacrificedNumber = (int)parameter2["ObjectBeSacrificedNumber"];
+    //            Player player = (Player)parameter2["Player"];
 
-            for (int i = 0; i < battleProcess.systemPlayerData.Length; i++)
-            {
-                PlayerData systemPlayerData = battleProcess.systemPlayerData[i];
+    //            if (objectBeSacrificedNumber >= 4 && objectBeSacrificedNumber <= 6)
+    //            {
+    //                int t = objectBeSacrificedNumber - 4;
 
-                if (systemPlayerData.perspectivePlayer == player)
-                {
-                    if (systemPlayerData.monsterGameObjectArray[t] == gameObject)
-                    {
-                        return true;
-                    }
-                }
-            }
-        }
+    //                for (int i = 0; i < battleProcess.systemPlayerData.Length; i++)
+    //                {
+    //                    PlayerData systemPlayerData = battleProcess.systemPlayerData[i];
 
-        return false;
-    }
+    //                    if (systemPlayerData.perspectivePlayer == player)
+    //                    {
+    //                        if (systemPlayerData.monsterGameObjectArray[t] == gameObject)
+    //                        {
+    //                            return true;
+    //                        }
+    //                    }
+    //                }
+    //            }
+    //        }
+    //    }
+
+    //    return false;
+    //}
 }

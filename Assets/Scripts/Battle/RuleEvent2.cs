@@ -48,7 +48,7 @@ public class RuleEvent2 : OpportunityEffect
             battleProcess.allyPlayerData.canSacrifice = true;
             battleProcess.allyPlayerData.canUseHandCard = true;
 
-            Debug.Log("RuleEvent.EnterTurnReady:我方回合准备阶段结束");
+            //Debug.Log("RuleEvent.EnterTurnReady:我方回合准备阶段结束");
         }
         else if (battleProcess.enemyPlayerData.perspectivePlayer == Player.Ally)
         {
@@ -65,7 +65,7 @@ public class RuleEvent2 : OpportunityEffect
             battleProcess.enemyPlayerData.canSacrifice = true;
             battleProcess.enemyPlayerData.canUseHandCard = true;
 
-            Debug.Log("RuleEvent.EnterTurnReady：对方回合准备阶段开始");
+            //Debug.Log("RuleEvent.EnterTurnReady：对方回合准备阶段开始");
         }
 
         yield break;
@@ -81,20 +81,32 @@ public class RuleEvent2 : OpportunityEffect
     [TriggerEffect("^LaunchHeroSkill$")]
     public IEnumerator AllowUsingCard(ParameterNode parameterNode)
     {
+        //Debug.Log(parameterNode.opportunity);
+        //Debug.Log("允许使用手牌1");
         BattleProcess battleProcess = BattleProcess.GetInstance();
+        GameAction gameAction = GameAction.GetInstance();
 
         for (int i = 0; i < battleProcess.systemPlayerData.Length; i++)
         {
             PlayerData playerData = battleProcess.systemPlayerData[i];
             if (playerData.perspectivePlayer == Player.Ally)
             {
+                //Debug.Log("允许使用手牌2");
                 //允许使用手牌
                 playerData.canUseHandCard = true;
 
                 //清除消耗品
-                //Debug.Log("消耗品离开战场");
-                Destroy(playerData.consumeGameObject);
-                playerData.consumeGameObject = null;
+                if (playerData.consumeGameObject != null)
+                {
+                    Dictionary<string, object> parameter1 = new();
+                    parameter1.Add("Player", Player.Ally);
+
+                    ParameterNode parameterNode1 = parameterNode.AddNodeInMethod();
+                    parameterNode1.parameter = parameter1;
+
+                    yield return battleProcess.StartCoroutine(gameAction.DoAction(gameAction.ConsumeLeave, parameterNode1));
+                }
+
                 break;
             }
         }

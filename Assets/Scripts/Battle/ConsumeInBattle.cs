@@ -16,6 +16,10 @@ public class ConsumeInBattle : GameObjectInBattle
     public string type;
     private int cost;
     public string race;
+    /// <summary>
+    /// 原始卡牌数据
+    /// </summary>
+    public Dictionary<string, string> cardData;
 
     /// <summary>
     /// 技能配置json，同数据库样式
@@ -59,13 +63,12 @@ public class ConsumeInBattle : GameObjectInBattle
         type = cardData["CardType"];
         kind = cardData["CardKind"];
         race = cardData["CardRace"];
-        //maxHp = (int)cardData["CardHP"];
         skinId = cardData["CardSkinID"];
         int cost = Convert.ToInt32(cardData["CardCost"]);
-        //skillConfig = (Dictionary<string, int>)cardData["CardSkill"];
         skill = cardData["CardSkill"];
-        //eliteSkillConfig = (Dictionary<string, Dictionary<string, object>>)cardData["CardEliteSkill"];
         eliteSkill = cardData["CardEliteSkill"];
+
+        this.cardData = cardData;
 
         SetCost(cost);
 
@@ -77,7 +80,6 @@ public class ConsumeInBattle : GameObjectInBattle
             parameter.Add("SkillValue", keyValuePair.Value);
             parameter.Add("Source", "Consume");
             yield return StartCoroutine(DoAction(AddSkill, parameter));
-            //AddSkill(keyValuePair.Key, keyValuePair.Value, "Monster");
         }
 
         if (!string.IsNullOrEmpty(eliteSkill))
@@ -144,8 +146,6 @@ public class ConsumeInBattle : GameObjectInBattle
         string source = (string)parameter["Source"];
 
         BattleProcess battleProcess = BattleProcess.GetInstance();
-
-        Debug.Log($"{cardName}添加技能{skillName}数值{skillValue}来源{source}");
 
         var skillConfig = Database.cardMonster.Query("AllSkillConfig", "and SkillEnglishName='" + skillName + "'")[0];
         var skillClassName = skillConfig["SkillClassName"];

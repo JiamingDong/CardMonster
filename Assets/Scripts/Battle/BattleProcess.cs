@@ -2,6 +2,7 @@ using Newtonsoft.Json;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text.RegularExpressions;
 using UnityEngine;
 using UnityEngine.UI;
@@ -59,9 +60,24 @@ public class BattleProcess : MonoBehaviour
     /// </summary>
     private static BattleProcess instance;
 
-    public EffectOpportunityRecord effectOpportunityRecord;
+    /// <summary>
+    /// RuleEvent记录
+    /// </summary>
+    public EffectOpportunityRecord effectOpportunityRecord1;
+    /// <summary>
+    /// RuleEvent2记录
+    /// </summary>
+    public EffectOpportunityRecord effectOpportunityRecord2;
+    /// <summary>
+    /// 英雄和怪兽技能记录
+    /// </summary>
+    public EffectOpportunityRecord effectOpportunityRecord3;
+    /// <summary>
+    /// 手牌技能记录
+    /// </summary>
+    public EffectOpportunityRecord effectOpportunityRecord4;
 
-    public Dictionary<string, string> skillClassToChinese;
+    public List<Dictionary<string, string>> allSkillConfig;
     public Dictionary<string, string> skillPriority;
 
     /// <summary>
@@ -82,7 +98,10 @@ public class BattleProcess : MonoBehaviour
     {
         Application.targetFrameRate = 120;
 
-        effectOpportunityRecord = new();
+        effectOpportunityRecord1 = new();
+        effectOpportunityRecord2 = new();
+        effectOpportunityRecord3 = new();
+        effectOpportunityRecord4 = new();
 
         //结算区域
         settlementAreaPanel = GameObject.Find("SettlementAreaPanel");
@@ -170,12 +189,10 @@ public class BattleProcess : MonoBehaviour
         systemPlayerData[0] = allyPlayerData;
         systemPlayerData[1] = enemyPlayerData;
 
-        var allSkillConfig = Database.cardMonster.Query("AllSkillConfig", "");
-        skillClassToChinese = new();
+        allSkillConfig = Database.cardMonster.Query("AllSkillConfig", "");
         skillPriority = new();
         foreach (var item in allSkillConfig)
         {
-            skillClassToChinese.Add(item["SkillClassName"], item["SkillChineseName"]);
             skillPriority.Add(item["SkillClassName"], item["SkillID"]);
         }
     }
@@ -224,63 +241,95 @@ public class BattleProcess : MonoBehaviour
     {
         string opportunity = parameterNode.opportunity;
 
-        bool isMatch = false;
-        foreach (var item in effectOpportunityRecord.record)
+        //发动规则技能
+        RuleEvent ruleEvent = RuleEvent.GetInstance();
+        foreach (var item in effectOpportunityRecord1.record)
         {
             if (Regex.IsMatch(opportunity, item.Key))
             {
-                isMatch = true;
+                yield return StartCoroutine(ruleEvent.ExecuteEligibleEffect(parameterNode));
                 break;
             }
         }
 
-        if (!isMatch)
+        //发动手牌技能
+        SkillNotOnMonster skillInHandCard = SkillNotOnMonster.GetInstance();
+        foreach (var item in effectOpportunityRecord4.record)
         {
-            yield break;
-        }
-
-        //发动规则技能
-        RuleEvent ruleEvent = RuleEvent.GetInstance();
-        yield return StartCoroutine(ruleEvent.ExecuteEligibleEffect(parameterNode));
-
-        //发动英雄技能，从系统主视角轮询
-        for (int i = 0; i < systemPlayerData.Length; i++)
-        {
-            //获取英雄技能时机和技能的列表
-            GameObject heroSkillGameObject = systemPlayerData[i].heroSkillGameObject;
-            if (heroSkillGameObject.TryGetComponent<HeroSkillInBattle>(out var heroSkillInBattle))
+            if (Regex.IsMatch(opportunity, item.Key))
             {
-                yield return StartCoroutine(heroSkillInBattle.LaunchSkill(parameterNode));
+                yield return StartCoroutine(skillInHandCard.ExecuteEligibleEffect(parameterNode));
+
+                break;
             }
         }
 
-        //发动卡牌技能，从系统主视角轮询玩家
-        for (int i = 0; i < systemPlayerData.Length; i++)
+        foreach (var item in effectOpportunityRecord3.record)
         {
-            //未解决前方怪兽死亡的情况
-            //询问所有怪兽是否发动技能
-            for (int j = 2; j > -1; j--)
+            if (Regex.IsMatch(opportunity, item.Key))
             {
-                GameObject monsterGameObject = systemPlayerData[i].monsterGameObjectArray[j];
-                if (monsterGameObject != null)
+                //发动玩家技能，从系统主视角轮询
+                for (int i = 0; i < systemPlayerData.Length; i++)
                 {
-                    MonsterInBattle monsterInBattle = monsterGameObject.GetComponent<MonsterInBattle>();
-                    yield return StartCoroutine(monsterInBattle.LaunchSkill(parameterNode));
-                }
-            }
+                    List<SkillInBattle> skillInBattles = systemPlayerData[i].skillList;
+                    for (int j = 0; j < skillInBattles.Count; j++)
+                    {
+                        SkillInBattle skillInBattle = skillInBattles[j];
 
-            //询问消耗品
-            GameObject consumeGameObject = systemPlayerData[i].consumeGameObject;
-            if (consumeGameObject != null)
-            {
-                ConsumeInBattle consumeInBattle = consumeGameObject.GetComponent<ConsumeInBattle>();
-                yield return StartCoroutine(consumeInBattle.LaunchSkill(parameterNode));
+                        yield return StartCoroutine(skillInBattle.ExecuteEligibleEffect(parameterNode));
+                    }
+                }
+
+                //发动英雄技能，从系统主视角轮询
+                for (int i = 0; i < systemPlayerData.Length; i++)
+                {
+                    //获取英雄技能时机和技能的列表
+                    GameObject heroSkillGameObject = systemPlayerData[i].heroSkillGameObject;
+                    if (heroSkillGameObject.TryGetComponent<HeroSkillInBattle>(out var heroSkillInBattle))
+                    {
+                        yield return StartCoroutine(heroSkillInBattle.LaunchSkill(parameterNode));
+                    }
+                }
+
+                //发动场上怪兽技能，从系统主视角轮询玩家
+                for (int i = 0; i < systemPlayerData.Length; i++)
+                {
+                    //未解决前方怪兽死亡的情况
+                    //询问所有怪兽是否发动技能
+                    for (int j = 2; j > -1; j--)
+                    {
+                        GameObject monsterGameObject = systemPlayerData[i].monsterGameObjectArray[j];
+                        if (monsterGameObject != null)
+                        {
+                            MonsterInBattle monsterInBattle = monsterGameObject.GetComponent<MonsterInBattle>();
+                            yield return StartCoroutine(monsterInBattle.LaunchSkill(parameterNode));
+                        }
+                    }
+
+                    //询问消耗品
+                    GameObject consumeGameObject = systemPlayerData[i].consumeGameObject;
+                    if (consumeGameObject != null)
+                    {
+                        ConsumeInBattle consumeInBattle = consumeGameObject.GetComponent<ConsumeInBattle>();
+                        yield return StartCoroutine(consumeInBattle.LaunchSkill(parameterNode));
+                    }
+                }
+
+                break;
             }
         }
 
         //发动规则2
         RuleEvent2 ruleEvent2 = RuleEvent2.GetInstance();
-        yield return StartCoroutine(ruleEvent2.ExecuteEligibleEffect(parameterNode));
+        foreach (var item in effectOpportunityRecord2.record)
+        {
+            if (Regex.IsMatch(opportunity, item.Key))
+            {
+                //Debug.Log("发动规则2----" + opportunity + "----" + item.Key);
+                yield return StartCoroutine(ruleEvent2.ExecuteEligibleEffect(parameterNode));
+                break;
+            }
+        }
     }
 
     /// <summary>
@@ -323,10 +372,10 @@ public class BattleProcess : MonoBehaviour
         if (nodeCreator is SkillInBattle skillInBattle)
         {
             //Debug.Log(fullName);
-            string skillName = fullName.Split('.')[0];
+            string skillClassName = fullName.Split('.')[0];
             string effectName = fullName.Split('.')[1];
 
-            var skillConfig = Database.cardMonster.Query("AllSkillConfig", "and SkillClassName='" + skillName + "'")[0];
+            var skillConfig = Database.cardMonster.Query("AllSkillConfig", "and SkillClassName='" + skillClassName + "'")[0];
             var unrepresentedEffects = skillConfig["UnrepresentedEffects"];
 
             if (!string.IsNullOrEmpty(unrepresentedEffects))
@@ -350,20 +399,23 @@ public class BattleProcess : MonoBehaviour
                 {
                     if (skillInBattle.gameObject == systemPlayerData[i].monsterGameObjectArray[j])
                     {
-                        Log($"<color={color}>{skillInBattle.gameObject.GetComponent<MonsterInBattle>().cardName}</color>发动<color=#ffff00>{skillClassToChinese[skillInBattle.GetType().Name]}</color>");
+                        string skillName = allSkillConfig.Where(x => x["SkillClassName"] == skillInBattle.GetType().Name).FirstOrDefault()["SkillChineseName"];
+                        Log($"<color={color}>{skillInBattle.gameObject.GetComponent<MonsterInBattle>().cardName}</color>发动<color=#ffff00>{skillName}</color>");
                         isCard = true;
                     }
                 }
 
                 if (skillInBattle.gameObject == systemPlayerData[i].consumeGameObject)
                 {
-                    Log($"<color={color}>{skillInBattle.gameObject.GetComponent<ConsumeInBattle>().cardName}</color>发动<color=#ffff00>{skillClassToChinese[skillInBattle.GetType().Name]}</color>");
+                    string skillName = allSkillConfig.Where(x => x["SkillClassName"] == skillInBattle.GetType().Name).FirstOrDefault()["SkillChineseName"];
+                    Log($"<color={color}>{skillInBattle.gameObject.GetComponent<ConsumeInBattle>().cardName}</color>发动<color=#ffff00>{skillName}</color>");
                     isCard = true;
                 }
 
                 if (skillInBattle.gameObject == systemPlayerData[i].heroSkillGameObject)
                 {
-                    Log($"<color={color}>{playerC}</color>发动英雄技能<color=#ffff00>{skillClassToChinese[skillInBattle.GetType().Name]}</color>");
+                    string skillName = allSkillConfig.Where(x => x["SkillClassName"] == skillInBattle.GetType().Name).FirstOrDefault()["SkillChineseName"];
+                    Log($"<color={color}>{playerC}</color>发动英雄技能<color=#ffff00>{skillName}</color>");
                 }
             }
 
