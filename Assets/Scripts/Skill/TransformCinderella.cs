@@ -38,7 +38,6 @@ public class TransformCinderella : SkillInBattle
         parameterNode1.parameter = parameter;
 
         yield return battleProcess.StartCoroutine(gameAction.DoAction(gameAction.TransformMonster, parameterNode1));
-        //yield return null;
     }
 
     /// <summary>
@@ -56,11 +55,8 @@ public class TransformCinderella : SkillInBattle
             {
                 for (int j = 0; j < systemPlayerData.monsterGameObjectArray.Length; j++)
                 {
-                    Debug.Log(systemPlayerData.monsterGameObjectArray[j] == gameObject);
-                    Debug.Log(gameObject.TryGetComponent(out BeautySuit _));
                     if (systemPlayerData.monsterGameObjectArray[j] == gameObject && gameObject.TryGetComponent(out BeautySuit _))
                     {
-                        Debug.Log("判断是否是己方回合，有玉衣");
                         return true;
                     }
                 }

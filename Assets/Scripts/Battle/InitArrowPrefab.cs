@@ -8,6 +8,9 @@ public class InitArrowPrefab : MonoBehaviour
 
     public void Init(Vector3 startPosition, Vector3 endPosition)
     {
+        Debug.Log(startPosition.x + ", " + startPosition.y + ", " + endPosition.z);
+        Debug.Log(endPosition.x + ", " + endPosition.y + ", " + endPosition.z);
+
         image.rectTransform.position = startPosition;
 
         image.rectTransform.sizeDelta = new(Vector3.Distance(startPosition, endPosition), image.rectTransform.sizeDelta.y);

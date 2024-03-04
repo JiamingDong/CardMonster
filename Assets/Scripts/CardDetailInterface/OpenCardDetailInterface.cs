@@ -41,7 +41,6 @@ public class OpenCardDetailInterface : MonoBehaviour, IPointerClickHandler, IPoi
     {
         Vector3 mousePosition2 = Input.mousePosition;
         float l = (mousePosition2.x - mousePosition.x) * (mousePosition2.x - mousePosition.x) + (mousePosition2.y - mousePosition.y) * (mousePosition2.y - mousePosition.y);
-        Debug.Log(l);
         if (Time.unscaledTime - unscaledTime > 0.5 && l < 2500)
         {
             OpenInterface();

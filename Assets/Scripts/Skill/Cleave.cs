@@ -12,6 +12,7 @@ public class Cleave : SkillInBattle
     [TriggerEffect(@"^Replace\.Armor\.Effect2$", "Compare1")]
     public IEnumerator Effect1(ParameterNode parameterNode)
     {
+        Debug.Log("[¹á´©]----¿ªÊ¼");
         Dictionary<string, object> result = parameterNode.Parent.result;
         Dictionary<string, object> parameter = parameterNode.parameter;
         int damageValue = (int)parameter["DamageValue"];
@@ -26,6 +27,7 @@ public class Cleave : SkillInBattle
 
         IEnumerator HurtMonster(ParameterNode parameterNode)
         {
+            Debug.Log("[¹á´©]ÉËº¦----¿ªÊ¼");
             Dictionary<string, object> parameter = parameterNode.parameter;
             GameObject monsterBeHurt = (GameObject)parameter["EffectTarget"];
             int damageValue = (int)parameter["DamageValue"];
@@ -86,7 +88,7 @@ public class Cleave : SkillInBattle
                     parameterNode.result.Add("ExcessiveDamage", surplusDamageValue - currentHp);
                 }
             }
-            //yield return null;
+            Debug.Log("[¹á´©]ÉËº¦----½áÊø");
         }
 
         string fullName = "GameAction.HurtMonster";
@@ -103,7 +105,7 @@ public class Cleave : SkillInBattle
         nodeInMethodList[index] = parameterNode1;
 
         yield return battleProcess.StartCoroutine(battleProcess.ExecuteEffect(gameAction, fullName, parameterNode1, HurtMonster));
-        //yield return null;
+        Debug.Log("[¹á´©]----½áÊø");
     }
 
     /// <summary>

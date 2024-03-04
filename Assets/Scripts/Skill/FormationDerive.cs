@@ -33,9 +33,6 @@ public class FormationDerive : SkillInBattle
     [TriggerEffect(@"^After\.MonsterInBattle\.AddSkill$", "Compare1")]
     public IEnumerator Effect1(ParameterNode parameterNode)
     {
-        Dictionary<string, object> parameter = parameterNode.parameter;
-        int skillValue = (int)parameter["SkillValue"];
-
         BattleProcess battleProcess = BattleProcess.GetInstance();
 
         MonsterInBattle monsterInBattle = gameObject.GetComponent<MonsterInBattle>();
@@ -155,47 +152,17 @@ public class FormationDerive : SkillInBattle
 
         MonsterInBattle monsterInBattle = gameObject.GetComponent<MonsterInBattle>();
 
-        if (skillName == "melee")
-        {
-            Melee melee = gameObject.GetComponent<Melee>();
-            Dictionary<string, int> sourceAndValue = melee.sourceAndValue;
+        Dictionary<string, object> parameter1 = new();
+        parameter1.Add("LaunchedSkill", this);
+        parameter1.Add("EffectName", "Effect2");
+        parameter1.Add("SkillName", skillName);
+        parameter1.Add("SkillValue", GetSkillValue());
+        parameter1.Add("Source", "Skill.FormationDerive.Effect1");
 
-            if (sourceAndValue.Count == 1)
-            {
-                Dictionary<string, object> parameter1 = new();
-                parameter1.Add("LaunchedSkill", this);
-                parameter1.Add("EffectName", "Effect2");
-                parameter1.Add("SkillName", "melee");
-                parameter1.Add("SkillValue", GetSkillValue());
-                parameter1.Add("Source", "Skill.FormationDerive.Effect1");
+        ParameterNode parameterNode1 = parameterNode.AddNodeInMethod();
+        parameterNode1.parameter = parameter1;
 
-                ParameterNode parameterNode1 = parameterNode.AddNodeInMethod();
-                parameterNode1.parameter = parameter1;
-
-                yield return battleProcess.StartCoroutine(monsterInBattle.DoAction(monsterInBattle.AddSkill, parameterNode1));
-            }
-        }
-
-        if (skillName == "ranged")
-        {
-            Ranged ranged = gameObject.GetComponent<Ranged>();
-            Dictionary<string, int> sourceAndValue = ranged.sourceAndValue;
-
-            if (sourceAndValue.Count == 1)
-            {
-                Dictionary<string, object> parameter1 = new();
-                parameter1.Add("LaunchedSkill", this);
-                parameter1.Add("EffectName", "Effect2");
-                parameter1.Add("SkillName", "ranged");
-                parameter1.Add("SkillValue", GetSkillValue());
-                parameter1.Add("Source", "Skill.FormationDerive.Effect1");
-
-                ParameterNode parameterNode1 = parameterNode.AddNodeInMethod();
-                parameterNode1.parameter = parameter1;
-
-                yield return battleProcess.StartCoroutine(monsterInBattle.DoAction(monsterInBattle.AddSkill, parameterNode1));
-            }
-        }
+        yield return battleProcess.StartCoroutine(monsterInBattle.DoAction(monsterInBattle.AddSkill, parameterNode1));
     }
 
     /// <summary>
@@ -238,33 +205,16 @@ public class FormationDerive : SkillInBattle
 
         MonsterInBattle monsterInBattle = gameObject.GetComponent<MonsterInBattle>();
 
-        if (skillName == "melee")
-        {
-            Dictionary<string, object> parameter1 = new();
-            parameter1.Add("LaunchedSkill", this);
-            parameter1.Add("EffectName", "Effect3");
-            parameter1.Add("SkillName", "melee");
-            parameter1.Add("Source", "Skill.FormationDerive.Effect1");
+        Dictionary<string, object> parameter1 = new();
+        parameter1.Add("LaunchedSkill", this);
+        parameter1.Add("EffectName", "Effect3");
+        parameter1.Add("SkillName", skillName);
+        parameter1.Add("Source", "Skill.FormationDerive.Effect1");
 
-            ParameterNode parameterNode1 = parameterNode.AddNodeInMethod();
-            parameterNode1.parameter = parameter1;
+        ParameterNode parameterNode1 = parameterNode.AddNodeInMethod();
+        parameterNode1.parameter = parameter1;
 
-            yield return battleProcess.StartCoroutine(monsterInBattle.DoAction(monsterInBattle.DeleteSkillSource, parameterNode1));
-        }
-
-        if (skillName == "ranged")
-        {
-            Dictionary<string, object> parameter1 = new();
-            parameter1.Add("LaunchedSkill", this);
-            parameter1.Add("EffectName", "Effect3");
-            parameter1.Add("SkillName", "ranged");
-            parameter1.Add("Source", "Skill.FormationDerive.Effect1");
-
-            ParameterNode parameterNode1 = parameterNode.AddNodeInMethod();
-            parameterNode1.parameter = parameter1;
-
-            yield return battleProcess.StartCoroutine(monsterInBattle.DoAction(monsterInBattle.DeleteSkillSource, parameterNode1));
-        }
+        yield return battleProcess.StartCoroutine(monsterInBattle.DoAction(monsterInBattle.DeleteSkillSource, parameterNode1));
     }
 
     /// <summary>

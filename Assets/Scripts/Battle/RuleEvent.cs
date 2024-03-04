@@ -573,11 +573,142 @@ public class RuleEvent : OpportunityEffect
         BattleProcess battleProcess = BattleProcess.GetInstance();
         GameAction gameAction = GameAction.GetInstance();
 
+        Dictionary<string, object> parameter = parameterNode.parameter;
+        //使用手牌的玩家
+        Player player = (Player)parameter["Player"];
+        //目标场上位置，012
+        int battlePanelNumber = (int)parameter["BattlePanelNumber"];
+        //手牌位置，01怪兽，23道具
+        int handPanelNumber = (int)parameter["HandPanelNumber"];
+
+        //使用的卡牌属性
+        Dictionary<string, string> cardData = new();
+
+        //获取使用手牌的玩家的PlayerData
+        PlayerData useCardPlayerData = null;
+        for (int i = 0; i < battleProcess.systemPlayerData.Length; i++)
+        {
+            PlayerData playerData = battleProcess.systemPlayerData[i];
+
+            if (playerData.perspectivePlayer == player)
+            {
+                useCardPlayerData = playerData;
+
+                cardData = handPanelNumber < 2 ? playerData.handMonster[handPanelNumber] : playerData.handItem[handPanelNumber - 2];
+
+                string cardFlags = cardData["CardFlags"];
+                if (cardFlags != null && cardFlags != "")
+                {
+                    List<string> flags = JsonConvert.DeserializeObject<List<string>>(cardData["CardFlags"]);
+                    if (flags.Contains("2"))
+                    {
+                        Dictionary<string, string> kind = JsonConvert.DeserializeObject<Dictionary<string, string>>(cardData["CardKind"]);
+                        Dictionary<string, int> skill = JsonConvert.DeserializeObject<Dictionary<string, int>>(cardData["CardSkill"]);
+                        Dictionary<string, Dictionary<string, object>> eliteSkill = JsonConvert.DeserializeObject<Dictionary<string, Dictionary<string, object>>>(cardData["CardEliteSkill"]);
+
+                        int cardIndex = (int)parameter["CardIndexBeSelect"];
+                        switch (cardIndex)
+                        {
+                            case 0:
+                                Dictionary<string, string> newKind1 = new();
+                                newKind1.Add("leftKind", kind["leftKind"]);
+                                cardData["CardKind"] = JsonConvert.SerializeObject(newKind1);
+
+                                Dictionary<string, int> newSkill1 = new();
+                                newSkill1.Add(eliteSkill["leftSkill"]["name"].ToString(), Convert.ToInt32(eliteSkill["leftSkill"]["value"].ToString()));
+                                foreach (var item in skill)
+                                {
+                                    newSkill1.Add(item.Key, item.Value);
+                                }
+                                cardData["CardSkill"] = JsonConvert.SerializeObject(newSkill1);
+
+                                cardData["CardEliteSkill"] = null;
+
+                                break;
+                            default:
+                                Dictionary<string, string> newKind2 = new();
+                                newKind2.Add("leftKind", kind["rightKind"]);
+                                cardData["CardKind"] = JsonConvert.SerializeObject(newKind2);
+
+                                Dictionary<string, int> newSkill2 = new();
+                                newSkill2.Add(eliteSkill["rightSkill"]["name"].ToString(), Convert.ToInt32(eliteSkill["rightSkill"]["value"].ToString()));
+                                foreach (var item in skill)
+                                {
+                                    newSkill2.Add(item.Key, item.Value);
+                                }
+                                cardData["CardSkill"] = JsonConvert.SerializeObject(newSkill2);
+
+                                cardData["CardEliteSkill"] = null;
+
+                                break;
+                        }
+                    }
+                    else if (flags.Contains("5"))
+                    {
+                        Dictionary<string, string> kind = JsonConvert.DeserializeObject<Dictionary<string, string>>(cardData["CardKind"]);
+                        Dictionary<string, int> skill = JsonConvert.DeserializeObject<Dictionary<string, int>>(cardData["CardSkill"]);
+                        Dictionary<string, Dictionary<string, object>> eliteSkill = JsonConvert.DeserializeObject<Dictionary<string, Dictionary<string, object>>>(cardData["CardEliteSkill"]);
+
+                        string monsterKind = playerData.monsterGameObjectArray[battlePanelNumber].GetComponent<MonsterInBattle>().kind;
+
+                        if (kind["leftKind"] == monsterKind)
+                        {
+                            Dictionary<string, string> newKind1 = new();
+                            newKind1.Add("leftKind", kind["leftKind"]);
+                            cardData["CardKind"] = JsonConvert.SerializeObject(newKind1);
+
+                            Dictionary<string, int> newSkill1 = new();
+                            newSkill1.Add(eliteSkill["leftSkill"]["name"].ToString(), Convert.ToInt32(eliteSkill["leftSkill"]["value"].ToString()));
+                            foreach (var item in skill)
+                            {
+                                newSkill1.Add(item.Key, item.Value);
+                            }
+                            cardData["CardSkill"] = JsonConvert.SerializeObject(newSkill1);
+
+                            cardData["CardEliteSkill"] = null;
+                        }
+                        else if (kind["rightKind"] == monsterKind)
+                        {
+                            Dictionary<string, string> newKind2 = new();
+                            newKind2.Add("leftKind", kind["rightKind"]);
+                            cardData["CardKind"] = JsonConvert.SerializeObject(newKind2);
+
+                            Dictionary<string, int> newSkill2 = new();
+                            newSkill2.Add(eliteSkill["rightSkill"]["name"].ToString(), Convert.ToInt32(eliteSkill["rightSkill"]["value"].ToString()));
+                            foreach (var item in skill)
+                            {
+                                newSkill2.Add(item.Key, item.Value);
+                            }
+                            cardData["CardSkill"] = JsonConvert.SerializeObject(newSkill2);
+
+                            cardData["CardEliteSkill"] = null;
+                        }
+                    }
+                }
+            }
+        }
+
+        //使用牌
+        Dictionary<string, object> parameter1 = new();
+        parameter1.Add("Player", player);
+        parameter1.Add("BattlePanelNumber", parameter["BattlePanelNumber"]);
+        parameter1.Add("TargetPlayer", parameter["TargetPlayer"]);
+        parameter1.Add("CardData", cardData);
+
         ParameterNode parameterNode1 = parameterNode.AddNodeInMethod();
-        parameterNode1.parameter = parameterNode.parameter;
+        parameterNode1.parameter = parameter1;
 
         yield return battleProcess.StartCoroutine(gameAction.DoAction(gameAction.UseACard, parameterNode1));
-        yield return null;
+
+        //销毁对应手牌
+        Dictionary<string, object> parameter6 = new();
+        parameter6.Add("HandPanelNumber", handPanelNumber);
+        parameter6.Add("Player", player);
+
+        ParameterNode parameterNode6 = parameterNode.AddNodeInMethod();
+        parameterNode6.parameter = parameter6;
+
+        yield return battleProcess.StartCoroutine(gameAction.DoAction(gameAction.DestroyAHandCard, parameterNode6));
     }
 
     /// <summary>

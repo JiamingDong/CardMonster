@@ -277,7 +277,7 @@ public class CardForShow : MonoBehaviour
                 {
                     skillImage[basicNumber].texture = LoadAssetBundle.cardAssetBundle.LoadAsset<Texture>(skillresult["SkillImageName"]);
                     skillBackgroundImage[basicNumber].texture = LoadAssetBundle.cardAssetBundle.LoadAsset<Texture>("BasicSkillBackground");
-                    skillValueText[basicNumber].text = skillList[i].Value == 0 ? null : skillList[i].Value.ToString();
+                    skillValueText[basicNumber].text = skillList[i].Value.ToString();
                     basicNumber++;
                 }
             }
@@ -287,7 +287,14 @@ public class CardForShow : MonoBehaviour
                 {
                     skillImage[nonNasicNumber].texture = LoadAssetBundle.cardAssetBundle.LoadAsset<Texture>(skillresult["SkillImageName"]);
                     skillBackgroundImage[nonNasicNumber].texture = LoadAssetBundle.cardAssetBundle.LoadAsset<Texture>("NonBasicSkillBackgroundall");
-                    skillValueText[nonNasicNumber].text = skillList[i].Value == 0 ? null : skillList[i].Value.ToString();
+                    if (skillresult["TypeInBattle"] == "value")
+                    {
+                        skillValueText[nonNasicNumber].text = skillList[i].Value.ToString();
+                    }
+                    else
+                    {
+                        skillValueText[nonNasicNumber].text = null;
+                    }
                     nonNasicNumber++;
                 }
             }

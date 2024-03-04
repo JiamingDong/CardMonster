@@ -1,15 +1,15 @@
 ManifestFileVersion: 0
-CRC: 2650591514
+CRC: 608917143
 Hashes:
   AssetFileHash:
     serializedVersion: 2
-    Hash: 30ee0f3e4922f2a9e2a29989c9667df4
+    Hash: 237f2cf1143869779f18695926eae8f9
   TypeTreeHash:
     serializedVersion: 2
     Hash: 2d8df09e698f722ada1caa03d3413830
   IncrementalBuildHash:
     serializedVersion: 2
-    Hash: 30ee0f3e4922f2a9e2a29989c9667df4
+    Hash: 237f2cf1143869779f18695926eae8f9
 HashAppended: 0
 ClassTypes:
 - Class: 28
@@ -29,6 +29,7 @@ Assets:
 - Assets/Image/Card/CardBackground/BackgroundLfortune.png
 - Assets/Image/Card/Skill/blessing.png
 - Assets/Image/Card/CardFrame/coloricon_nature.png
+- Assets/Image/Card/Skill/degradation.png
 - Assets/Image/Card/Skill/trial.png
 - Assets/Image/Card/Skill/debuff_entangle.png
 - Assets/Image/Card/Skill/growth.png
@@ -227,6 +228,7 @@ Assets:
 - Assets/Image/Card/Skill/hero_skill.png
 - Assets/Image/Card/Skill/light_immunity_all.png
 - Assets/Image/Card/Skill/power_of_arcane.png
+- Assets/Image/Card/Skill/degradation_derive.png
 - Assets/Image/Card/CardBackground/BackgroundRchaos.png
 - Assets/Image/Card/Skill/burst.png
 - Assets/Image/Card/Skill/crystal.png
@@ -286,6 +288,7 @@ Assets:
 - Assets/Image/Card/Skill/perish_together.png
 - Assets/Image/Card/Skill/heal_all.png
 - Assets/Image/Card/Skill/equality_balance.png
+- Assets/Image/Card/Skill/sacrifice_token.png
 - Assets/Image/Card/Skill/entangle.png
 - Assets/Image/Card/Skill/battlecombo_notarat.png
 - Assets/Image/Card/Skill/antimagic_barrier.png

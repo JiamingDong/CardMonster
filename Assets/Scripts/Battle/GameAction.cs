@@ -56,7 +56,6 @@ public class GameAction : MonoBehaviour
         GameAction gameAction = GetInstance();
         BattleProcess battleProcess = BattleProcess.GetInstance();
 
-        //Dictionary<string, object> cardDataInBattle = (Dictionary<string, object>)parameter["CardDataInBattle"];
         //使用手牌的玩家
         Player player = (Player)parameter["Player"];
         //目标场上位置，012
@@ -64,10 +63,9 @@ public class GameAction : MonoBehaviour
         //手牌目标玩家
         Player targetPlayer = (Player)parameter["TargetPlayer"];
         //手牌位置，01怪兽，23道具
-        int handPanelNumber = (int)parameter["HandPanelNumber"];
-
+        //int handPanelNumber = (int)parameter["HandPanelNumber"];
         //使用的卡牌属性
-        Dictionary<string, string> cardData = new();
+        Dictionary<string, string> cardData = (Dictionary<string, string>)parameter["CardData"];
 
         //获取使用手牌的玩家的PlayerData
         PlayerData useCardPlayerData = null;
@@ -80,98 +78,98 @@ public class GameAction : MonoBehaviour
             {
                 useCardPlayerData = playerData;
 
-                cardData = handPanelNumber < 2 ? playerData.handMonster[handPanelNumber] : playerData.handItem[handPanelNumber - 2];
-                //Debug.Log(cardData["CardName"]);
-                string cardFlags = cardData["CardFlags"];
-                if (cardFlags != null && cardFlags != "")
-                {
-                    List<string> flags = JsonConvert.DeserializeObject<List<string>>(cardData["CardFlags"]);
-                    if (flags.Contains("2"))
-                    {
-                        Dictionary<string, string> kind = JsonConvert.DeserializeObject<Dictionary<string, string>>(cardData["CardKind"]);
-                        Dictionary<string, int> skill = JsonConvert.DeserializeObject<Dictionary<string, int>>(cardData["CardSkill"]);
-                        //Debug.Log(cardData["CardEliteSkill"]);
-                        Dictionary<string, Dictionary<string, object>> eliteSkill = JsonConvert.DeserializeObject<Dictionary<string, Dictionary<string, object>>>(cardData["CardEliteSkill"]);
+                //cardData = handPanelNumber < 2 ? playerData.handMonster[handPanelNumber] : playerData.handItem[handPanelNumber - 2];
+                ////Debug.Log(cardData["CardName"]);
+                //string cardFlags = cardData["CardFlags"];
+                //if (cardFlags != null && cardFlags != "")
+                //{
+                //    List<string> flags = JsonConvert.DeserializeObject<List<string>>(cardData["CardFlags"]);
+                //    if (flags.Contains("2"))
+                //    {
+                //        Dictionary<string, string> kind = JsonConvert.DeserializeObject<Dictionary<string, string>>(cardData["CardKind"]);
+                //        Dictionary<string, int> skill = JsonConvert.DeserializeObject<Dictionary<string, int>>(cardData["CardSkill"]);
+                //        //Debug.Log(cardData["CardEliteSkill"]);
+                //        Dictionary<string, Dictionary<string, object>> eliteSkill = JsonConvert.DeserializeObject<Dictionary<string, Dictionary<string, object>>>(cardData["CardEliteSkill"]);
 
-                        int cardIndex = (int)parameter["CardIndexBeSelect"];
-                        switch (cardIndex)
-                        {
-                            case 0:
-                                Dictionary<string, string> newKind1 = new();
-                                newKind1.Add("leftKind", kind["leftKind"]);
-                                cardData["CardKind"] = JsonConvert.SerializeObject(newKind1);
+                //        int cardIndex = (int)parameter["CardIndexBeSelect"];
+                //        switch (cardIndex)
+                //        {
+                //            case 0:
+                //                Dictionary<string, string> newKind1 = new();
+                //                newKind1.Add("leftKind", kind["leftKind"]);
+                //                cardData["CardKind"] = JsonConvert.SerializeObject(newKind1);
 
-                                Dictionary<string, int> newSkill1 = new();
-                                newSkill1.Add(eliteSkill["leftSkill"]["name"].ToString(), Convert.ToInt32(eliteSkill["leftSkill"]["value"].ToString()));
-                                foreach (var item in skill)
-                                {
-                                    newSkill1.Add(item.Key, item.Value);
-                                }
-                                cardData["CardSkill"] = JsonConvert.SerializeObject(newSkill1);
+                //                Dictionary<string, int> newSkill1 = new();
+                //                newSkill1.Add(eliteSkill["leftSkill"]["name"].ToString(), Convert.ToInt32(eliteSkill["leftSkill"]["value"].ToString()));
+                //                foreach (var item in skill)
+                //                {
+                //                    newSkill1.Add(item.Key, item.Value);
+                //                }
+                //                cardData["CardSkill"] = JsonConvert.SerializeObject(newSkill1);
 
-                                cardData["CardEliteSkill"] = null;
+                //                cardData["CardEliteSkill"] = null;
 
-                                break;
-                            default:
-                                Dictionary<string, string> newKind2 = new();
-                                newKind2.Add("leftKind", kind["rightKind"]);
-                                cardData["CardKind"] = JsonConvert.SerializeObject(newKind2);
+                //                break;
+                //            default:
+                //                Dictionary<string, string> newKind2 = new();
+                //                newKind2.Add("leftKind", kind["rightKind"]);
+                //                cardData["CardKind"] = JsonConvert.SerializeObject(newKind2);
 
-                                Dictionary<string, int> newSkill2 = new();
-                                newSkill2.Add(eliteSkill["rightSkill"]["name"].ToString(), Convert.ToInt32(eliteSkill["rightSkill"]["value"].ToString()));
-                                foreach (var item in skill)
-                                {
-                                    newSkill2.Add(item.Key, item.Value);
-                                }
-                                cardData["CardSkill"] = JsonConvert.SerializeObject(newSkill2);
+                //                Dictionary<string, int> newSkill2 = new();
+                //                newSkill2.Add(eliteSkill["rightSkill"]["name"].ToString(), Convert.ToInt32(eliteSkill["rightSkill"]["value"].ToString()));
+                //                foreach (var item in skill)
+                //                {
+                //                    newSkill2.Add(item.Key, item.Value);
+                //                }
+                //                cardData["CardSkill"] = JsonConvert.SerializeObject(newSkill2);
 
-                                cardData["CardEliteSkill"] = null;
+                //                cardData["CardEliteSkill"] = null;
 
-                                break;
-                        }
-                    }
-                    else if (flags.Contains("5"))
-                    {
-                        Dictionary<string, string> kind = JsonConvert.DeserializeObject<Dictionary<string, string>>(cardData["CardKind"]);
-                        Dictionary<string, int> skill = JsonConvert.DeserializeObject<Dictionary<string, int>>(cardData["CardSkill"]);
-                        Dictionary<string, Dictionary<string, object>> eliteSkill = JsonConvert.DeserializeObject<Dictionary<string, Dictionary<string, object>>>(cardData["CardEliteSkill"]);
+                //                break;
+                //        }
+                //    }
+                //    else if (flags.Contains("5"))
+                //    {
+                //        Dictionary<string, string> kind = JsonConvert.DeserializeObject<Dictionary<string, string>>(cardData["CardKind"]);
+                //        Dictionary<string, int> skill = JsonConvert.DeserializeObject<Dictionary<string, int>>(cardData["CardSkill"]);
+                //        Dictionary<string, Dictionary<string, object>> eliteSkill = JsonConvert.DeserializeObject<Dictionary<string, Dictionary<string, object>>>(cardData["CardEliteSkill"]);
 
-                        string monsterKind = playerData.monsterGameObjectArray[battlePanelNumber].GetComponent<MonsterInBattle>().kind;
+                //        string monsterKind = playerData.monsterGameObjectArray[battlePanelNumber].GetComponent<MonsterInBattle>().kind;
 
-                        if (kind["leftKind"] == monsterKind)
-                        {
-                            Dictionary<string, string> newKind1 = new();
-                            newKind1.Add("leftKind", kind["leftKind"]);
-                            cardData["CardKind"] = JsonConvert.SerializeObject(newKind1);
+                //        if (kind["leftKind"] == monsterKind)
+                //        {
+                //            Dictionary<string, string> newKind1 = new();
+                //            newKind1.Add("leftKind", kind["leftKind"]);
+                //            cardData["CardKind"] = JsonConvert.SerializeObject(newKind1);
 
-                            Dictionary<string, int> newSkill1 = new();
-                            newSkill1.Add(eliteSkill["leftSkill"]["name"].ToString(), Convert.ToInt32(eliteSkill["leftSkill"]["value"].ToString()));
-                            foreach (var item in skill)
-                            {
-                                newSkill1.Add(item.Key, item.Value);
-                            }
-                            cardData["CardSkill"] = JsonConvert.SerializeObject(newSkill1);
+                //            Dictionary<string, int> newSkill1 = new();
+                //            newSkill1.Add(eliteSkill["leftSkill"]["name"].ToString(), Convert.ToInt32(eliteSkill["leftSkill"]["value"].ToString()));
+                //            foreach (var item in skill)
+                //            {
+                //                newSkill1.Add(item.Key, item.Value);
+                //            }
+                //            cardData["CardSkill"] = JsonConvert.SerializeObject(newSkill1);
 
-                            cardData["CardEliteSkill"] = null;
-                        }
-                        else if (kind["rightKind"] == monsterKind)
-                        {
-                            Dictionary<string, string> newKind2 = new();
-                            newKind2.Add("leftKind", kind["rightKind"]);
-                            cardData["CardKind"] = JsonConvert.SerializeObject(newKind2);
+                //            cardData["CardEliteSkill"] = null;
+                //        }
+                //        else if (kind["rightKind"] == monsterKind)
+                //        {
+                //            Dictionary<string, string> newKind2 = new();
+                //            newKind2.Add("leftKind", kind["rightKind"]);
+                //            cardData["CardKind"] = JsonConvert.SerializeObject(newKind2);
 
-                            Dictionary<string, int> newSkill2 = new();
-                            newSkill2.Add(eliteSkill["rightSkill"]["name"].ToString(), Convert.ToInt32(eliteSkill["rightSkill"]["value"].ToString()));
-                            foreach (var item in skill)
-                            {
-                                newSkill2.Add(item.Key, item.Value);
-                            }
-                            cardData["CardSkill"] = JsonConvert.SerializeObject(newSkill2);
+                //            Dictionary<string, int> newSkill2 = new();
+                //            newSkill2.Add(eliteSkill["rightSkill"]["name"].ToString(), Convert.ToInt32(eliteSkill["rightSkill"]["value"].ToString()));
+                //            foreach (var item in skill)
+                //            {
+                //                newSkill2.Add(item.Key, item.Value);
+                //            }
+                //            cardData["CardSkill"] = JsonConvert.SerializeObject(newSkill2);
 
-                            cardData["CardEliteSkill"] = null;
-                        }
-                    }
-                }
+                //            cardData["CardEliteSkill"] = null;
+                //        }
+                //    }
+                //}
             }
 
             if (playerData.perspectivePlayer == targetPlayer)
@@ -237,15 +235,15 @@ public class GameAction : MonoBehaviour
             yield return StartCoroutine(DoAction(ConsumeEnterBattle, parameterNode5));
         }
 
-        //销毁对应手牌
-        Dictionary<string, object> parameter6 = new();
-        parameter6.Add("HandPanelNumber", handPanelNumber);
-        parameter6.Add("Player", player);
+        ////销毁对应手牌
+        //Dictionary<string, object> parameter6 = new();
+        //parameter6.Add("HandPanelNumber", handPanelNumber);
+        //parameter6.Add("Player", player);
 
-        ParameterNode parameterNode6 = parameterNode.AddNodeInMethod();
-        parameterNode6.parameter = parameter6;
+        //ParameterNode parameterNode6 = parameterNode.AddNodeInMethod();
+        //parameterNode6.parameter = parameter6;
 
-        yield return StartCoroutine(DoAction(DestroyAHandCard, parameterNode6));
+        //yield return StartCoroutine(DoAction(DestroyAHandCard, parameterNode6));
     }
 
     /// <summary>
@@ -1099,6 +1097,7 @@ public class GameAction : MonoBehaviour
     /// </summary>
     public IEnumerator HurtMonster(ParameterNode parameterNode)
     {
+        //Debug.Log("[伤害]----开始");
         Dictionary<string, object> parameter = parameterNode.parameter;
         GameObject monsterBeHurt = (GameObject)parameter["EffectTarget"];
         int damageValue = (int)parameter["DamageValue"];
@@ -1147,7 +1146,7 @@ public class GameAction : MonoBehaviour
             parameterNode.result.Add("ExcessiveDamage", damageValue - currentHp);
         }
 
-        yield return null;
+        //Debug.Log("[伤害]----结束");
     }
 
     /// <summary>
@@ -1300,47 +1299,47 @@ public class GameAction : MonoBehaviour
                 systemPlayerData.canSacrifice = false;
 
                 //记录被献祭卡牌上额外水晶的值
-                if (objectBeSacrificedNumber >= 0 && objectBeSacrificedNumber < 4)
-                {
-                    Dictionary<string, string> handCard = null;
-                    switch (objectBeSacrificedNumber)
-                    {
-                        case 0:
-                            handCard = systemPlayerData.handMonster[0];
-                            break;
-                        case 1:
-                            handCard = systemPlayerData.handMonster[1];
-                            break;
-                        case 2:
-                            handCard = systemPlayerData.handItem[0];
-                            break;
-                        case 3:
-                            handCard = systemPlayerData.handItem[1];
-                            break;
-                    }
+                //if (objectBeSacrificedNumber >= 0 && objectBeSacrificedNumber < 4)
+                //{
+                //    Dictionary<string, string> handCard = null;
+                //    switch (objectBeSacrificedNumber)
+                //    {
+                //        case 0:
+                //            handCard = systemPlayerData.handMonster[0];
+                //            break;
+                //        case 1:
+                //            handCard = systemPlayerData.handMonster[1];
+                //            break;
+                //        case 2:
+                //            handCard = systemPlayerData.handItem[0];
+                //            break;
+                //        case 3:
+                //            handCard = systemPlayerData.handItem[1];
+                //            break;
+                //    }
 
-                    string cardP = handCard["CardSkill"];
-                    if (!string.IsNullOrEmpty(cardP))
-                    {
-                        Dictionary<string, object> pd = JsonConvert.DeserializeObject<Dictionary<string, object>>(cardP);
+                //    string cardP = handCard["CardSkill"];
+                //    if (!string.IsNullOrEmpty(cardP))
+                //    {
+                //        Dictionary<string, object> pd = JsonConvert.DeserializeObject<Dictionary<string, object>>(cardP);
 
-                        if (pd.ContainsKey("crystal"))
-                        {
-                            int skillValue = Convert.ToInt32(pd["crystal"]);
+                //        if (pd.ContainsKey("crystal"))
+                //        {
+                //            int skillValue = Convert.ToInt32(pd["crystal"]);
 
-                            result["CrystalSkillValue"] = skillValue;
-                        }
-                    }
-                }
-                else
-                {
-                    int t = objectBeSacrificedNumber - 4;
+                //            result["CrystalSkillValue"] = skillValue;
+                //        }
+                //    }
+                //}
+                //else
+                //{
+                //    int t = objectBeSacrificedNumber - 4;
 
-                    if (systemPlayerData.monsterGameObjectArray[t].TryGetComponent(out Crystal crystal))
-                    {
-                        result["CrystalSkillValue"] = crystal.GetSkillValue();
-                    }
-                }
+                //    if (systemPlayerData.monsterGameObjectArray[t].TryGetComponent(out Crystal crystal))
+                //    {
+                //        result["CrystalSkillValue"] = crystal.GetSkillValue();
+                //    }
+                //}
 
                 //被献祭的是手牌怪兽
                 if (objectBeSacrificedNumber >= 0 && objectBeSacrificedNumber <= 1)
@@ -1586,6 +1585,59 @@ public class GameAction : MonoBehaviour
                     skillList.Sort((a, b) => { return Convert.ToInt32(battleProcess.skillPriority[a.GetType().Name]) > Convert.ToInt32(battleProcess.skillPriority[b.GetType().Name]) ? 1 : -1; });
                 }
 
+            }
+        }
+    }
+
+    /// <summary>
+    /// 删除技能的某个来源
+    /// </summary>
+    /// <param name="skillName">技能类名</param>
+    /// <param name="source">来源</param>
+    public IEnumerator DeletePlayerSkillSource(ParameterNode parameterNode)
+    {
+        Dictionary<string, object> parameter = parameterNode.parameter;
+        Player player = (Player)parameter["Player"];
+        string skillName = (string)parameter["SkillName"];
+        string source = (string)parameter["Source"];
+        object launchedSkill = parameter["LaunchedSkill"];
+
+        BattleProcess battleProcess = BattleProcess.GetInstance();
+
+        var skillConfig = Database.cardMonster.Query("AllSkillConfig", "and SkillEnglishName='" + skillName + "'")[0];
+        var skillClassName = skillConfig["SkillClassName"];
+        var skillType = skillConfig["TypeInBattle"];
+
+        for (int i = 0; i < battleProcess.systemPlayerData.Length; i++)
+        {
+            PlayerData playerData = battleProcess.systemPlayerData[i];
+
+            if (playerData.perspectivePlayer == player)
+            {
+                List<SkillInBattle> skillList = playerData.skillList;
+                //先看看是否已有这个技能
+                foreach (SkillInBattle skillInBattle in skillList)
+                {
+                    if (skillInBattle.GetType().Name.Equals(skillClassName))
+                    {
+                        skillInBattle.RemoveValue(source);
+
+                        int skillValue = skillInBattle.GetSkillValue();
+
+                        yield return null;
+
+                        if (skillValue < 0)
+                        {
+                            skillList.Remove(skillInBattle);
+                            Destroy(skillInBattle);
+
+                            //排序
+                            skillList.Sort((a, b) => { return Convert.ToInt32(battleProcess.skillPriority[a.GetType().Name]) > Convert.ToInt32(battleProcess.skillPriority[b.GetType().Name]) ? 1 : -1; });
+                        }
+
+                        yield break;
+                    }
+                }
             }
         }
     }

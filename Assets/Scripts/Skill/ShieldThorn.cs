@@ -11,6 +11,7 @@ public class ShieldThorn : SkillInBattle
     [TriggerEffect(@"^After\.GameAction\.HurtMonster$", "Compare1")]
     public IEnumerator Effect1(ParameterNode parameterNode)
     {
+        Debug.Log("[¶Ü´Ì]----¿ªÊ¼");
         var parameter = parameterNode.parameter;
         SkillInBattle skillInBattle = (SkillInBattle)parameter["LaunchedSkill"];
 
@@ -30,6 +31,7 @@ public class ShieldThorn : SkillInBattle
         parameterNode1.parameter = damageParameter;
 
         yield return battleProcess.StartCoroutine(gameAction.DoAction(gameAction.HurtMonster, parameterNode1));
+        Debug.Log("[¶Ü´Ì]----½áÊø");
     }
 
     /// <summary>

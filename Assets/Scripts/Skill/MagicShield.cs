@@ -12,15 +12,11 @@ public class MagicShield : SkillInBattle
     public IEnumerator Effect1(ParameterNode parameterNode)
     {
         Dictionary<string, object> parameter = parameterNode.parameter;
-        GameObject effectTarget = (GameObject)parameter["EffectTarget"];
+        int damageValue = (int)parameter["DamageValue"];
 
-        if (effectTarget == gameObject)
-        {
-            int damageValue = (int)parameter["DamageValue"];
-            parameter["DamageValue"] = damageValue - GetSkillValue();
-        }
+        parameter["DamageValue"] = damageValue - GetSkillValue();
+
         yield break;
-        //yield return null;
     }
 
     /// <summary>

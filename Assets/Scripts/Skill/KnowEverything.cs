@@ -31,20 +31,33 @@ public class KnowEverything : SkillInBattle
         BattleProcess battleProcess = BattleProcess.GetInstance();
         GameAction gameAction = GameAction.GetInstance();
 
-        Dictionary<string, object> parameter2 = new();
-        parameter2.Add("LaunchedSkill", this);
-        parameter2.Add("EffectName", "Effect1");
-        parameter2.Add("Player", Player.Ally);
-        parameter2.Add("SkillName", "know_everything_derive");
-        parameter2.Add("SkillValue", launchMark);
-        parameter2.Add("Source", "Skill.KnowEverything.Effect1");
+        for (int i = 0; i < battleProcess.systemPlayerData.Length; i++)
+        {
+            PlayerData systemPlayerData = battleProcess.systemPlayerData[i];
 
-        ParameterNode parameterNode2 = parameterNode.AddNodeInMethod();
-        parameterNode2.parameter = parameter2;
+            for (int j = 0; j < systemPlayerData.monsterGameObjectArray.Length; j++)
+            {
+                if (systemPlayerData.monsterGameObjectArray[j] == gameObject)
+                {
+                    Dictionary<string, object> parameter2 = new();
+                    parameter2.Add("LaunchedSkill", this);
+                    parameter2.Add("EffectName", "Effect1");
+                    parameter2.Add("Player", systemPlayerData.perspectivePlayer);
+                    parameter2.Add("SkillName", "know_everything_derive");
+                    parameter2.Add("SkillValue", launchMark);
+                    parameter2.Add("Source", "Skill.KnowEverything.Effect1");
 
-        yield return battleProcess.StartCoroutine(gameAction.DoAction(gameAction.AddPlayerSkill, parameterNode2));
+                    ParameterNode parameterNode2 = parameterNode.AddNodeInMethod();
+                    parameterNode2.parameter = parameter2;
 
-        launchMark = 0;
+                    yield return battleProcess.StartCoroutine(gameAction.DoAction(gameAction.AddPlayerSkill, parameterNode2));
+
+                    launchMark = 0;
+
+                    yield break;
+                }
+            }
+        }
     }
 
     /// <summary>
